@@ -48,22 +48,46 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Atomic Changes: Modify only one small piece (one class or method) at a time.
 - TDD Loop: Follow the Red → Green → Refactor cycle. All tests must pass after every single change.
 
-### README Development Log
+### README Development Log Rules
 
-After every fix or feature task, append an entry to the **"AI-Assisted Development Log"** section in `README.md` using this format:
+After every task, append an entry to the **"AI-Assisted Development Log"** section in `README.md`.
+(Entries accumulate in chronological order — newest at the bottom.)
 
-```
-### [YYYY-MM-DD] 작업 제목
+---
 
-**문제 정의**
-(what the problem was)
+#### 1. Problem Definition
 
-**AI와의 상호작용**
-(what was proposed, what decision the user made)
+State in one sentence what you intended to solve **before** touching the code.
 
-**결과**
-(what changed)
-```
+| | Example |
+|---|---|
+| ❌ Bad | "Improved the code." |
+| ✅ Good | "Eliminate N+1 queries in the order lookup API to improve response time." |
+
+---
+
+#### 2. Interaction Timeline (Step-by-Step)
+
+Record each exchange between you and the AI in the following format.
+
+- **Step 1**: [Your prompt] → [AI's proposal] → [Your judgment / decision]
+- **Step 2**: [Follow-up or correction] → [AI's refined proposal] → [Final decision]
+
+Rules:
+- Repeat steps to match the actual number of exchanges (if it ended in one round, write Step 1 only).
+- Even if you accepted the AI's suggestion as-is, add one line explaining **why you accepted it**.
+- If you rejected it, leave one line explaining **why you rejected it**.
+
+---
+
+#### 3. Result & Evidence
+
+Summarize what changed and provide proof that it actually works.
+
+- **With tests**: Describe the change and state the test outcome.
+    - e.g., *"Refactored 1 query method in `OrderService`. All 3 integration tests passed."*
+- **Without tests**: Briefly describe how you verified it manually and what the outcome was.
+    - e.g., *"Manually called the endpoint via Postman. Response time dropped from 320ms to 45ms."*
 
 ### Architecture Decision Record (ADR)
 Create an ADR entry in README.md if:
