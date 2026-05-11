@@ -20,9 +20,9 @@ public class CategoryController {
     private final CategoryRepository categoryRepository;
     private final CategoryService categoryService;
 
-    public CategoryController(CategoryRepository categoryRepository, CategoryService categoryService) {
-        this.categoryRepository = categoryRepository;
+    public CategoryController(CategoryService categoryService, CategoryRepository categoryRepository) {
         this.categoryService = categoryService;
+        this.categoryRepository = categoryRepository;
     }
 
     @GetMapping
@@ -32,9 +32,9 @@ public class CategoryController {
 
     @PostMapping
     public ResponseEntity<CategoryResponse> createCategory(@Valid @RequestBody CategoryRequest request) {
-        Category saved = categoryRepository.save(request.toEntity());
-        return ResponseEntity.created(URI.create("/api/categories/" + saved.getId()))
-            .body(CategoryResponse.from(saved));
+        CategoryResponse response = categoryService.create(request);
+        return ResponseEntity.created(URI.create("/api/categories/" + response.id()))
+            .body(response);
     }
 
     @PutMapping("/{id}")

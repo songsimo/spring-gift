@@ -9,7 +9,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 
+import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
 @ExtendWith(MockitoExtension.class)
@@ -34,5 +38,19 @@ class CategoryServiceTest {
         assertThat(result).hasSize(2)
                 .extracting("name")
                 .containsExactly("전자기기", "패션");
+    }
+
+    @Test
+    @DisplayName("카테고리 생성 시 저장된 카테고리를 반환한다")
+    void create_returnsSavedCategory() {
+        CategoryRequest request = new CategoryRequest("식품", "#32CD32", "https://example.com/img.png", "먹거리");
+        given(categoryRepository.save(any())).willReturn(
+            new Category(1L, "식품", "#32CD32", "https://example.com/img.png", "먹거리")
+        );
+
+        CategoryResponse result = categoryService.create(request);
+
+        assertThat(result.name()).isEqualTo("식품");
+        assertThat(result.color()).isEqualTo("#32CD32");
     }
 }
