@@ -53,4 +53,28 @@ class CategoryServiceTest {
         assertThat(result.name()).isEqualTo("식품");
         assertThat(result.color()).isEqualTo("#32CD32");
     }
+
+    @Test
+    @DisplayName("존재하는 카테고리 수정 시 변경된 카테고리를 반환한다")
+    void update_existingCategory_returnsUpdated() {
+        Category existing = new Category(1L, "전자기기", "#1E90FF", "https://example.com/img.png", "전자제품");
+        CategoryRequest request = new CategoryRequest("가전", "#000000", "https://example.com/new.png", "가전제품");
+        given(categoryRepository.findById(1L)).willReturn(Optional.of(existing));
+        given(categoryRepository.save(any())).willReturn(existing);
+
+        CategoryResponse result = categoryService.update(1L, request);
+
+        assertThat(result.name()).isEqualTo("가전");
+        assertThat(result.color()).isEqualTo("#000000");
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 카테고리 수정 시 예외가 발생한다")
+    void update_nonExistingCategory_throwsException() {
+        CategoryRequest request = new CategoryRequest("가전", "#000000", "https://example.com/new.png", null);
+        given(categoryRepository.findById(999L)).willReturn(Optional.empty());
+
+        assertThatThrownBy(() -> categoryService.update(999L, request))
+            .isInstanceOf(IllegalArgumentException.class);
+    }
 }

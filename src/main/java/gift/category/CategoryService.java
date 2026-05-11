@@ -22,4 +22,12 @@ public class CategoryService {
         Category saved = categoryRepository.save(request.toEntity());
         return CategoryResponse.from(saved);
     }
+
+    public CategoryResponse update(Long id, CategoryRequest request) {
+        Category category = categoryRepository.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("Category not found: " + id));
+        category.update(request.name(), request.color(), request.imageUrl(), request.description());
+        categoryRepository.save(category);
+        return CategoryResponse.from(category);
+    }
 }
