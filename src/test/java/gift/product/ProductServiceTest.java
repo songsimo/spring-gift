@@ -69,4 +69,39 @@ class ProductServiceTest {
         assertThatThrownBy(() -> productService.getProduct(999L))
             .isInstanceOf(IllegalArgumentException.class);
     }
+
+    @Test
+    @DisplayName("유효한 요청으로 상품 생성 시 저장된 상품을 반환한다")
+    void createProduct_validRequest_returnsCreatedProduct() {
+        Category category = new Category(1L, "전자기기", "#1E90FF", "https://example.com/img.png", "전자제품");
+        ProductRequest request = new ProductRequest("MacBook", 1000000, "https://example.com/mac.png", 1L);
+        given(categoryRepository.findById(1L)).willReturn(Optional.of(category));
+        given(productRepository.save(any())).willReturn(
+            new Product(1L, "MacBook", 1000000, "https://example.com/mac.png", category)
+        );
+
+        ProductResponse result = productService.createProduct(request);
+
+        assertThat(result.name()).isEqualTo("MacBook");
+        assertThat(result.categoryId()).isEqualTo(1L);
+    }
+
+    @Test
+    @DisplayName("유효하지 않은 상품명으로 생성 시 예외가 발생한다")
+    void createProduct_invalidName_throwsException() {
+        ProductRequest request = new ProductRequest("카카오상품", 1000, "https://example.com/img.png", 1L);
+
+        assertThatThrownBy(() -> productService.createProduct(request))
+            .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 카테고리로 상품 생성 시 예외가 발생한다")
+    void createProduct_categoryNotFound_throwsException() {
+        ProductRequest request = new ProductRequest("MacBook", 1000000, "https://example.com/mac.png", 999L);
+        given(categoryRepository.findById(999L)).willReturn(Optional.empty());
+
+        assertThatThrownBy(() -> productService.createProduct(request))
+            .isInstanceOf(IllegalArgumentException.class);
+    }
 }
