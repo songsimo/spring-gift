@@ -24,16 +24,17 @@ import java.util.List;
 public class ProductController {
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
+    private final ProductService productService;
 
-    public ProductController(ProductRepository productRepository, CategoryRepository categoryRepository) {
+    public ProductController(ProductRepository productRepository, CategoryRepository categoryRepository, ProductService productService) {
         this.productRepository = productRepository;
         this.categoryRepository = categoryRepository;
+        this.productService = productService;
     }
 
     @GetMapping
     public ResponseEntity<Page<ProductResponse>> getProducts(Pageable pageable) {
-        Page<ProductResponse> products = productRepository.findAll(pageable).map(ProductResponse::from);
-        return ResponseEntity.ok(products);
+        return ResponseEntity.ok(productService.getProducts(pageable));
     }
 
     @GetMapping("/{id}")
