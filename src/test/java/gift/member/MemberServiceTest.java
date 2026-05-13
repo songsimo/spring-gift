@@ -30,6 +30,26 @@ class MemberServiceTest {
     MemberService memberService;
 
     @Test
+    @DisplayName("관리자가 신규 이메일로 회원을 생성한다")
+    void adminCreate_newEmail_savesMember() {
+        given(memberRepository.existsByEmail("new@test.com")).willReturn(false);
+        given(memberRepository.save(any())).willReturn(new Member("new@test.com", "pw"));
+
+        memberService.adminCreate("new@test.com", "pw");
+
+        org.mockito.Mockito.verify(memberRepository).save(any());
+    }
+
+    @Test
+    @DisplayName("관리자가 중복 이메일로 회원 생성 시 예외가 발생한다")
+    void adminCreate_duplicateEmail_throwsException() {
+        given(memberRepository.existsByEmail("dup@test.com")).willReturn(true);
+
+        assertThatThrownBy(() -> memberService.adminCreate("dup@test.com", "pw"))
+            .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
     @DisplayName("전체 회원 목록을 반환한다")
     void findAll_returnsAllMembers() {
         List<Member> members = List.of(

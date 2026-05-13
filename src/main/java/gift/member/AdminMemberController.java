@@ -44,12 +44,12 @@ public class AdminMemberController {
         @RequestParam String password,
         Model model
     ) {
-        if (memberRepository.existsByEmail(email)) {
-            populateNewFormError(model, email, "Email is already registered.");
+        try {
+            memberService.adminCreate(email, password);
+        } catch (IllegalArgumentException e) {
+            populateNewFormError(model, email, e.getMessage());
             return "member/new";
         }
-
-        memberRepository.save(new Member(email, password));
         return "redirect:/admin/members";
     }
 

@@ -20,6 +20,13 @@ public class MemberService {
         return memberRepository.findAll();
     }
 
+    public void adminCreate(String email, String password) {
+        if (memberRepository.existsByEmail(email)) {
+            throw new IllegalArgumentException("Email is already registered.");
+        }
+        memberRepository.save(new Member(email, password));
+    }
+
     public TokenResponse register(String email, String password) {
         if (memberRepository.existsByEmail(email)) {
             throw new IllegalArgumentException("Email is already registered.");
