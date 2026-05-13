@@ -15,6 +15,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
 
 @ExtendWith(MockitoExtension.class)
 class CategoryServiceTest {
@@ -76,5 +77,13 @@ class CategoryServiceTest {
 
         assertThatThrownBy(() -> categoryService.update(999L, request))
             .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    @DisplayName("카테고리 삭제 시 리포지토리의 deleteById를 호출한다")
+    void delete_callsRepositoryDeleteById() {
+        categoryService.delete(1L);
+
+        then(categoryRepository).should().deleteById(1L);
     }
 }
