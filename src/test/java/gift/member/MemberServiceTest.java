@@ -30,6 +30,26 @@ class MemberServiceTest {
     MemberService memberService;
 
     @Test
+    @DisplayName("ID로 회원을 조회한다")
+    void findById_existingId_returnsMember() {
+        Member member = new Member(1L, "test@test.com", "pw");
+        given(memberRepository.findById(1L)).willReturn(Optional.of(member));
+
+        Member result = memberService.findById(1L);
+
+        assertThat(result.getEmail()).isEqualTo("test@test.com");
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 ID로 회원 조회 시 예외가 발생한다")
+    void findById_nonExistingId_throwsException() {
+        given(memberRepository.findById(99L)).willReturn(Optional.empty());
+
+        assertThatThrownBy(() -> memberService.findById(99L))
+            .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
     @DisplayName("관리자가 신규 이메일로 회원을 생성한다")
     void adminCreate_newEmail_savesMember() {
         given(memberRepository.existsByEmail("new@test.com")).willReturn(false);

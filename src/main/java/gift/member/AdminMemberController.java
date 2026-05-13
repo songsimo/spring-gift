@@ -55,9 +55,7 @@ public class AdminMemberController {
 
     @GetMapping("/{id}/edit")
     public String editForm(@PathVariable Long id, Model model) {
-        final Member member = memberRepository.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("Member not found. id=" + id));
-        model.addAttribute("member", member);
+        model.addAttribute("member", memberService.findById(id));
         return "member/edit";
     }
 
