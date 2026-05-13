@@ -86,4 +86,38 @@ class WishServiceTest {
         assertThatThrownBy(() -> wishService.addWish(1L, 999L))
             .isInstanceOf(IllegalArgumentException.class);
     }
+
+    @Test
+    @DisplayName("본인의 찜 삭제 시 정상 삭제된다")
+    void removeWish_ownWish_deletesSuccessfully() {
+        Category category = new Category(1L, "전자기기", "#1E90FF", "https://example.com/img.png", "전자제품");
+        Product product = new Product(1L, "MacBook", 1000000, "https://example.com/mac.png", category);
+        Wish wish = new Wish(1L, product);
+        given(wishRepository.findById(1L)).willReturn(Optional.of(wish));
+
+        wishService.removeWish(1L, 1L);
+
+        then(wishRepository).should().delete(wish);
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 찜 삭제 시 예외가 발생한다")
+    void removeWish_notFound_throwsException() {
+        given(wishRepository.findById(999L)).willReturn(Optional.empty());
+
+        assertThatThrownBy(() -> wishService.removeWish(1L, 999L))
+            .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    @DisplayName("타인의 찜 삭제 시 예외가 발생한다")
+    void removeWish_notOwner_throwsException() {
+        Category category = new Category(1L, "전자기기", "#1E90FF", "https://example.com/img.png", "전자제품");
+        Product product = new Product(1L, "MacBook", 1000000, "https://example.com/mac.png", category);
+        Wish wish = new Wish(2L, product);
+        given(wishRepository.findById(1L)).willReturn(Optional.of(wish));
+
+        assertThatThrownBy(() -> wishService.removeWish(1L, 1L))
+            .isInstanceOf(IllegalArgumentException.class);
+    }
 }

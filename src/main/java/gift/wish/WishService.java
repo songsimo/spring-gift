@@ -27,4 +27,13 @@ public class WishService {
             .map(WishResponse::from)
             .orElseGet(() -> WishResponse.from(wishRepository.save(new Wish(memberId, product))));
     }
+
+    public void removeWish(Long memberId, Long wishId) {
+        Wish wish = wishRepository.findById(wishId)
+            .orElseThrow(() -> new IllegalArgumentException("Wish not found: " + wishId));
+        if (!wish.getMemberId().equals(memberId)) {
+            throw new IllegalArgumentException("본인의 찜 목록만 삭제할 수 있습니다.");
+        }
+        wishRepository.delete(wish);
+    }
 }
