@@ -19,6 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
 
 @ExtendWith(MockitoExtension.class)
 class ProductServiceTest {
@@ -150,5 +151,13 @@ class ProductServiceTest {
 
         assertThatThrownBy(() -> productService.updateProduct(999L, request))
             .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    @DisplayName("상품 삭제 시 리포지토리의 deleteById를 호출한다")
+    void deleteProduct_callsRepositoryDeleteById() {
+        productService.deleteProduct(1L);
+
+        then(productRepository).should().deleteById(1L);
     }
 }

@@ -11,11 +11,9 @@ import java.net.URI;
 @RestController
 @RequestMapping("/api/products")
 public class ProductController {
-    private final ProductRepository productRepository;
     private final ProductService productService;
 
-    public ProductController(ProductRepository productRepository, ProductService productService) {
-        this.productRepository = productRepository;
+    public ProductController(ProductService productService) {
         this.productService = productService;
     }
 
@@ -50,7 +48,7 @@ public class ProductController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
-        productRepository.deleteById(id);
+        productService.deleteProduct(id);
         return ResponseEntity.noContent().build();
     }
 
