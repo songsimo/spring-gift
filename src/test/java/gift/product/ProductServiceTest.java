@@ -1,6 +1,7 @@
 package gift.product;
 
 import gift.category.Category;
+import gift.category.CategoryRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,8 +13,10 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
@@ -22,6 +25,9 @@ class ProductServiceTest {
 
     @Mock
     ProductRepository productRepository;
+
+    @Mock
+    CategoryRepository categoryRepository;
 
     @InjectMocks
     ProductService productService;
@@ -39,5 +45,28 @@ class ProductServiceTest {
 
         assertThat(result.getContent()).hasSize(1);
         assertThat(result.getContent().get(0).name()).isEqualTo("MacBook");
+    }
+
+    @Test
+    @DisplayName("존재하는 상품 단건 조회 시 해당 상품을 반환한다")
+    void getProduct_existingId_returnsProduct() {
+        Category category = new Category(1L, "전자기기", "#1E90FF", "https://example.com/img.png", "전자제품");
+        given(productRepository.findById(1L)).willReturn(Optional.of(
+            new Product(1L, "MacBook", 1000000, "https://example.com/mac.png", category)
+        ));
+
+        ProductResponse result = productService.getProduct(1L);
+
+        assertThat(result.name()).isEqualTo("MacBook");
+        assertThat(result.price()).isEqualTo(1000000);
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 상품 단건 조회 시 예외가 발생한다")
+    void getProduct_nonExistingId_throwsException() {
+        given(productRepository.findById(999L)).willReturn(Optional.empty());
+
+        assertThatThrownBy(() -> productService.getProduct(999L))
+            .isInstanceOf(IllegalArgumentException.class);
     }
 }

@@ -39,11 +39,11 @@ public class ProductController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ProductResponse> getProduct(@PathVariable Long id) {
-        Product product = productRepository.findById(id).orElse(null);
-        if (product == null) {
+        try {
+            return ResponseEntity.ok(productService.getProduct(id));
+        } catch (IllegalArgumentException e) {
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok(ProductResponse.from(product));
     }
 
     @PostMapping

@@ -15,4 +15,10 @@ public class ProductService {
     public Page<ProductResponse> getProducts(Pageable pageable) {
         return productRepository.findAll(pageable).map(ProductResponse::from);
     }
+
+    public ProductResponse getProduct(Long id) {
+        return productRepository.findById(id)
+            .map(ProductResponse::from)
+            .orElseThrow(() -> new IllegalArgumentException("Product not found: " + id));
+    }
 }
