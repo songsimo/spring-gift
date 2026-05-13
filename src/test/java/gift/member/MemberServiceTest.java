@@ -9,6 +9,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -27,6 +28,20 @@ class MemberServiceTest {
 
     @InjectMocks
     MemberService memberService;
+
+    @Test
+    @DisplayName("전체 회원 목록을 반환한다")
+    void findAll_returnsAllMembers() {
+        List<Member> members = List.of(
+            new Member("a@test.com", "pw1"),
+            new Member("b@test.com", "pw2")
+        );
+        given(memberRepository.findAll()).willReturn(members);
+
+        List<Member> result = memberService.findAll();
+
+        assertThat(result).hasSize(2);
+    }
 
     @Test
     @DisplayName("신규 이메일로 회원가입 시 토큰을 반환한다")

@@ -19,15 +19,17 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RequestMapping("/admin/members")
 public class AdminMemberController {
     private final MemberRepository memberRepository;
+    private final MemberService memberService;
 
     @Autowired
-    public AdminMemberController(MemberRepository memberRepository) {
+    public AdminMemberController(MemberRepository memberRepository, MemberService memberService) {
         this.memberRepository = memberRepository;
+        this.memberService = memberService;
     }
 
     @GetMapping
     public String list(Model model) {
-        model.addAttribute("members", memberRepository.findAll());
+        model.addAttribute("members", memberService.findAll());
         return "member/list";
     }
 

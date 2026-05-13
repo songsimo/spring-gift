@@ -4,6 +4,8 @@ import gift.auth.JwtProvider;
 import gift.auth.TokenResponse;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class MemberService {
     private final MemberRepository memberRepository;
@@ -12,6 +14,10 @@ public class MemberService {
     public MemberService(MemberRepository memberRepository, JwtProvider jwtProvider) {
         this.memberRepository = memberRepository;
         this.jwtProvider = jwtProvider;
+    }
+
+    public List<Member> findAll() {
+        return memberRepository.findAll();
     }
 
     public TokenResponse register(String email, String password) {
