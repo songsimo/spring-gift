@@ -32,6 +32,13 @@ public class MemberService {
         memberRepository.save(member);
     }
 
+    public void chargePoint(Long id, int amount) {
+        Member member = memberRepository.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("Member not found. id=" + id));
+        member.chargePoint(amount);
+        memberRepository.save(member);
+    }
+
     public void adminCreate(String email, String password) {
         if (memberRepository.existsByEmail(email)) {
             throw new IllegalArgumentException("Email is already registered.");

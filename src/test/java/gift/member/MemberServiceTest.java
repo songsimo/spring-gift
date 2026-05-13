@@ -106,6 +106,27 @@ class MemberServiceTest {
     }
 
     @Test
+    @DisplayName("회원 포인트를 충전한다")
+    void chargePoint_existingMember_chargesPoint() {
+        Member member = new Member(1L, "test@test.com", "pw");
+        given(memberRepository.findById(1L)).willReturn(Optional.of(member));
+        given(memberRepository.save(member)).willReturn(member);
+
+        memberService.chargePoint(1L, 500);
+
+        assertThat(member.getPoint()).isEqualTo(500);
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 회원 포인트 충전 시 예외가 발생한다")
+    void chargePoint_nonExistingMember_throwsException() {
+        given(memberRepository.findById(99L)).willReturn(Optional.empty());
+
+        assertThatThrownBy(() -> memberService.chargePoint(99L, 500))
+            .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
     @DisplayName("신규 이메일로 회원가입 시 토큰을 반환한다")
     void register_newEmail_returnsToken() {
         given(memberRepository.existsByEmail("test@test.com")).willReturn(false);
