@@ -48,21 +48,9 @@ public class OptionController {
         @PathVariable Long productId,
         @Valid @RequestBody OptionRequest request
     ) {
-        validateName(request.name());
-
-        Product product = productRepository.findById(productId).orElse(null);
-        if (product == null) {
-            return ResponseEntity.notFound().build();
-        }
-
-        if (optionRepository.existsByProductIdAndName(productId, request.name())) {
-            throw new IllegalArgumentException("이미 존재하는 옵션명입니다.");
-        }
-
-        Option saved = optionRepository.save(new Option(product, request.name(), request.quantity()));
-        URI location = URI.create("/api/products/" + productId + "/options/" + saved.getId());
-        return ResponseEntity.created(location)
-            .body(OptionResponse.from(saved));
+        OptionResponse response = optionService.createOption(productId, request);
+        URI location = URI.create("/api/products/" + productId + "/options/" + response.id());
+        return ResponseEntity.created(location).body(response);
     }
 
     @DeleteMapping(path = "/{optionId}")

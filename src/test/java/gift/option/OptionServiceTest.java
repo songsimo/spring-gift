@@ -56,4 +56,52 @@ class OptionServiceTest {
         assertThatThrownBy(() -> optionService.getOptions(999L))
             .isInstanceOf(IllegalArgumentException.class);
     }
+
+    @Test
+    @DisplayName("유효한 요청으로 옵션 생성 시 저장된 옵션을 반환한다")
+    void createOption_validRequest_returnsCreatedOption() {
+        Category category = new Category(1L, "전자기기", "#1E90FF", "https://example.com/img.png", "전자제품");
+        Product product = new Product(1L, "MacBook", 1000000, "https://example.com/mac.png", category);
+        OptionRequest request = new OptionRequest("실버 256GB", 10);
+        given(productRepository.findById(1L)).willReturn(Optional.of(product));
+        given(optionRepository.existsByProductIdAndName(1L, "실버 256GB")).willReturn(false);
+        given(optionRepository.save(any())).willReturn(new Option(product, "실버 256GB", 10));
+
+        OptionResponse result = optionService.createOption(1L, request);
+
+        assertThat(result.name()).isEqualTo("실버 256GB");
+        assertThat(result.quantity()).isEqualTo(10);
+    }
+
+    @Test
+    @DisplayName("유효하지 않은 옵션명으로 생성 시 예외가 발생한다")
+    void createOption_invalidName_throwsException() {
+        OptionRequest request = new OptionRequest("잘못된!@#옵션", 10);
+
+        assertThatThrownBy(() -> optionService.createOption(1L, request))
+            .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 상품에 옵션 생성 시 예외가 발생한다")
+    void createOption_productNotFound_throwsException() {
+        OptionRequest request = new OptionRequest("실버 256GB", 10);
+        given(productRepository.findById(999L)).willReturn(Optional.empty());
+
+        assertThatThrownBy(() -> optionService.createOption(999L, request))
+            .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    @DisplayName("중복된 옵션명으로 생성 시 예외가 발생한다")
+    void createOption_duplicateName_throwsException() {
+        Category category = new Category(1L, "전자기기", "#1E90FF", "https://example.com/img.png", "전자제품");
+        Product product = new Product(1L, "MacBook", 1000000, "https://example.com/mac.png", category);
+        OptionRequest request = new OptionRequest("실버 256GB", 10);
+        given(productRepository.findById(1L)).willReturn(Optional.of(product));
+        given(optionRepository.existsByProductIdAndName(1L, "실버 256GB")).willReturn(true);
+
+        assertThatThrownBy(() -> optionService.createOption(1L, request))
+            .isInstanceOf(IllegalArgumentException.class);
+    }
 }

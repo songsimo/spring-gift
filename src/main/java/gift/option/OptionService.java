@@ -22,4 +22,18 @@ public class OptionService {
             .map(OptionResponse::from)
             .toList();
     }
+
+    public OptionResponse createOption(Long productId, OptionRequest request) {
+        List<String> errors = OptionNameValidator.validate(request.name());
+        if (!errors.isEmpty()) {
+            throw new IllegalArgumentException(String.join(", ", errors));
+        }
+        var product = productRepository.findById(productId)
+            .orElseThrow(() -> new IllegalArgumentException("Product not found: " + productId));
+        if (optionRepository.existsByProductIdAndName(productId, request.name())) {
+            throw new IllegalArgumentException("이미 존재하는 옵션명입니다.");
+        }
+        Option saved = optionRepository.save(new Option(product, request.name(), request.quantity()));
+        return OptionResponse.from(saved);
+    }
 }
