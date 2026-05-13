@@ -36,6 +36,13 @@ public class Option {
         this.quantity = quantity;
     }
 
+    public Option(Long id, Product product, String name, int quantity) {
+        this.id = id;
+        this.product = product;
+        this.name = name;
+        this.quantity = quantity;
+    }
+
     public void subtractQuantity(int amount) {
         if (amount > this.quantity) {
             throw new IllegalArgumentException("차감할 수량이 현재 재고보다 많습니다.");

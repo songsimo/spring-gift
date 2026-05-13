@@ -17,6 +17,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
 
 @ExtendWith(MockitoExtension.class)
 class OptionServiceTest {
@@ -102,6 +103,62 @@ class OptionServiceTest {
         given(optionRepository.existsByProductIdAndName(1L, "실버 256GB")).willReturn(true);
 
         assertThatThrownBy(() -> optionService.createOption(1L, request))
+            .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    @DisplayName("마지막 옵션이 아닌 경우 옵션 삭제 시 정상 삭제된다")
+    void deleteOption_notLastOption_deletesSuccessfully() {
+        Category category = new Category(1L, "전자기기", "#1E90FF", "https://example.com/img.png", "전자제품");
+        Product product = new Product(1L, "MacBook", 1000000, "https://example.com/mac.png", category);
+        Option option = new Option(1L, product, "실버 256GB", 10);
+        given(productRepository.findById(1L)).willReturn(Optional.of(product));
+        given(optionRepository.findByProductId(1L)).willReturn(List.of(
+            option,
+            new Option(product, "스페이스그레이 512GB", 5)
+        ));
+        given(optionRepository.findById(1L)).willReturn(Optional.of(option));
+
+        optionService.deleteOption(1L, 1L);
+
+        then(optionRepository).should().delete(option);
+    }
+
+    @Test
+    @DisplayName("마지막 옵션 삭제 시 예외가 발생한다")
+    void deleteOption_lastOption_throwsException() {
+        Category category = new Category(1L, "전자기기", "#1E90FF", "https://example.com/img.png", "전자제품");
+        Product product = new Product(1L, "MacBook", 1000000, "https://example.com/mac.png", category);
+        Option option = new Option(1L, product, "실버 256GB", 10);
+        given(productRepository.findById(1L)).willReturn(Optional.of(product));
+        given(optionRepository.findByProductId(1L)).willReturn(List.of(option));
+
+        assertThatThrownBy(() -> optionService.deleteOption(1L, 1L))
+            .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 상품의 옵션 삭제 시 예외가 발생한다")
+    void deleteOption_productNotFound_throwsException() {
+        given(productRepository.findById(999L)).willReturn(Optional.empty());
+
+        assertThatThrownBy(() -> optionService.deleteOption(999L, 1L))
+            .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 옵션 삭제 시 예외가 발생한다")
+    void deleteOption_optionNotFound_throwsException() {
+        Category category = new Category(1L, "전자기기", "#1E90FF", "https://example.com/img.png", "전자제품");
+        Product product = new Product(1L, "MacBook", 1000000, "https://example.com/mac.png", category);
+        given(productRepository.findById(1L)).willReturn(Optional.of(product));
+        given(optionRepository.findByProductId(1L)).willReturn(List.of(
+            new Option(1L, product, "실버 256GB", 10),
+            new Option(2L, product, "스페이스그레이 512GB", 5)
+        ));
+        given(optionRepository.findById(999L)).willReturn(Optional.empty());
+
+        assertThatThrownBy(() -> optionService.deleteOption(1L, 999L))
             .isInstanceOf(IllegalArgumentException.class);
     }
 }
