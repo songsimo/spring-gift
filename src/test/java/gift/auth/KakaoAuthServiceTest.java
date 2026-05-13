@@ -19,6 +19,9 @@ import static org.mockito.BDDMockito.given;
 class KakaoAuthServiceTest {
 
     @Mock
+    KakaoLoginProperties properties;
+
+    @Mock
     KakaoLoginClient kakaoLoginClient;
 
     @Mock
@@ -29,6 +32,19 @@ class KakaoAuthServiceTest {
 
     @InjectMocks
     KakaoAuthService kakaoAuthService;
+
+    @Test
+    @DisplayName("카카오 인가 URL을 반환한다")
+    void getAuthorizationUrl_returnsKakaoUrl() {
+        given(properties.clientId()).willReturn("test-client-id");
+        given(properties.redirectUri()).willReturn("http://localhost/callback");
+
+        String url = kakaoAuthService.getAuthorizationUrl();
+
+        assertThat(url).contains("kauth.kakao.com/oauth/authorize");
+        assertThat(url).contains("client_id=test-client-id");
+        assertThat(url).contains("redirect_uri=http://localhost/callback");
+    }
 
     @Test
     @DisplayName("신규 회원의 카카오 인가 코드로 자동 가입 후 JWT를 반환한다")
