@@ -21,4 +21,13 @@ public class MemberService {
         Member member = memberRepository.save(new Member(email, password));
         return new TokenResponse(jwtProvider.createToken(member.getEmail()));
     }
+
+    public TokenResponse login(String email, String password) {
+        Member member = memberRepository.findByEmail(email)
+            .orElseThrow(() -> new IllegalArgumentException("Invalid email or password."));
+        if (member.getPassword() == null || !member.getPassword().equals(password)) {
+            throw new IllegalArgumentException("Invalid email or password.");
+        }
+        return new TokenResponse(jwtProvider.createToken(member.getEmail()));
+    }
 }

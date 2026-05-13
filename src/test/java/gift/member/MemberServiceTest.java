@@ -9,6 +9,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -44,6 +46,37 @@ class MemberServiceTest {
         given(memberRepository.existsByEmail("test@test.com")).willReturn(true);
 
         assertThatThrownBy(() -> memberService.register("test@test.com", "password"))
+            .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    @DisplayName("올바른 이메일과 비밀번호로 로그인 시 토큰을 반환한다")
+    void login_validCredentials_returnsToken() {
+        Member member = new Member(1L, "test@test.com", "password");
+        given(memberRepository.findByEmail("test@test.com")).willReturn(Optional.of(member));
+        given(jwtProvider.createToken("test@test.com")).willReturn("jwt-token");
+
+        TokenResponse result = memberService.login("test@test.com", "password");
+
+        assertThat(result.token()).isEqualTo("jwt-token");
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 이메일로 로그인 시 예외가 발생한다")
+    void login_emailNotFound_throwsException() {
+        given(memberRepository.findByEmail("none@test.com")).willReturn(Optional.empty());
+
+        assertThatThrownBy(() -> memberService.login("none@test.com", "password"))
+            .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    @DisplayName("비밀번호가 틀리면 로그인 시 예외가 발생한다")
+    void login_wrongPassword_throwsException() {
+        Member member = new Member(1L, "test@test.com", "password");
+        given(memberRepository.findByEmail("test@test.com")).willReturn(Optional.of(member));
+
+        assertThatThrownBy(() -> memberService.login("test@test.com", "wrong"))
             .isInstanceOf(IllegalArgumentException.class);
     }
 }
