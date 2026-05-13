@@ -26,22 +26,21 @@ import java.util.stream.Collectors;
 public class OptionController {
     private final OptionRepository optionRepository;
     private final ProductRepository productRepository;
+    private final OptionService optionService;
 
-    public OptionController(OptionRepository optionRepository, ProductRepository productRepository) {
+    public OptionController(OptionRepository optionRepository, ProductRepository productRepository, OptionService optionService) {
         this.optionRepository = optionRepository;
         this.productRepository = productRepository;
+        this.optionService = optionService;
     }
 
     @GetMapping
     public ResponseEntity<List<OptionResponse>> getOptions(@PathVariable Long productId) {
-        Product product = productRepository.findById(productId).orElse(null);
-        if (product == null) {
+        try {
+            return ResponseEntity.ok(optionService.getOptions(productId));
+        } catch (IllegalArgumentException e) {
             return ResponseEntity.notFound().build();
         }
-        List<OptionResponse> options = optionRepository.findByProductId(productId).stream()
-            .map(OptionResponse::from)
-            .collect(Collectors.toList());
-        return ResponseEntity.ok(options);
     }
 
     @PostMapping
