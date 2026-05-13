@@ -65,10 +65,7 @@ public class AdminMemberController {
         @RequestParam String email,
         @RequestParam String password
     ) {
-        final Member member = memberRepository.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("Member not found. id=" + id));
-        member.update(email, password);
-        memberRepository.save(member);
+        memberService.updateMember(id, email, password);
         return "redirect:/admin/members";
     }
 

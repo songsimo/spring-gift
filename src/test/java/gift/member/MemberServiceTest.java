@@ -30,6 +30,28 @@ class MemberServiceTest {
     MemberService memberService;
 
     @Test
+    @DisplayName("회원 정보를 수정한다")
+    void existingMember_updatesMember() {
+        Member member = new Member(1L, "old@test.com", "oldpw");
+        given(memberRepository.findById(1L)).willReturn(Optional.of(member));
+        given(memberRepository.save(member)).willReturn(member);
+
+        memberService.updateMember(1L, "new@test.com", "newpw");
+
+        org.mockito.Mockito.verify(memberRepository).save(member);
+        assertThat(member.getEmail()).isEqualTo("new@test.com");
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 회원 수정 시 예외가 발생한다")
+    void nonExistingMember_throwsException() {
+        given(memberRepository.findById(99L)).willReturn(Optional.empty());
+
+        assertThatThrownBy(() -> memberService.updateMember(99L, "x@test.com", "pw"))
+            .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
     @DisplayName("ID로 회원을 조회한다")
     void findById_existingId_returnsMember() {
         Member member = new Member(1L, "test@test.com", "pw");
