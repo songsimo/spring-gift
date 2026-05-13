@@ -12,16 +12,13 @@ import java.net.URI;
 @RestController
 @RequestMapping("/api/wishes")
 public class WishController {
-    private final WishRepository wishRepository;
     private final AuthenticationResolver authenticationResolver;
     private final WishService wishService;
 
     public WishController(
-        WishRepository wishRepository,
         AuthenticationResolver authenticationResolver,
         WishService wishService
     ) {
-        this.wishRepository = wishRepository;
         this.authenticationResolver = authenticationResolver;
         this.wishService = wishService;
     }
@@ -57,22 +54,11 @@ public class WishController {
         @RequestHeader("Authorization") String authorization,
         @PathVariable Long id
     ) {
-        // check auth
         var member = authenticationResolver.extractMember(authorization);
         if (member == null) {
             return ResponseEntity.status(401).build();
         }
-
-        var wish = wishRepository.findById(id).orElse(null);
-        if (wish == null) {
-            return ResponseEntity.notFound().build();
-        }
-
-        if (!wish.getMemberId().equals(member.getId())) {
-            return ResponseEntity.status(403).build();
-        }
-
-        wishRepository.delete(wish);
+        wishService.removeWish(member.getId(), id);
         return ResponseEntity.noContent().build();
     }
 }
