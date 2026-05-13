@@ -23,15 +23,18 @@ public class WishController {
     private final WishRepository wishRepository;
     private final ProductRepository productRepository;
     private final AuthenticationResolver authenticationResolver;
+    private final WishService wishService;
 
     public WishController(
         WishRepository wishRepository,
         ProductRepository productRepository,
-        AuthenticationResolver authenticationResolver
+        AuthenticationResolver authenticationResolver,
+        WishService wishService
     ) {
         this.wishRepository = wishRepository;
         this.productRepository = productRepository;
         this.authenticationResolver = authenticationResolver;
+        this.wishService = wishService;
     }
 
     @GetMapping
@@ -39,13 +42,11 @@ public class WishController {
         @RequestHeader("Authorization") String authorization,
         Pageable pageable
     ) {
-        // check auth
         var member = authenticationResolver.extractMember(authorization);
         if (member == null) {
             return ResponseEntity.status(401).build();
         }
-        var wishes = wishRepository.findByMemberId(member.getId(), pageable).map(WishResponse::from);
-        return ResponseEntity.ok(wishes);
+        return ResponseEntity.ok(wishService.getWishes(member.getId(), pageable));
     }
 
     @PostMapping
