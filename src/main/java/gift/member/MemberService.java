@@ -32,6 +32,10 @@ public class MemberService {
         memberRepository.save(member);
     }
 
+    public void deleteMember(Long id) {
+        memberRepository.deleteById(id);
+    }
+
     public void chargePoint(Long id, int amount) {
         Member member = memberRepository.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("Member not found. id=" + id));

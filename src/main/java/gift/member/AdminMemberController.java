@@ -18,12 +18,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 @RequestMapping("/admin/members")
 public class AdminMemberController {
-    private final MemberRepository memberRepository;
     private final MemberService memberService;
 
     @Autowired
-    public AdminMemberController(MemberRepository memberRepository, MemberService memberService) {
-        this.memberRepository = memberRepository;
+    public AdminMemberController(MemberService memberService) {
         this.memberService = memberService;
     }
 
@@ -80,7 +78,7 @@ public class AdminMemberController {
 
     @PostMapping("/{id}/delete")
     public String delete(@PathVariable Long id) {
-        memberRepository.deleteById(id);
+        memberService.deleteMember(id);
         return "redirect:/admin/members";
     }
 

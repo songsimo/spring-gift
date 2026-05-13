@@ -127,6 +127,14 @@ class MemberServiceTest {
     }
 
     @Test
+    @DisplayName("회원을 삭제한다")
+    void deleteMember_callsRepositoryDeleteById() {
+        memberService.deleteMember(1L);
+
+        org.mockito.Mockito.verify(memberRepository).deleteById(1L);
+    }
+
+    @Test
     @DisplayName("신규 이메일로 회원가입 시 토큰을 반환한다")
     void register_newEmail_returnsToken() {
         given(memberRepository.existsByEmail("test@test.com")).willReturn(false);
