@@ -5,16 +5,10 @@ import gift.member.Member;
 import gift.member.MemberRepository;
 import gift.option.Option;
 import gift.option.OptionRepository;
-import gift.wish.WishRepository;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 
@@ -23,25 +17,25 @@ import java.net.URI;
 public class OrderController {
     private final OrderRepository orderRepository;
     private final OptionRepository optionRepository;
-    private final WishRepository wishRepository;
     private final MemberRepository memberRepository;
     private final AuthenticationResolver authenticationResolver;
     private final KakaoMessageClient kakaoMessageClient;
+    private final OrderService orderService;
 
     public OrderController(
         OrderRepository orderRepository,
         OptionRepository optionRepository,
-        WishRepository wishRepository,
         MemberRepository memberRepository,
         AuthenticationResolver authenticationResolver,
-        KakaoMessageClient kakaoMessageClient
+        KakaoMessageClient kakaoMessageClient,
+        OrderService orderService
     ) {
         this.orderRepository = orderRepository;
         this.optionRepository = optionRepository;
-        this.wishRepository = wishRepository;
         this.memberRepository = memberRepository;
         this.authenticationResolver = authenticationResolver;
         this.kakaoMessageClient = kakaoMessageClient;
+        this.orderService = orderService;
     }
 
     @GetMapping
@@ -49,13 +43,11 @@ public class OrderController {
         @RequestHeader("Authorization") String authorization,
         Pageable pageable
     ) {
-        // auth check
         var member = authenticationResolver.extractMember(authorization);
         if (member == null) {
             return ResponseEntity.status(401).build();
         }
-        var orders = orderRepository.findByMemberId(member.getId(), pageable).map(OrderResponse::from);
-        return ResponseEntity.ok(orders);
+        return ResponseEntity.ok(orderService.getOrders(member.getId(), pageable));
     }
 
     // order flow:
