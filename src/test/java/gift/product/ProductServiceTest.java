@@ -44,7 +44,7 @@ class ProductServiceTest {
         Page<ProductResponse> result = productService.getProducts(Pageable.unpaged());
 
         assertThat(result.getContent()).hasSize(1);
-        assertThat(result.getContent().get(0).name()).isEqualTo("MacBook");
+        assertThat(result.getContent().getFirst().name()).isEqualTo("MacBook");
     }
 
     @Test
@@ -102,6 +102,53 @@ class ProductServiceTest {
         given(categoryRepository.findById(999L)).willReturn(Optional.empty());
 
         assertThatThrownBy(() -> productService.createProduct(request))
+            .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    @DisplayName("유효한 요청으로 상품 수정 시 변경된 상품을 반환한다")
+    void updateProduct_validRequest_returnsUpdatedProduct() {
+        Category category = new Category(1L, "전자기기", "#1E90FF", "https://example.com/img.png", "전자제품");
+        Product existing = new Product(1L, "OldName", 500000, "https://example.com/old.png", category);
+        ProductRequest request = new ProductRequest("MacBook", 1000000, "https://example.com/mac.png", 1L);
+        given(categoryRepository.findById(1L)).willReturn(Optional.of(category));
+        given(productRepository.findById(1L)).willReturn(Optional.of(existing));
+        given(productRepository.save(any())).willReturn(existing);
+
+        ProductResponse result = productService.updateProduct(1L, request);
+
+        assertThat(result.name()).isEqualTo("MacBook");
+        assertThat(result.price()).isEqualTo(1000000);
+    }
+
+    @Test
+    @DisplayName("유효하지 않은 상품명으로 수정 시 예외가 발생한다")
+    void updateProduct_invalidName_throwsException() {
+        ProductRequest request = new ProductRequest("카카오상품", 1000, "https://example.com/img.png", 1L);
+
+        assertThatThrownBy(() -> productService.updateProduct(1L, request))
+            .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 카테고리로 상품 수정 시 예외가 발생한다")
+    void updateProduct_categoryNotFound_throwsException() {
+        ProductRequest request = new ProductRequest("MacBook", 1000000, "https://example.com/mac.png", 999L);
+        given(categoryRepository.findById(999L)).willReturn(Optional.empty());
+
+        assertThatThrownBy(() -> productService.updateProduct(1L, request))
+            .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 상품 수정 시 예외가 발생한다")
+    void updateProduct_productNotFound_throwsException() {
+        Category category = new Category(1L, "전자기기", "#1E90FF", "https://example.com/img.png", "전자제품");
+        ProductRequest request = new ProductRequest("MacBook", 1000000, "https://example.com/mac.png", 1L);
+        given(categoryRepository.findById(1L)).willReturn(Optional.of(category));
+        given(productRepository.findById(999L)).willReturn(Optional.empty());
+
+        assertThatThrownBy(() -> productService.updateProduct(999L, request))
             .isInstanceOf(IllegalArgumentException.class);
     }
 }

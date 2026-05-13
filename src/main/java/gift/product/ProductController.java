@@ -1,7 +1,5 @@
 package gift.product;
 
-import gift.category.Category;
-import gift.category.CategoryRepository;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -9,18 +7,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/products")
 public class ProductController {
     private final ProductRepository productRepository;
-    private final CategoryRepository categoryRepository;
     private final ProductService productService;
 
-    public ProductController(ProductRepository productRepository, CategoryRepository categoryRepository, ProductService productService) {
+    public ProductController(ProductRepository productRepository, ProductService productService) {
         this.productRepository = productRepository;
-        this.categoryRepository = categoryRepository;
         this.productService = productService;
     }
 
@@ -50,34 +45,13 @@ public class ProductController {
         @PathVariable Long id,
         @Valid @RequestBody ProductRequest request
     ) {
-        validateName(request.name());
-
-        Category category = categoryRepository.findById(request.categoryId()).orElse(null);
-        if (category == null) {
-            return ResponseEntity.notFound().build();
-        }
-
-        Product product = productRepository.findById(id).orElse(null);
-        if (product == null) {
-            return ResponseEntity.notFound().build();
-        }
-
-        product.update(request.name(), request.price(), request.imageUrl(), category);
-        Product saved = productRepository.save(product);
-        return ResponseEntity.ok(ProductResponse.from(saved));
+        return ResponseEntity.ok(productService.updateProduct(id, request));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
         productRepository.deleteById(id);
         return ResponseEntity.noContent().build();
-    }
-
-    private void validateName(String name) {
-        List<String> errors = ProductNameValidator.validate(name);
-        if (!errors.isEmpty()) {
-            throw new IllegalArgumentException(String.join(", ", errors));
-        }
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

@@ -38,4 +38,18 @@ public class ProductService {
         Product saved = productRepository.save(request.toEntity(category));
         return ProductResponse.from(saved);
     }
+
+    public ProductResponse updateProduct(Long id, ProductRequest request) {
+        List<String> errors = ProductNameValidator.validate(request.name());
+        if (!errors.isEmpty()) {
+            throw new IllegalArgumentException(String.join(", ", errors));
+        }
+        Category category = categoryRepository.findById(request.categoryId())
+            .orElseThrow(() -> new IllegalArgumentException("Category not found: " + request.categoryId()));
+        Product product = productRepository.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("Product not found: " + id));
+        product.update(request.name(), request.price(), request.imageUrl(), category);
+        productRepository.save(product);
+        return ProductResponse.from(product);
+    }
 }
