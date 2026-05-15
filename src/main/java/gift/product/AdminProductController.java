@@ -16,17 +16,19 @@ import java.util.NoSuchElementException;
 @Controller
 @RequestMapping("/admin/products")
 public class AdminProductController {
+    private final ProductService productService;
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
 
-    public AdminProductController(ProductRepository productRepository, CategoryRepository categoryRepository) {
+    public AdminProductController(ProductService productService, ProductRepository productRepository, CategoryRepository categoryRepository) {
+        this.productService = productService;
         this.productRepository = productRepository;
         this.categoryRepository = categoryRepository;
     }
 
     @GetMapping
     public String list(Model model) {
-        model.addAttribute("products", productRepository.findAll());
+        model.addAttribute("products", productService.findAll());
         return "product/list";
     }
 

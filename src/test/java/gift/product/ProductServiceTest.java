@@ -160,4 +160,19 @@ class ProductServiceTest {
 
         then(productRepository).should().deleteById(1L);
     }
+
+    @Test
+    @DisplayName("관리자가 전체 상품 목록을 반환한다")
+    void findAll_returnsAllProducts() {
+        Category category = new Category(1L, "전자기기", "#1E90FF", "https://example.com/img.png", "전자제품");
+        List<Product> products = List.of(
+            new Product(1L, "MacBook", 1000000, "https://example.com/mac.png", category)
+        );
+        given(productRepository.findAll()).willReturn(products);
+
+        List<Product> result = productService.findAll();
+
+        assertThat(result).hasSize(1);
+        assertThat(result.getFirst().getName()).isEqualTo("MacBook");
+    }
 }

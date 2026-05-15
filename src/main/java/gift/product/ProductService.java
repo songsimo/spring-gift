@@ -18,6 +18,10 @@ public class ProductService {
         this.categoryRepository = categoryRepository;
     }
 
+    public List<Product> findAll() {
+        return productRepository.findAll();
+    }
+
     public Page<ProductResponse> getProducts(Pageable pageable) {
         return productRepository.findAll(pageable).map(ProductResponse::from);
     }
