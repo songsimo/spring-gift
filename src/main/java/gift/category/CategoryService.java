@@ -1,6 +1,7 @@
 package gift.category;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -23,6 +24,7 @@ public class CategoryService {
         return CategoryResponse.from(saved);
     }
 
+    @Transactional
     public CategoryResponse update(Long id, CategoryRequest request) {
         Category category = categoryRepository.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("Category not found: " + id));

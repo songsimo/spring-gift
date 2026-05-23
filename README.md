@@ -304,6 +304,21 @@ member ──< orders ───────────┘
 
 ---
 
+### [2026-05-24] 서비스 메서드에 @Transactional 추가
+
+**1. 문제 정의**
+복수 DB 쓰기 작업을 하나의 메서드에서 수행하는 5개 메서드에 `@Transactional`이 없어, 중간 단계에서 실패 시 일부 쓰기만 반영되는 데이터 정합성 문제가 있었다.
+예: `OrderService.createOrder()`에서 옵션 재고는 차감됐지만 포인트 차감 단계에서 예외가 발생해도 재고 차감이 롤백되지 않는 상황.
+
+**2. 상호작용 타임라인**
+- **Step 1**: 복수 DB 쓰기 메서드 목록 식별 요청 → AI가 5개 대상 메서드(`OrderService.createOrder`, `CategoryService.update`, `MemberService.updateMember`, `MemberService.chargePoint`, `KakaoAuthService.processCallback`) 파악 → 수용
+- **Step 2**: 각 메서드에 `@Transactional` 추가 요청 → AI가 메서드 단위로 어노테이션 적용, 클래스 레벨 사용 안 함 → 수용
+
+**3. 결과 및 근거**
+4개 서비스 파일에 `@Transactional` 추가 완료. 전체 테스트(CategoryServiceTest, MemberServiceTest, OrderServiceTest, KakaoAuthServiceTest 등) 통과.
+
+---
+
 ### [2026-05-24] CategoryService.update() 포맷 버그 수정
 
 **1. 문제 정의**

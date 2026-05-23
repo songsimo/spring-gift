@@ -3,6 +3,7 @@ package gift.member;
 import gift.auth.JwtProvider;
 import gift.auth.TokenResponse;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -25,6 +26,7 @@ public class MemberService {
             .orElseThrow(() -> new IllegalArgumentException("Member not found. id=" + id));
     }
 
+    @Transactional
     public void updateMember(Long id, String email, String password) {
         Member member = memberRepository.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("Member not found. id=" + id));
@@ -36,6 +38,7 @@ public class MemberService {
         memberRepository.deleteById(id);
     }
 
+    @Transactional
     public void chargePoint(Long id, int amount) {
         Member member = memberRepository.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("Member not found. id=" + id));
