@@ -301,3 +301,17 @@ member ──< orders ───────────┘
 | `member` | id, email(unique), password, kakao_access_token, point |
 | `wish` | id, member_id, product_id |
 | `orders` | id, option_id, member_id, quantity, message, order_date_time |
+
+---
+
+### [2026-05-24] CategoryService.update() 포맷 버그 수정
+
+**1. 문제 정의**
+`CategoryService.update()` 메서드의 닫는 `}`가 4칸 들여쓰기 대신 컬럼 0에 위치해 있었다. Java 컴파일에는 영향이 없지만 ktlint 스타일 검사 실패 원인이며 코드 가독성을 해친다.
+
+**2. 상호작용 타임라인**
+- **Step 1**: git diff로 버그 위치 확인 요청 → AI가 32번 라인의 `}` 들여쓰기 오류(0칸 → 4칸) 식별 → 수용
+- **Step 2**: IDE에서 파일을 열어 확인하는 사이 자동 포맷으로 수정 완료 → AI가 현재 파일 상태 재확인 후 이미 올바르게 수정됨을 확인 → 수용
+
+**3. 결과 및 근거**
+`CategoryService.update()` 닫는 `}` 들여쓰기 4칸으로 수정 완료. `CategoryServiceTest` 5개 테스트 전부 통과, `ktlintCheck` 오류 없음.
