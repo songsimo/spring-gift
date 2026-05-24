@@ -47,6 +47,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Plan First: Never modify code before defining the "Next Single Task" in the README.md checklist.
 - Atomic Changes: Modify only one small piece (one class or method) at a time.
 - TDD Loop: Follow the Red → Green → Refactor cycle. All tests must pass after every single change.
+- Test First: Always modify the test file before writing or changing implementation code.
+- Design Questions: When the user asks a design question ("~할 필요가 있을까?" / "do we need X?"), respond with analysis only — pros, cons, recommendation. Do not write any code until the user explicitly says to proceed.
+- Step Gate: After changing one method, run the tests and confirm they pass before moving to the next change.
 
 ### README Development Log Rules
 
