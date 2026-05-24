@@ -2,6 +2,7 @@ package gift.product;
 
 import gift.category.Category;
 import gift.category.CategoryRepository;
+import gift.order.OrderRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -12,10 +13,12 @@ import java.util.List;
 public class ProductService {
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
+    private final OrderRepository orderRepository;
 
-    public ProductService(ProductRepository productRepository, CategoryRepository categoryRepository) {
+    public ProductService(ProductRepository productRepository, CategoryRepository categoryRepository, OrderRepository orderRepository) {
         this.productRepository = productRepository;
         this.categoryRepository = categoryRepository;
+        this.orderRepository = orderRepository;
     }
 
     public List<Product> findAll() {
@@ -58,6 +61,9 @@ public class ProductService {
     }
 
     public void deleteProduct(Long id) {
+        if (orderRepository.existsByOptionProductId(id)) {
+            throw new IllegalArgumentException("주문이 있는 상품은 삭제할 수 없습니다.");
+        }
         productRepository.deleteById(id);
     }
 

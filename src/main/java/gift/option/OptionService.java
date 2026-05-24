@@ -1,5 +1,6 @@
 package gift.option;
 
+import gift.order.OrderRepository;
 import gift.product.ProductRepository;
 import org.springframework.stereotype.Service;
 
@@ -9,10 +10,12 @@ import java.util.List;
 public class OptionService {
     private final OptionRepository optionRepository;
     private final ProductRepository productRepository;
+    private final OrderRepository orderRepository;
 
-    public OptionService(OptionRepository optionRepository, ProductRepository productRepository) {
+    public OptionService(OptionRepository optionRepository, ProductRepository productRepository, OrderRepository orderRepository) {
         this.optionRepository = optionRepository;
         this.productRepository = productRepository;
+        this.orderRepository = orderRepository;
     }
 
     public List<OptionResponse> getOptions(Long productId) {
@@ -47,6 +50,9 @@ public class OptionService {
         Option option = optionRepository.findById(optionId)
             .filter(o -> o.getProduct().getId().equals(productId))
             .orElseThrow(() -> new IllegalArgumentException("Option not found: " + optionId));
+        if (orderRepository.existsByOptionId(optionId)) {
+            throw new IllegalArgumentException("주문이 있는 옵션은 삭제할 수 없습니다.");
+        }
         optionRepository.delete(option);
     }
 }

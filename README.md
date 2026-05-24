@@ -466,3 +466,17 @@ member ──< orders ───────────┘
 
 **3. 결과 및 근거**
 상품이 있는 카테고리 삭제 시 `IllegalArgumentException` 발생 → `GlobalExceptionHandler`가 400으로 변환. DB FK 에러 없음. `CategoryServiceTest` 6개 테스트 전부 통과.
+
+---
+
+### [2026-05-24] 주문이 있는 상품·옵션 삭제 시 FK 에러 방지
+
+**1. 문제 정의**
+`ProductService.deleteProduct()`와 `OptionService.deleteOption()`이 주문이 존재하는 상품·옵션을 삭제 시도할 때 DB FK 제약(`orders.option_id`)이 `DataIntegrityViolationException`(500)을 던졌다. 서비스 레벨 사전 검사가 없었다.
+
+**2. 상호작용 타임라인**
+- **Step 1 [Red]**: `OrderRepository`에 `existsByOptionId()`, `existsByOptionProductId()` 쿼리 메서드 추가 → `ProductServiceTest`에 `@Mock OrderRepository` + `deleteProduct_hasOrders_throwsException` 추가, `OptionServiceTest`에 `@Mock OrderRepository` + `deleteOption_hasOrders_throwsException` 추가, `deleteOption_notLastOption_deletesSuccessfully`에 `existsByOptionId` → false 스텁 추가 → 서비스에 검사 없어 FAIL(Red) 확인
+- **Step 2 [Green]**: `ProductService`에 `OrderRepository` 주입, `deleteProduct()` 첫 줄에 `existsByOptionProductId` 검사 추가. `OptionService`에 `OrderRepository` 주입, `deleteOption()` option 조회 후 `existsByOptionId` 검사 추가 → 테스트 GREEN
+
+**3. 결과 및 근거**
+주문이 있는 상품·옵션 삭제 시 `IllegalArgumentException` 발생 → `GlobalExceptionHandler`가 400으로 변환. `ProductServiceTest` 3개 신규 + `OptionServiceTest` 1개 신규 테스트 포함 전체 테스트 통과.

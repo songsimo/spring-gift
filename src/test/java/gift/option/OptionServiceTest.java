@@ -1,6 +1,7 @@
 package gift.option;
 
 import gift.category.Category;
+import gift.order.OrderRepository;
 import gift.product.Product;
 import gift.product.ProductRepository;
 import org.junit.jupiter.api.DisplayName;
@@ -18,6 +19,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.never;
 
 @ExtendWith(MockitoExtension.class)
 class OptionServiceTest {
@@ -27,6 +29,9 @@ class OptionServiceTest {
 
     @Mock
     ProductRepository productRepository;
+
+    @Mock
+    OrderRepository orderRepository;
 
     @InjectMocks
     OptionService optionService;
@@ -118,10 +123,30 @@ class OptionServiceTest {
             new Option(product, "스페이스그레이 512GB", 5)
         ));
         given(optionRepository.findById(1L)).willReturn(Optional.of(option));
+        given(orderRepository.existsByOptionId(1L)).willReturn(false);
 
         optionService.deleteOption(1L, 1L);
 
         then(optionRepository).should().delete(option);
+    }
+
+    @Test
+    @DisplayName("주문이 있는 옵션 삭제 시 예외가 발생한다")
+    void deleteOption_hasOrders_throwsException() {
+        Category category = new Category(1L, "전자기기", "#1E90FF", "https://example.com/img.png", "전자제품");
+        Product product = new Product(1L, "MacBook", 1000000, "https://example.com/mac.png", category);
+        Option option = new Option(1L, product, "실버 256GB", 10);
+        given(productRepository.findById(1L)).willReturn(Optional.of(product));
+        given(optionRepository.findByProductId(1L)).willReturn(List.of(
+            option,
+            new Option(product, "스페이스그레이 512GB", 5)
+        ));
+        given(optionRepository.findById(1L)).willReturn(Optional.of(option));
+        given(orderRepository.existsByOptionId(1L)).willReturn(true);
+
+        assertThatThrownBy(() -> optionService.deleteOption(1L, 1L))
+            .isInstanceOf(IllegalArgumentException.class);
+        then(optionRepository).should(never()).delete(any());
     }
 
     @Test
