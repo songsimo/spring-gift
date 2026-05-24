@@ -893,3 +893,17 @@ HTTP 상태 코드가 의미에 맞게 분리됨: 리소스 없음 → 404, 중�
 
 **3. 결과 및 근거**
 GET(목록), POST(추가), DELETE(삭제) 세 엔드포인트 모두 정상 경로(200/201/204)와 인증 실패 경로(401), 입력 검증 실패(400) 총 7개 시나리오 커버. 전체 테스트 GREEN.
+
+---
+
+### [2026-05-25] OrderController, OptionController @WebMvcTest 테스트 작성 (Task 16)
+
+**1. 문제 정의**
+`OrderController`(GET/POST `/api/orders`)와 `OptionController`(GET/POST/PUT/DELETE `/api/products/{id}/options`)에 컨트롤러 단위 테스트가 없어, HTTP 상태 코드와 입력 검증 동작을 자동화된 방법으로 확인할 수 없었다.
+
+**2. 상호작용 타임라인**
+- **Step 1**: `OrderControllerTest` 작성 — 인증 포함 엔드포인트, 유효/무효 토큰·입력 검증 실패 6개 시나리오 → GREEN
+- **Step 2**: `OptionControllerTest` 작성 — 인증 없는 CRUD 엔드포인트, 정상 경로·404·400 총 8개 시나리오 → GREEN
+
+**3. 결과 및 근거**
+`OrderController` 6개, `OptionController` 8개 총 14개 테스트 추가. `WishController`(Task 15)와 함께 인증 필요 REST API 전체 컨트롤러 커버. 전체 테스트 GREEN.
