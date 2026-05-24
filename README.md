@@ -494,3 +494,17 @@ member ──< orders ───────────┘
 
 **3. 결과 및 근거**
 `subtractQuantity(0)`, `subtractQuantity(-1)` 모두 `IllegalArgumentException` 발생. `OptionTest` 4개 테스트 전부 통과, 전체 테스트 GREEN.
+
+---
+
+### [2026-05-24] OrderRequest.message 길이 제한 추가
+
+**1. 문제 정의**
+`OrderRequest.message`에 길이 제한이 없어, 255자를 초과하는 메시지 전송 시 DB `varchar(255)` 컬럼 초과로 런타임 오류가 발생했다.
+
+**2. 상호작용 타임라인**
+- **Step 1 [Red]**: `OrderRequestTest` 신규 생성 — Jakarta `Validator`로 `message` 256자 케이스 검증 실패 기대 → FAIL(Red) 확인
+- **Step 2 [Green]**: `OrderRequest.message`에 `@Size(max = 255)` 추가 → 검증 통과, 전체 GREEN
+
+**3. 결과 및 근거**
+`message` 256자 이상 시 Jakarta Validation이 400을 반환. `null`·255자 케이스는 정상 통과. `OrderRequestTest` 3개 테스트 전부 통과.
