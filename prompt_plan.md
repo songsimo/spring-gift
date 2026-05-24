@@ -826,6 +826,7 @@ F-9 (옵션 수정 API)   ← 독립
 - [x] Task 10: 커스텀 예외 계층 도입 (`NotFoundException` → 404, `DuplicateException` → 409)
 - [x] Task 11: `MemberService` JWT 의존 제거 (`AuthService` 분리)
 - [x] Task 12: 카카오 알림 실패 응답 포함 (`OrderResponse.notificationSent`)
+- [x] Task 13: `updateMember` 비밀번호 BCrypt 인코딩 누락 수정 (보안 버그)
 
 ### 기능 개선
 - [x] Task F-1: 비밀번호 BCrypt 해싱

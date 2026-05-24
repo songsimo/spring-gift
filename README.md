@@ -852,3 +852,17 @@ HTTP 상태 코드가 의미에 맞게 분리됨: 리소스 없음 → 404, 중�
 
 **3. 결과 및 근거**
 카카오 토큰 존재 + 전송 성공 시 `notificationSent=true`, 토큰 없거나 전송 실패 시 `false`로 응답. 알림 실패가 주문 실패로 전파되지 않는 정책은 그대로 유지. `OrderServiceTest` 8개 전부 GREEN, 전체 테스트 GREEN.
+
+---
+
+### [2026-05-25] updateMember 비밀번호 BCrypt 인코딩 누락 수정 (Task 13)
+
+**1. 문제 정의**
+`MemberService.updateMember()`가 비밀번호를 plain text로 `Member.update()`에 전달해 DB에 그대로 저장하고 있었다. `registerMember()`와 `adminCreate()`는 `encoder.encode()`를 적용하고 있어 인증 흐름에서만 비밀번호가 안전하게 저장되는 일관성 문제였다.
+
+**2. 상호작용 타임라인**
+- **Step 1 [Red]**: `MemberServiceTest`에 `updateMember_encodesPasswordBeforeSaving` 테스트 추가 — `member.getPassword()`가 BCrypt 해시가 아니어서 실패(Red) 확인
+- **Step 2 [Green]**: `MemberService.updateMember()`에서 `member.update(email, encoder.encode(password))` 로 변경 → 테스트 GREEN
+
+**3. 결과 및 근거**
+`updateMember` 호출 후 저장되는 비밀번호가 BCrypt 해시임을 테스트로 검증. `registerMember`, `adminCreate`, `updateMember` 세 경로 모두 동일하게 인코딩 적용. 전체 테스트 GREEN.

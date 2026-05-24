@@ -48,6 +48,18 @@ class MemberServiceTest {
     }
 
     @Test
+    @DisplayName("회원 정보 수정 시 비밀번호가 BCrypt로 인코딩되어 저장된다")
+    void updateMember_encodesPasswordBeforeSaving() {
+        Member member = new Member(1L, "old@test.com", encoder.encode("oldpw"));
+        given(memberRepository.findById(1L)).willReturn(Optional.of(member));
+        given(memberRepository.save(member)).willReturn(member);
+
+        memberService.updateMember(1L, "new@test.com", "newpw");
+
+        assertThat(encoder.matches("newpw", member.getPassword())).isTrue();
+    }
+
+    @Test
     @DisplayName("존재하지 않는 회원 수정 시 예외가 발생한다")
     void nonExistingMember_throwsException() {
         given(memberRepository.findById(99L)).willReturn(Optional.empty());

@@ -32,7 +32,7 @@ public class MemberService {
     public void updateMember(Long id, String email, String password) {
         Member member = memberRepository.findById(id)
             .orElseThrow(() -> new NotFoundException("회원을 찾을 수 없습니다. id=" + id));
-        member.update(email, password);
+        member.update(email, encoder.encode(password));
         memberRepository.save(member);
     }
 
