@@ -333,6 +333,37 @@ Task 3 (AdminProductController 분리)
 
 ---
 
+### Task 9 — `Product` 도메인 검증 내재화
+
+**문제**: `ProductNameValidator`가 길이·문자 불변식과 "카카오" 권한 정책을 함께 처리. `ProductService`를 거치지 않으면 검증 없이 `Product`를 생성할 수 있어 불변식이 보장되지 않음.
+
+**설계**:
+- `Product` 생성자 / `update()`: null/blank, 길이(≤15자), 허용 문자 검증 → 위반 시 `IllegalArgumentException`
+- `ProductNameValidator`: "카카오" 검사 메서드만 유지 (길이·문자 메서드 제거)
+- `ProductService`: `validate()` 전체 호출 제거, "카카오" 체크만 유지 (allowKakao 분기 그대로)
+
+**작업 범위**: `Product.java`, `ProductNameValidator.java`, `ProductService.java`, `ProductTest.java`(신규)  
+**완료 조건**: `Product` 생성자에서 잘못된 이름으로 예외 발생, 기존 테스트 전부 GREEN
+
+**프롬프트**:
+```
+ProductNameValidator의 길이·문자 불변식 검증을 Product 생성자와 update()로 이동해줘.
+
+TDD 순서:
+[Red] src/test/java/gift/product/ProductTest.java 신규 작성:
+  - null 이름 → 예외
+  - blank 이름 → 예외
+  - 16자 이름 → 예외
+  - 허용되지 않는 특수문자 포함 → 예외
+  - 정상 이름(15자 이하, 허용 문자) → 생성 성공
+[Green] Product 생성자와 update()에 검증 로직 추가
+[Refactor] ProductNameValidator에서 길이·문자 검증 메서드 제거,
+           ProductService에서 validate() 전체 호출 → 카카오 체크만 호출로 변경
+           기존 테스트 전부 통과 확인 후 README 로그 추가
+```
+
+---
+
 # 기능 개선 작업 (Functional Improvements)
 
 > 코드 품질 작업(Task 1~8)과 별도로 관리한다.  
@@ -720,6 +751,7 @@ F-9 (옵션 수정 API)   ← 독립
 - [ ] Task 6: `KakaoAuthService` / `AuthenticationResolver` 의존성 정리
 - [ ] Task 7: `wish` 테이블 유니크 제약 추가
 - [ ] Task 8: 어드민 컨트롤러 테스트 작성
+- [x] Task 9: `Product` 도메인 검증 내재화
 
 ### 기능 개선
 - [ ] Task F-1: 비밀번호 BCrypt 해싱

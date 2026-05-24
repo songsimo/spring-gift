@@ -8,10 +8,10 @@ import gift.product.model.ProductNameValidator;
 import gift.product.repository.ProductRepository;
 import gift.wish.repository.WishRepository;
 import org.springframework.data.domain.Page;
+import java.util.List;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 
 @Service
 public class ProductService {
@@ -42,10 +42,7 @@ public class ProductService {
     }
 
     public ProductResponse createProduct(ProductRequest request) {
-        List<String> errors = ProductNameValidator.validate(request.name());
-        if (!errors.isEmpty()) {
-            throw new IllegalArgumentException(String.join(", ", errors));
-        }
+        validateNotKakao(request.name());
         Category category = categoryRepository.findById(request.categoryId())
             .orElseThrow(() -> new IllegalArgumentException("Category not found: " + request.categoryId()));
         Product saved = productRepository.save(request.toEntity(category));
@@ -53,10 +50,7 @@ public class ProductService {
     }
 
     public ProductResponse updateProduct(Long id, ProductRequest request) {
-        List<String> errors = ProductNameValidator.validate(request.name());
-        if (!errors.isEmpty()) {
-            throw new IllegalArgumentException(String.join(", ", errors));
-        }
+        validateNotKakao(request.name());
         Category category = categoryRepository.findById(request.categoryId())
             .orElseThrow(() -> new IllegalArgumentException("Category not found: " + request.categoryId()));
         Product product = productRepository.findById(id)
@@ -80,25 +74,23 @@ public class ProductService {
     }
 
     public void adminCreateProduct(String name, int price, String imageUrl, Long categoryId) {
-        List<String> errors = ProductNameValidator.validate(name, true);
-        if (!errors.isEmpty()) {
-            throw new IllegalArgumentException(String.join(", ", errors));
-        }
         Category category = categoryRepository.findById(categoryId)
             .orElseThrow(() -> new IllegalArgumentException("Category not found: " + categoryId));
         productRepository.save(new Product(name, price, imageUrl, category));
     }
 
     public void adminUpdateProduct(Long id, String name, int price, String imageUrl, Long categoryId) {
-        List<String> errors = ProductNameValidator.validate(name, true);
-        if (!errors.isEmpty()) {
-            throw new IllegalArgumentException(String.join(", ", errors));
-        }
         Category category = categoryRepository.findById(categoryId)
             .orElseThrow(() -> new IllegalArgumentException("Category not found: " + categoryId));
         Product product = productRepository.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("Product not found: " + id));
         product.update(name, price, imageUrl, category);
         productRepository.save(product);
+    }
+
+    private static void validateNotKakao(String name) {
+        if (ProductNameValidator.containsKakao(name)) {
+            throw new IllegalArgumentException("\"카카오\"가 포함된 상품명은 담당 MD와 협의한 경우에만 사용할 수 있습니다.");
+        }
     }
 }

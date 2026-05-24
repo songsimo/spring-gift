@@ -284,6 +284,22 @@ API 엔드포인트 전체 목록, 주문 처리 6단계 흐름, DB 스키마 �
 
 ---
 
+### [2026-05-25] Product 도메인 검증 내재화
+
+**1. 문제 정의**
+`ProductNameValidator`가 길이·문자 불변식을 검증하지만 `ProductService`를 거치지 않으면 검증 없이 `Product`를 생성할 수 있어 도메인 불변식이 보장되지 않았다.
+
+**2. 상호작용 타임라인**
+
+- **Step 1**: "validation 검증을 ProductNameValidator 따로 만드는 것보다 도메인 안에 검증 로직이 있는 게 좋을 것 같다" → AI가 설계 분석: 길이·문자 불변식은 `Product` 내부로, 권한 기반 "카카오" 정책은 `ProductService`에 유지하는 방향 제안 → 수용.
+- **Step 2**: `ProductTest` 신규 작성 (8개 케이스: null/blank/16자/특수문자 → 예외, 15자/정상 → 성공) → Red 확인.
+- **Step 3**: `Product` 생성자·`update()`에 `validateName()` private 메서드 추가. `ProductNameValidator`는 `containsKakao()` 메서드만 남기고 나머지 제거. `ProductService`는 `validate()` 전체 호출 → `validateNotKakao()` 호출로 교체. 관리자 메서드(`adminCreateProduct`, `adminUpdateProduct`)는 카카오 제한 없으므로 체크 제거 → Green 전환 → 수용.
+
+**3. 결과 및 근거**
+`Product` 생성자·`update()` 호출 시 항상 불변식을 검증하여 `ProductService` 우회로 인한 잘못된 도메인 객체 생성이 불가능해졌다. `ProductTest` 8개, 전체 테스트 통과.
+
+---
+
 ## 아키텍처 결정 기록 (Architecture Decision Records)
 
 > 되돌리기 어렵거나 반복 규칙이 생기는 설계 결정을 기록합니다.
