@@ -1,8 +1,11 @@
-package gift.product;
+package gift.product.service;
 
 import gift.category.model.Category;
 import gift.category.repository.CategoryRepository;
 import gift.order.repository.OrderRepository;
+import gift.product.model.Product;
+import gift.product.model.ProductNameValidator;
+import gift.product.repository.ProductRepository;
 import gift.wish.repository.WishRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

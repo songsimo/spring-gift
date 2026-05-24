@@ -4,7 +4,7 @@ import gift.option.model.Option;
 import gift.option.model.OptionNameValidator;
 import gift.option.repository.OptionRepository;
 import gift.order.repository.OrderRepository;
-import gift.product.ProductRepository;
+import gift.product.repository.ProductRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

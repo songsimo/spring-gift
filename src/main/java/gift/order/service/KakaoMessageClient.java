@@ -3,7 +3,7 @@ package gift.order.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import gift.order.model.Order;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import gift.product.Product;
+import gift.product.model.Product;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.client.RestClient;

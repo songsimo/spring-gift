@@ -1,7 +1,7 @@
 package gift.wish.service;
 
-import gift.product.Product;
-import gift.product.ProductRepository;
+import gift.product.model.Product;
+import gift.product.repository.ProductRepository;
 import gift.wish.model.Wish;
 import gift.wish.repository.WishRepository;
 import org.springframework.data.domain.Page;

@@ -1,6 +1,7 @@
-package gift.product;
+package gift.product.service;
 
 import gift.category.model.Category;
+import gift.product.model.Product;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;

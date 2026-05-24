@@ -1,5 +1,8 @@
-package gift.product;
+package gift.product.web;
 
+import gift.product.service.ProductRequest;
+import gift.product.service.ProductResponse;
+import gift.product.service.ProductService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

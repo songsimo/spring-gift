@@ -1,8 +1,8 @@
 package gift.wish;
 
 import gift.category.model.Category;
-import gift.product.Product;
-import gift.product.ProductRepository;
+import gift.product.model.Product;
+import gift.product.repository.ProductRepository;
 import gift.wish.model.Wish;
 import gift.wish.repository.WishRepository;
 import gift.wish.service.WishResponse;

@@ -1,7 +1,7 @@
 package gift.wish;
 
 import gift.category.model.Category;
-import gift.product.Product;
+import gift.product.model.Product;
 import gift.wish.model.Wish;
 import gift.wish.repository.WishRepository;
 import org.junit.jupiter.api.DisplayName;

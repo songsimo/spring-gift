@@ -2,6 +2,9 @@ package gift.product;
 
 import gift.category.service.CategoryResponse;
 import gift.category.service.CategoryService;
+import gift.product.model.Product;
+import gift.product.service.ProductService;
+import gift.product.web.AdminProductController;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

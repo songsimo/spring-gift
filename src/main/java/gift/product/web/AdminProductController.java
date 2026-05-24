@@ -1,6 +1,7 @@
-package gift.product;
+package gift.product.web;
 
 import gift.category.service.CategoryService;
+import gift.product.service.ProductService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;

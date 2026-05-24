@@ -5,7 +5,7 @@ import gift.category.repository.CategoryRepository;
 import gift.category.service.CategoryRequest;
 import gift.category.service.CategoryResponse;
 import gift.category.service.CategoryService;
-import gift.product.ProductRepository;
+import gift.product.repository.ProductRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

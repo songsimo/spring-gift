@@ -11,7 +11,7 @@ import gift.order.service.KakaoMessageClient;
 import gift.order.service.OrderRequest;
 import gift.order.service.OrderResponse;
 import gift.order.service.OrderService;
-import gift.product.Product;
+import gift.product.model.Product;
 import gift.wish.model.Wish;
 import gift.wish.repository.WishRepository;
 import org.junit.jupiter.api.DisplayName;

@@ -1,4 +1,4 @@
-package gift.product;
+package gift.product.model;
 
 import java.util.ArrayList;
 import java.util.List;

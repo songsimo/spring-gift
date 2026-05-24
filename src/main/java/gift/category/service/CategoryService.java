@@ -2,7 +2,7 @@ package gift.category.service;
 
 import gift.category.model.Category;
 import gift.category.repository.CategoryRepository;
-import gift.product.ProductRepository;
+import gift.product.repository.ProductRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
