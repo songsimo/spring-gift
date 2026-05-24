@@ -578,3 +578,17 @@ DB CASCADE 대신 서비스 레이어에서 명시적으로 찜을 먼저 삭제
 
 **3. 결과 및 근거**
 `PUT /api/products/{productId}/options/{optionId}`로 옵션명·재고 수정 가능. 자기 자신과 동일한 이름은 허용, 타 옵션과 중복명은 차단. `OptionServiceTest` 14개 전부 통과, 전체 테스트 GREEN.
+
+---
+
+### [2026-05-24] 회원 본인 정보 조회 API 추가 (F-8, GET /api/members/me)
+
+**1. 문제 정의**
+로그인한 회원이 자신의 이메일과 포인트 잔액을 조회하는 API가 없어 마이페이지·주문 전 포인트 확인이 불가능했다.
+
+**2. 상호작용 타임라인**
+- **Step 1 [Red]**: `MemberServiceTest`에 `getMyInfo_existingEmail_returnsEmailAndPoint` 추가. `MemberResponse`·`getMyInfo()` 미존재로 컴파일 오류(Red) 확인
+- **Step 2 [Green]**: `MemberResponse(email, point)` 레코드 신규 생성. `MemberService.getMyInfo()` 구현(이메일로 회원 조회 후 DTO 반환). `MemberController`에 `GET /me` 핸들러 추가 — `AuthenticationResolver`로 회원 추출, 미인증 시 401 반환 → 전체 GREEN
+
+**3. 결과 및 근거**
+`GET /api/members/me`에 유효한 JWT를 보내면 `{ "email": "...", "point": 5000 }` 응답. 토큰이 없거나 유효하지 않으면 401 반환. `MemberServiceTest` 전부 통과, 전체 테스트 GREEN.

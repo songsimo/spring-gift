@@ -55,6 +55,12 @@ public class MemberService {
         memberRepository.save(new Member(email, encoder.encode(password)));
     }
 
+    public MemberResponse getMyInfo(String email) {
+        Member member = memberRepository.findByEmail(email)
+            .orElseThrow(() -> new IllegalArgumentException("Member not found: " + email));
+        return MemberResponse.from(member);
+    }
+
     public Member findByEmailOrNull(String email) {
         return memberRepository.findByEmail(email).orElse(null);
     }

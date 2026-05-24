@@ -262,4 +262,17 @@ class MemberServiceTest {
 
         assertThat(result.getKakaoAccessToken()).isEqualTo("new-token");
     }
+
+    @Test
+    @DisplayName("이메일로 내 정보를 조회하면 이메일과 포인트를 반환한다")
+    void getMyInfo_existingEmail_returnsEmailAndPoint() {
+        Member member = new Member(1L, "test@test.com", "pw");
+        member.chargePoint(3000);
+        given(memberRepository.findByEmail("test@test.com")).willReturn(Optional.of(member));
+
+        MemberResponse result = memberService.getMyInfo("test@test.com");
+
+        assertThat(result.email()).isEqualTo("test@test.com");
+        assertThat(result.point()).isEqualTo(3000);
+    }
 }
