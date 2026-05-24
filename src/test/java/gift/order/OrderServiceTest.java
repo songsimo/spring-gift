@@ -6,6 +6,8 @@ import gift.member.MemberRepository;
 import gift.option.Option;
 import gift.option.OptionRepository;
 import gift.product.Product;
+import gift.wish.Wish;
+import gift.wish.WishRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,6 +25,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.never;
 
 @ExtendWith(MockitoExtension.class)
 class OrderServiceTest {
@@ -38,6 +42,9 @@ class OrderServiceTest {
 
     @Mock
     KakaoMessageClient kakaoMessageClient;
+
+    @Mock
+    WishRepository wishRepository;
 
     @InjectMocks
     OrderService orderService;
@@ -97,5 +104,42 @@ class OrderServiceTest {
 
         assertThatThrownBy(() -> orderService.createOrder(1L, new OrderRequest(1L, 2, null)))
             .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    @DisplayName("주문 시 해당 상품의 찜이 있으면 삭제된다")
+    void createOrder_wishExists_removesWish() {
+        Category category = new Category(1L, "전자기기", "#1E90FF", "https://example.com/img.png", "전자제품");
+        Product product = new Product(1L, "MacBook", 1000000, "https://example.com/mac.png", category);
+        Option option = new Option(1L, product, "실버 256GB", 10);
+        Member member = new Member("test@test.com", "password");
+        member.chargePoint(3000000);
+        Wish wish = new Wish(1L, product);
+        given(optionRepository.findById(1L)).willReturn(Optional.of(option));
+        given(memberRepository.findById(1L)).willReturn(Optional.of(member));
+        given(orderRepository.save(any())).willReturn(new Order(option, 1L, 2, "선물이에요"));
+        given(wishRepository.findByMemberIdAndProductId(1L, 1L)).willReturn(Optional.of(wish));
+
+        orderService.createOrder(1L, new OrderRequest(1L, 2, "선물이에요"));
+
+        then(wishRepository).should().delete(wish);
+    }
+
+    @Test
+    @DisplayName("주문 시 해당 상품의 찜이 없으면 삭제 없이 진행된다")
+    void createOrder_noWish_proceedsNormally() {
+        Category category = new Category(1L, "전자기기", "#1E90FF", "https://example.com/img.png", "전자제품");
+        Product product = new Product(1L, "MacBook", 1000000, "https://example.com/mac.png", category);
+        Option option = new Option(1L, product, "실버 256GB", 10);
+        Member member = new Member("test@test.com", "password");
+        member.chargePoint(3000000);
+        given(optionRepository.findById(1L)).willReturn(Optional.of(option));
+        given(memberRepository.findById(1L)).willReturn(Optional.of(member));
+        given(orderRepository.save(any())).willReturn(new Order(option, 1L, 2, "선물이에요"));
+        given(wishRepository.findByMemberIdAndProductId(1L, 1L)).willReturn(Optional.empty());
+
+        orderService.createOrder(1L, new OrderRequest(1L, 2, "선물이에요"));
+
+        then(wishRepository).should(never()).delete(any(Wish.class));
     }
 }

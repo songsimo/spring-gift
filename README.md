@@ -365,3 +365,17 @@ member ──< orders ───────────┘
 
 **3. 결과 및 근거**
 `CategoryService.update()` 닫는 `}` 들여쓰기 4칸으로 수정 완료. `CategoryServiceTest` 5개 테스트 전부 통과, `ktlintCheck` 오류 없음.
+
+---
+
+### [2026-05-24] 주문 시 찜 목록 자동 삭제
+
+**1. 문제 정의**
+주문이 완료됐을 때 해당 상품이 찜 목록에 있어도 자동으로 삭제되지 않았다. 사용자가 구매 완료 후 찜 목록을 직접 지워야 하는 UX 문제가 있었다.
+
+**2. 상호작용 타임라인**
+- **Step 1 [Red]**: `OrderServiceTest`에 `createOrder_wishExists_removesWish`, `createOrder_noWish_proceedsNormally` 2개 테스트 추가. `WishRepository` Mock 미선언 상태여서 FAIL → 수용
+- **Step 2 [Green]**: `OrderService`에 `WishRepository` 의존성 추가, `createOrder()` 내 `wishRepository.findByMemberIdAndProductId().ifPresent(wishRepository::delete)` 로직 추가로 GREEN 전환 → 수용
+
+**3. 결과 및 근거**
+`OrderService.createOrder()` 완료 시 해당 상품의 찜이 있으면 자동 삭제. `OrderServiceTest` 6개 테스트(기존 4 + 신규 2) 전부 통과.
