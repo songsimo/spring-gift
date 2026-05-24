@@ -67,6 +67,7 @@ class ProductServiceTest {
 
         assertThat(result.name()).isEqualTo("MacBook");
         assertThat(result.price()).isEqualTo(1000000);
+        assertThat(result.categoryName()).isEqualTo("전자기기");
     }
 
     @Test
@@ -92,6 +93,7 @@ class ProductServiceTest {
 
         assertThat(result.name()).isEqualTo("MacBook");
         assertThat(result.categoryId()).isEqualTo(1L);
+        assertThat(result.categoryName()).isEqualTo("전자기기");
     }
 
     @Test

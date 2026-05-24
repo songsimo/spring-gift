@@ -536,3 +536,17 @@ member ──< orders ───────────┘
 
 **3. 결과 및 근거**
 클라이언트가 단일 주문 응답만으로 상품명·옵션명·총금액 확인 가능. `OrderServiceTest` 전부 통과, 전체 테스트 GREEN.
+
+---
+
+### [2026-05-24] ProductResponse에 categoryName 추가
+
+**1. 문제 정의**
+`ProductResponse`가 `categoryId`만 반환해 클라이언트가 카테고리 이름을 표시하려면 별도 카테고리 API를 호출해야 했다.
+
+**2. 상호작용 타임라인**
+- **Step 1 [Red]**: `ProductServiceTest`의 `getProduct_existingId_returnsProduct`, `createProduct_validRequest_returnsCreatedProduct` 두 케이스에 `categoryName()` 검증 추가 → 필드 미존재로 컴파일 오류(Red) 확인
+- **Step 2 [Green]**: `ProductResponse` 레코드에 `categoryName` 필드 추가, `from()` 팩토리에서 `product.getCategory().getName()`으로 채움 → 전체 GREEN
+
+**3. 결과 및 근거**
+클라이언트가 상품 조회 한 번으로 카테고리 이름까지 확인 가능. `ProductServiceTest` 전부 통과, 전체 테스트 GREEN.
