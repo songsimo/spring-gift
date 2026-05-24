@@ -319,6 +319,25 @@ member ──< orders ───────────┘
 
 ---
 
+### [2026-05-24] @RestControllerAdvice 전역 예외 처리기 도입
+
+**1. 문제 정의**
+컨트롤러마다 예외 처리 방식이 달라 API 에러 응답이 일관되지 않았다. `MemberController`·`ProductController`·`OptionController`는 `@ExceptionHandler`를 각각 선언하고, `CategoryController`는 try-catch로 `IllegalArgumentException`을 404로 잘못 매핑했으며, `WishController`·`OrderController`는 핸들러가 없어 서비스 예외 시 500을 반환했다.
+
+**2. 상호작용 타임라인**
+- **Step 1 [Red]**: `GlobalExceptionHandlerTest` 작성 — `CategoryController.update()`에서 `IllegalArgumentException` 발생 시 400을 기대. 기존 try-catch가 404를 반환하므로 FAIL → 수용
+- **Step 2 [Green]**: `gift.exception.GlobalExceptionHandler`(`@RestControllerAdvice`) 생성 — `IllegalArgumentException` → 400 Bad Request + 메시지 바디
+- **Step 3 [Refactor]**: 4개 컨트롤러에서 중복·불일치 코드 제거
+  - `CategoryController`: `updateCategory()` try-catch 제거
+  - `ProductController`: `getProduct()` try-catch + `@ExceptionHandler` 제거
+  - `OptionController`: `getOptions()` try-catch + `@ExceptionHandler` 제거
+  - `MemberController`: `@ExceptionHandler` 제거
+
+**3. 결과 및 근거**
+`GlobalExceptionHandler` 1개로 모든 `IllegalArgumentException`을 400으로 통일. `GlobalExceptionHandlerTest` 2개 케이스 포함 전체 테스트 통과.
+
+---
+
 ### [2026-05-24] AdminProductController 서비스 레이어 분리
 
 **1. 문제 정의**
