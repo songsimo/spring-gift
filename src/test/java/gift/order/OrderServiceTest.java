@@ -156,4 +156,60 @@ class OrderServiceTest {
 
         then(wishRepository).should(never()).delete(any(Wish.class));
     }
+
+    @Test
+    @DisplayName("카카오 토큰이 있고 알림 전송 성공 시 notificationSent가 true다")
+    void createOrder_kakaoTokenExists_sendSucceeds_notificationSentTrue() {
+        Category category = new Category(1L, "전자기기", "#1E90FF", "https://example.com/img.png", "전자제품");
+        Product product = new Product(1L, "MacBook", 1000000, "https://example.com/mac.png", category);
+        Option option = new Option(1L, product, "실버 256GB", 10);
+        Member member = new Member("test@test.com", "password");
+        member.chargePoint(3000000);
+        member.updateKakaoAccessToken("kakao-token");
+        given(optionRepository.findById(1L)).willReturn(Optional.of(option));
+        given(memberRepository.findById(1L)).willReturn(Optional.of(member));
+        given(orderRepository.save(any())).willReturn(new Order(option, 1L, 2, "선물이에요"));
+
+        OrderResponse result = orderService.createOrder(1L, new OrderRequest(1L, 2, "선물이에요"));
+
+        assertThat(result.notificationSent()).isTrue();
+    }
+
+    @Test
+    @DisplayName("카카오 토큰이 없으면 notificationSent가 false다")
+    void createOrder_noKakaoToken_notificationSentFalse() {
+        Category category = new Category(1L, "전자기기", "#1E90FF", "https://example.com/img.png", "전자제품");
+        Product product = new Product(1L, "MacBook", 1000000, "https://example.com/mac.png", category);
+        Option option = new Option(1L, product, "실버 256GB", 10);
+        Member member = new Member("test@test.com", "password");
+        member.chargePoint(3000000);
+        given(optionRepository.findById(1L)).willReturn(Optional.of(option));
+        given(memberRepository.findById(1L)).willReturn(Optional.of(member));
+        given(orderRepository.save(any())).willReturn(new Order(option, 1L, 2, "선물이에요"));
+
+        OrderResponse result = orderService.createOrder(1L, new OrderRequest(1L, 2, "선물이에요"));
+
+        assertThat(result.notificationSent()).isFalse();
+    }
+
+    @Test
+    @DisplayName("카카오 알림 전송 실패 시 notificationSent가 false이고 주문은 성공한다")
+    void createOrder_kakaoSendFails_notificationSentFalse_orderSucceeds() {
+        Category category = new Category(1L, "전자기기", "#1E90FF", "https://example.com/img.png", "전자제품");
+        Product product = new Product(1L, "MacBook", 1000000, "https://example.com/mac.png", category);
+        Option option = new Option(1L, product, "실버 256GB", 10);
+        Member member = new Member("test@test.com", "password");
+        member.chargePoint(3000000);
+        member.updateKakaoAccessToken("kakao-token");
+        given(optionRepository.findById(1L)).willReturn(Optional.of(option));
+        given(memberRepository.findById(1L)).willReturn(Optional.of(member));
+        given(orderRepository.save(any())).willReturn(new Order(option, 1L, 2, "선물이에요"));
+        org.mockito.Mockito.doThrow(new RuntimeException("카카오 서버 오류"))
+            .when(kakaoMessageClient).sendToMe(any(), any(), any());
+
+        OrderResponse result = orderService.createOrder(1L, new OrderRequest(1L, 2, "선물이에요"));
+
+        assertThat(result.notificationSent()).isFalse();
+        assertThat(result.quantity()).isEqualTo(2);
+    }
 }

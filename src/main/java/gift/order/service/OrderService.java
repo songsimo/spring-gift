@@ -55,17 +55,19 @@ public class OrderService {
         Order saved = orderRepository.save(new Order(option, memberId, request.quantity(), request.message()));
         wishRepository.findByMemberIdAndProductId(memberId, option.getProduct().getId())
             .ifPresent(wishRepository::delete);
-        sendKakaoMessageIfPossible(member, saved, option);
-        return OrderResponse.from(saved);
+        boolean notificationSent = sendKakaoMessageIfPossible(member, saved, option);
+        return OrderResponse.of(saved, notificationSent);
     }
 
-    private void sendKakaoMessageIfPossible(Member member, Order order, Option option) {
+    private boolean sendKakaoMessageIfPossible(Member member, Order order, Option option) {
         if (member.getKakaoAccessToken() == null) {
-            return;
+            return false;
         }
         try {
             kakaoMessageClient.sendToMe(member.getKakaoAccessToken(), order, option.getProduct());
+            return true;
         } catch (Exception ignored) {
+            return false;
         }
     }
 }

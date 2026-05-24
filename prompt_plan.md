@@ -364,6 +364,23 @@ TDD 순서:
 
 ---
 
+### Task 12 — 카카오 알림 실패 응답 포함 (`OrderResponse.notificationSent`)
+
+**문제**: `sendKakaoMessageIfPossible()`이 예외를 무시(catch ignored)하여 고객은 알림 미수신 사실을 모름.  
+주문 완료 응답에 알림 성공 여부를 포함해야 함.
+
+**설계 (Option B)**:
+- `OrderResponse`에 `notificationSent: boolean` 필드 추가
+- `sendKakaoMessageIfPossible()` → `boolean` 반환 (성공 true, 미전송·실패 false)
+- 알림 실패 시 `log.warn(...)` 기록
+- 카카오 액세스 토큰 없으면 → `false` (전송 시도 안 함)
+- 주문 자체는 항상 성공 처리 유지
+
+**작업 범위**: `OrderResponse.java`, `OrderService.java`, `OrderServiceTest.java`  
+**완료 조건**: `createOrder()` 응답에 `notificationSent` 포함, 기존 테스트 GREEN
+
+---
+
 ### Task 11 — `MemberService`에서 JWT 의존 제거 (`AuthService` 분리)
 
 **문제**: `MemberService`(도메인 서비스)가 `JwtProvider`(인프라)를 직접 주입받아 `TokenResponse`를 반환.  
@@ -808,6 +825,7 @@ F-9 (옵션 수정 API)   ← 독립
 - [x] Task 9: `Product` 도메인 검증 내재화
 - [x] Task 10: 커스텀 예외 계층 도입 (`NotFoundException` → 404, `DuplicateException` → 409)
 - [x] Task 11: `MemberService` JWT 의존 제거 (`AuthService` 분리)
+- [x] Task 12: 카카오 알림 실패 응답 포함 (`OrderResponse.notificationSent`)
 
 ### 기능 개선
 - [x] Task F-1: 비밀번호 BCrypt 해싱

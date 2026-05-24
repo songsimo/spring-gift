@@ -838,3 +838,17 @@ HTTP 상태 코드가 의미에 맞게 분리됨: 리소스 없음 → 404, 중�
 
 **3. 결과 및 근거**
 `MemberService`에 `JwtProvider` 의존 없음. 토큰 발급은 `auth` 계층(`AuthService`, `KakaoAuthService`)에서만 수행하는 대칭 구조 완성. 전체 테스트 GREEN.
+
+---
+
+### [2026-05-25] 카카오 알림 전송 결과를 OrderResponse에 반영 (Task 12)
+
+**1. 문제 정의**
+`OrderService.createOrder()`가 카카오 알림 전송 성공 여부를 클라이언트에게 알려주지 않아, 알림 실패 시 사용자가 인지할 방법이 없었다.
+
+**2. 상호작용 타임라인**
+- **Step 1 [Red]**: `OrderServiceTest`에 `notificationSent()` 필드를 검증하는 테스트 3개 추가 — 필드 미존재로 컴파일 오류(Red) 확인
+- **Step 2 [Green]**: `OrderResponse`에 `notificationSent: boolean` 필드 추가, `of(Order, boolean)` 팩토리 메서드 신규 작성. `sendKakaoMessageIfPossible()`의 반환 타입을 `void` → `boolean`으로 변경하여 `createOrder()`에서 결과를 캡처하고 `OrderResponse.of(saved, notificationSent)`로 응답 조립 → 전체 테스트 GREEN
+
+**3. 결과 및 근거**
+카카오 토큰 존재 + 전송 성공 시 `notificationSent=true`, 토큰 없거나 전송 실패 시 `false`로 응답. 알림 실패가 주문 실패로 전파되지 않는 정책은 그대로 유지. `OrderServiceTest` 8개 전부 GREEN, 전체 테스트 GREEN.
