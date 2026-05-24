@@ -1,5 +1,8 @@
 package gift.member;
 
+import gift.member.model.Member;
+import gift.member.service.MemberService;
+import gift.member.web.AdminMemberController;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

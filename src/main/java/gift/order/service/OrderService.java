@@ -1,7 +1,7 @@
 package gift.order.service;
 
-import gift.member.Member;
-import gift.member.MemberRepository;
+import gift.member.model.Member;
+import gift.member.repository.MemberRepository;
 import gift.option.model.Option;
 import gift.option.repository.OptionRepository;
 import gift.order.model.Order;

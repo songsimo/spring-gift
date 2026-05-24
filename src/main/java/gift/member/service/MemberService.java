@@ -1,6 +1,8 @@
-package gift.member;
+package gift.member.service;
 
 import gift.auth.JwtProvider;
+import gift.member.model.Member;
+import gift.member.repository.MemberRepository;
 import gift.auth.TokenResponse;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;

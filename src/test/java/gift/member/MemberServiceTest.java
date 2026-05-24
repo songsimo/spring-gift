@@ -2,6 +2,10 @@ package gift.member;
 
 import gift.auth.JwtProvider;
 import gift.auth.TokenResponse;
+import gift.member.model.Member;
+import gift.member.repository.MemberRepository;
+import gift.member.service.MemberResponse;
+import gift.member.service.MemberService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

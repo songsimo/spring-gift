@@ -1,6 +1,9 @@
-package gift.member;
+package gift.member.web;
 
 import gift.auth.AuthenticationResolver;
+import gift.member.service.MemberRequest;
+import gift.member.service.MemberResponse;
+import gift.member.service.MemberService;
 import gift.auth.TokenResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;

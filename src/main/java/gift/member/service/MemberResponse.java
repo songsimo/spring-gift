@@ -1,4 +1,6 @@
-package gift.member;
+package gift.member.service;
+
+import gift.member.model.Member;
 
 public record MemberResponse(String email, int point) {
     public static MemberResponse from(Member member) {
