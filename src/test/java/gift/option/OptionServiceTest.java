@@ -1,6 +1,6 @@
 package gift.option;
 
-import gift.category.Category;
+import gift.category.model.Category;
 import gift.order.OrderRepository;
 import gift.product.Product;
 import gift.product.ProductRepository;

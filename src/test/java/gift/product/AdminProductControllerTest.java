@@ -1,7 +1,7 @@
 package gift.product;
 
-import gift.category.CategoryResponse;
-import gift.category.CategoryService;
+import gift.category.service.CategoryResponse;
+import gift.category.service.CategoryService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -95,7 +95,7 @@ class AdminProductControllerTest {
     void editForm_returnsEditFormView() throws Exception {
         given(productService.getProductEntity(1L)).willReturn(
             new Product(1L, "MacBook", 1000000, "https://example.com/mac.png",
-                new gift.category.Category(1L, "전자기기", "#1E90FF", "https://example.com/img.png", "전자제품"))
+                new gift.category.model.Category(1L, "전자기기", "#1E90FF", "https://example.com/img.png", "전자제품"))
         );
         given(categoryService.getAll()).willReturn(List.of());
 
@@ -123,7 +123,7 @@ class AdminProductControllerTest {
     void update_invalidName_returnsEditFormWithErrors() throws Exception {
         given(productService.getProductEntity(1L)).willReturn(
             new Product(1L, "MacBook", 1000000, "https://example.com/mac.png",
-                new gift.category.Category(1L, "전자기기", "#1E90FF", "https://example.com/img.png", "전자제품"))
+                new gift.category.model.Category(1L, "전자기기", "#1E90FF", "https://example.com/img.png", "전자제품"))
         );
         given(categoryService.getAll()).willReturn(List.of());
         willThrow(new IllegalArgumentException("허용되지 않는 특수 문자"))

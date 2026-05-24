@@ -1,6 +1,6 @@
 package gift.product;
 
-import gift.category.Category;
+import gift.category.model.Category;
 import gift.option.Option;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;

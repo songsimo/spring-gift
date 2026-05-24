@@ -1,5 +1,6 @@
-package gift.category;
+package gift.category.service;
 
+import gift.category.model.Category;
 import jakarta.validation.constraints.NotBlank;
 
 public record CategoryRequest(

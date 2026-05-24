@@ -1,5 +1,10 @@
 package gift.category;
 
+import gift.category.model.Category;
+import gift.category.repository.CategoryRepository;
+import gift.category.service.CategoryRequest;
+import gift.category.service.CategoryResponse;
+import gift.category.service.CategoryService;
 import gift.product.ProductRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

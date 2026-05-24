@@ -1,7 +1,7 @@
 package gift.exception;
 
-import gift.category.CategoryController;
-import gift.category.CategoryService;
+import gift.category.web.CategoryController;
+import gift.category.service.CategoryService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

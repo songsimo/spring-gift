@@ -1,4 +1,6 @@
-package gift.category;
+package gift.category.service;
+
+import gift.category.model.Category;
 
 public record CategoryResponse(
     Long id,

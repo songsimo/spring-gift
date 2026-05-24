@@ -1,6 +1,6 @@
 package gift.option;
 
-import gift.category.Category;
+import gift.category.model.Category;
 import gift.product.Product;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

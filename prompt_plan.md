@@ -243,7 +243,7 @@ KakaoAuthService와 AuthenticationResolver가 MemberRepository를 직접 주입�
 **프롬프트**:
 ```
 wish 테이블에 (member_id, product_id) 조합에 대한 유니크 제약이 없어서
-동시 요청 시 중복 찜 레코드가 생길 수 있어.
+동시 요청 시 중복 찜 레코드가 생길 수 있어.  
 
 작업:
 1. src/main/resources/db/migration/V3__Add_wish_unique_constraint.sql 파일을 새로 만들어
@@ -349,7 +349,6 @@ Task 3 (AdminProductController 분리)
 | F-3 | 런타임 오류 | `ProductService.deleteProduct()`, `OptionService.deleteOption()` | 주문이 있는 상품/옵션 삭제 시 DB FK 에러 (서비스 레벨 검사 없음) |
 | F-4 | 로직 버그 | `Option.subtractQuantity()` | 음수/0 amount 방어 없음 — 0으로 호출 시 재고 불변, 음수 호출 시 재고 증가 |
 | F-5 | 입력 검증 미비 | `OrderRequest.message` | 길이 제한 없음 — DB `varchar(255)` 초과 시 런타임 오류 |
-| F-6 | 입력 검증 미비 | `CategoryRequest.color` | 색상 코드 형식 검증 없음 (`#ZZXXXX`, `red` 같은 값도 저장 가능) |
 | F-7 | 안정성 결함 | `KakaoMessageClient.buildTemplate()` | 주문 메시지에 `"` `\` 등 특수 문자 포함 시 JSON 파싱 오류 발생 |
 | F-8 | API 불완전 | `OrderResponse` | `optionId`만 반환 — 상품명·옵션명·총금액 없어 클라이언트가 재조회 필요 |
 | F-9 | API 불완전 | `ProductResponse` | `categoryId`만 반환 — 카테고리명 없어 클라이언트가 재조회 필요 |
@@ -477,38 +476,13 @@ TDD:
 
 ---
 
-### Task F-4 — 입력 검증 강화 (메시지 길이, 색상 코드)
+### Task F-4 — 입력 검증 강화 (메시지 길이) ✅ 완료
 
-**문제**:
-- `OrderRequest.message`: DB `varchar(255)` 제한인데 DTO에 `@Size` 없음
-- `CategoryRequest.color`: `#FF6347` 형식이어야 하는데 형식 검증 없음
+**문제**: `OrderRequest.message`: DB `varchar(255)` 제한인데 DTO에 `@Size` 없음
 
-**설계**:
-```java
-// OrderRequest
-@Size(max = 255) String message
+**설계**: `@Size(max = 255) String message`
 
-// CategoryRequest
-@Pattern(regexp = "^#[0-9A-Fa-f]{6}$", message = "색상 코드는 #RRGGBB 형식이어야 합니다.")
-String color
-```
-
-**테스트**: 각 서비스 테스트에 유효성 검사 실패 케이스 추가  
-**완료 조건**: 잘못된 값 입력 시 400 반환
-
-**프롬프트**:
-```
-두 가지 입력 검증을 강화해줘.
-
-[Task F-4-1] OrderRequest.message에 @Size(max = 255) 추가
-  - DB varchar(255)와 일치시키기 위함
-  - OrderServiceTest에 메시지 256자 입력 시 예외 케이스 추가
-
-[Task F-4-2] CategoryRequest.color에 @Pattern(regexp = "^#[0-9A-Fa-f]{6}$") 추가
-  - CategoryServiceTest에 "#ZZXXXX" 등 잘못된 형식 입력 시 예외 케이스 추가
-
-각 변경 후 기존 테스트 전부 통과 확인, README 로그 추가.
-```
+**완료**: `OrderRequest.message`에 `@Size(max = 255)` 추가, `OrderRequestTest` 3개 케이스 통과.
 
 ---
 

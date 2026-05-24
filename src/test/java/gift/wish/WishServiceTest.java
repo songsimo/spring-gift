@@ -1,6 +1,6 @@
 package gift.wish;
 
-import gift.category.Category;
+import gift.category.model.Category;
 import gift.product.Product;
 import gift.product.ProductRepository;
 import org.junit.jupiter.api.DisplayName;

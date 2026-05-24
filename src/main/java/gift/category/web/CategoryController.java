@@ -1,5 +1,8 @@
-package gift.category;
+package gift.category.web;
 
+import gift.category.service.CategoryRequest;
+import gift.category.service.CategoryResponse;
+import gift.category.service.CategoryService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
