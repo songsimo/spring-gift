@@ -480,3 +480,17 @@ member ──< orders ───────────┘
 
 **3. 결과 및 근거**
 주문이 있는 상품·옵션 삭제 시 `IllegalArgumentException` 발생 → `GlobalExceptionHandler`가 400으로 변환. `ProductServiceTest` 3개 신규 + `OptionServiceTest` 1개 신규 테스트 포함 전체 테스트 통과.
+
+---
+
+### [2026-05-24] Option.subtractQuantity() 음수·0 수량 방어 추가
+
+**1. 문제 정의**
+`Option.subtractQuantity()`가 `amount <= 0` 검사 없이 재고를 차감했다. 0으로 호출 시 재고가 변하지 않는 silent no-op, 음수로 호출 시 재고가 오히려 증가하는 로직 버그가 있었다.
+
+**2. 상호작용 타임라인**
+- **Step 1 [Red]**: `OptionTest` 신규 생성 — `subtractQuantity` 4개 케이스 작성. 0·음수 케이스 2개가 FAIL(Red) 확인
+- **Step 2 [Green]**: `subtractQuantity()` 첫 줄에 `if (amount <= 0)` 검사 추가, `Member.deductPoint()` 와 동일 패턴 적용 → 전체 GREEN
+
+**3. 결과 및 근거**
+`subtractQuantity(0)`, `subtractQuantity(-1)` 모두 `IllegalArgumentException` 발생. `OptionTest` 4개 테스트 전부 통과, 전체 테스트 GREEN.
