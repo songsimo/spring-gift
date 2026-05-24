@@ -394,3 +394,18 @@ member ──< orders ───────────┘
 
 **3. 결과 및 근거**
 `KakaoAuthService`와 `AuthenticationResolver`에서 `MemberRepository` 직접 의존성 완전 제거. `MemberService`만 의존. 전체 테스트 통과.
+
+---
+
+### [2026-05-24] wish 테이블 (member_id, product_id) 유니크 제약 추가
+
+**1. 문제 정의**
+`wish` 테이블에 `(member_id, product_id)` 유니크 제약이 없어, 동시 요청 시 애플리케이션 레벨 중복 체크를 통과하더라도 DB에 중복 찜이 삽입될 수 있었다. `WishService.addWish()`의 중복 방지 로직은 race condition에 취약하다.
+
+**2. 상호작용 타임라인**
+- **Step 1 [Red]**: `@DataJpaTest` 기반 `WishRepositoryTest` 작성 — 동일 `(member_id, product_id)` 조합 두 번 저장 후 `DataIntegrityViolationException` 기대. 제약 미존재로 FAIL → 수용
+- **Step 2 [Green]**: `Wish` 엔티티에 `@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"member_id", "product_id"}))` 추가 → H2 테스트 스키마에 유니크 제약 생성, 테스트 GREEN → 수용
+- **Step 3 [Refactor]**: `V3__Add_wish_unique_constraint.sql` 생성 — MySQL 운영 DB에 `ALTER TABLE wish ADD CONSTRAINT uq_wish_member_product UNIQUE (member_id, product_id)` 적용 → 수용
+
+**3. 결과 및 근거**
+`Wish` 엔티티 `@UniqueConstraint` + Flyway `V3` 마이그레이션으로 애플리케이션·DB 양 레벨에서 중복 찜이 방지된다. `WishRepositoryTest` 1개 통과, 전체 테스트 GREEN.
