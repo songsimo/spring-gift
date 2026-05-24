@@ -508,3 +508,17 @@ member ──< orders ───────────┘
 
 **3. 결과 및 근거**
 `message` 256자 이상 시 Jakarta Validation이 400을 반환. `null`·255자 케이스는 정상 통과. `OrderRequestTest` 3개 테스트 전부 통과.
+
+---
+
+### [2026-05-24] KakaoMessageClient JSON 이스케이프 처리
+
+**1. 문제 정의**
+`KakaoMessageClient.buildTemplate()`이 상품명·옵션명·메시지를 `String.formatted()`로 JSON 문자열에 직접 삽입했다. `"` `\` `\n` 등 특수문자가 포함되면 JSON 파싱 오류가 발생하는 안정성 결함이 있었다.
+
+**2. 상호작용 타임라인**
+- **Step 1 [Red]**: `KakaoMessageClientTest` 신규 작성. `buildTemplate()`을 package-private으로 변경, `ObjectMapper` 생성자 주입 추가. 메시지에 `"hello"` 포함 시 유효한 JSON인지 검증 → FAIL(Red) 확인
+- **Step 2 [Green]**: `escapeJson(value)` private 헬퍼 추가 — `objectMapper.writeValueAsString(value)`로 Jackson이 이스케이프한 뒤 외곽 따옴표를 제거. 상품명·옵션명·메시지 세 곳에 적용 → 전체 GREEN
+
+**3. 결과 및 근거**
+`"` `\` 등 JSON 특수문자를 Jackson이 안전하게 이스케이프. `KakaoMessageClientTest` 3개 케이스(정상·따옴표포함·null) 전부 통과, 전체 테스트 GREEN.

@@ -1,5 +1,7 @@
 package gift.order;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import gift.product.Product;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
@@ -8,9 +10,11 @@ import org.springframework.web.client.RestClient;
 @Component
 public class KakaoMessageClient {
     private final RestClient restClient;
+    private final ObjectMapper objectMapper;
 
-    public KakaoMessageClient(RestClient.Builder builder) {
+    public KakaoMessageClient(RestClient.Builder builder, ObjectMapper objectMapper) {
         this.restClient = builder.build();
+        this.objectMapper = objectMapper;
     }
 
     public void sendToMe(String accessToken, Order order, Product product) {
@@ -28,10 +32,10 @@ public class KakaoMessageClient {
             .toBodilessEntity();
     }
 
-    private String buildTemplate(Order order, Product product) {
+    String buildTemplate(Order order, Product product) {
         var totalPrice = String.format("%,d", product.getPrice() * order.getQuantity());
         var message = order.getMessage() != null && !order.getMessage().isBlank()
-            ? "\\n\\n💌 " + order.getMessage()
+            ? "\\n\\n💌 " + escapeJson(order.getMessage())
             : "";
         return """
             {
@@ -41,11 +45,20 @@ public class KakaoMessageClient {
                 "button_title": "선물 확인하기"
             }
             """.formatted(
-            product.getName(),
-            order.getOption().getName(),
+            escapeJson(product.getName()),
+            escapeJson(order.getOption().getName()),
             order.getQuantity(),
             totalPrice,
             message
         );
+    }
+
+    private String escapeJson(String value) {
+        try {
+            String quoted = objectMapper.writeValueAsString(value);
+            return quoted.substring(1, quoted.length() - 1);
+        } catch (JsonProcessingException e) {
+            return value;
+        }
     }
 }
