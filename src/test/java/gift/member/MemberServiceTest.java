@@ -185,4 +185,50 @@ class MemberServiceTest {
         assertThatThrownBy(() -> memberService.login("test@test.com", "wrong"))
             .isInstanceOf(IllegalArgumentException.class);
     }
+
+    @Test
+    @DisplayName("존재하는 이메일로 조회 시 회원을 반환한다")
+    void findByEmailOrNull_existingEmail_returnsMember() {
+        Member member = new Member(1L, "test@test.com", "pw");
+        given(memberRepository.findByEmail("test@test.com")).willReturn(Optional.of(member));
+
+        Member result = memberService.findByEmailOrNull("test@test.com");
+
+        assertThat(result).isNotNull();
+        assertThat(result.getEmail()).isEqualTo("test@test.com");
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 이메일로 조회 시 null을 반환한다")
+    void findByEmailOrNull_nonExistingEmail_returnsNull() {
+        given(memberRepository.findByEmail("none@test.com")).willReturn(Optional.empty());
+
+        Member result = memberService.findByEmailOrNull("none@test.com");
+
+        assertThat(result).isNull();
+    }
+
+    @Test
+    @DisplayName("카카오 신규 회원 처리 시 회원을 생성하고 카카오 토큰을 저장한다")
+    void findOrCreateKakaoMember_newMember_createsAndSaves() {
+        given(memberRepository.findByEmail("new@kakao.com")).willReturn(Optional.empty());
+        given(memberRepository.save(any())).willAnswer(invocation -> invocation.getArgument(0));
+
+        Member result = memberService.findOrCreateKakaoMember("new@kakao.com", "kakao-token");
+
+        assertThat(result.getEmail()).isEqualTo("new@kakao.com");
+        assertThat(result.getKakaoAccessToken()).isEqualTo("kakao-token");
+    }
+
+    @Test
+    @DisplayName("카카오 기존 회원 처리 시 카카오 토큰을 갱신한다")
+    void findOrCreateKakaoMember_existingMember_updatesToken() {
+        Member member = new Member("existing@kakao.com");
+        given(memberRepository.findByEmail("existing@kakao.com")).willReturn(Optional.of(member));
+        given(memberRepository.save(member)).willReturn(member);
+
+        Member result = memberService.findOrCreateKakaoMember("existing@kakao.com", "new-token");
+
+        assertThat(result.getKakaoAccessToken()).isEqualTo("new-token");
+    }
 }

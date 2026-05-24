@@ -379,3 +379,18 @@ member ──< orders ───────────┘
 
 **3. 결과 및 근거**
 `OrderService.createOrder()` 완료 시 해당 상품의 찜이 있으면 자동 삭제. `OrderServiceTest` 6개 테스트(기존 4 + 신규 2) 전부 통과.
+
+---
+
+### [2026-05-24] KakaoAuthService·AuthenticationResolver 의존성 정리
+
+**1. 문제 정의**
+`KakaoAuthService`와 `AuthenticationResolver`가 `MemberRepository`를 직접 주입해 서비스 레이어를 우회하고 있었다. 회원 관련 로직은 `MemberService`로 집중되어야 하지만, 두 클래스가 레포지토리에 직접 접근해 응집성을 해쳤다.
+
+**2. 상호작용 타임라인**
+- **Step 1 [Red]**: `MemberServiceTest`에 `findByEmailOrNull`(2개), `findOrCreateKakaoMember`(2개) 테스트 추가 → 메서드 미존재로 컴파일 오류(RED) 확인 → 수용
+- **Step 2 [Green]**: `MemberService`에 `findByEmailOrNull()`, `findOrCreateKakaoMember()` 2개 메서드 구현 → 테스트 GREEN 전환 → 수용
+- **Step 3 [Refactor]**: `KakaoAuthService`에서 `MemberRepository` → `MemberService` 교체, `processCallback()`을 `memberService.findOrCreateKakaoMember()` 위임으로 단순화. `AuthenticationResolver`에서 `MemberRepository` → `MemberService` 교체, Javadoc 주석 제거. `KakaoAuthServiceTest`의 `@Mock MemberRepository` → `@Mock MemberService` 교체 → 수용
+
+**3. 결과 및 근거**
+`KakaoAuthService`와 `AuthenticationResolver`에서 `MemberRepository` 직접 의존성 완전 제거. `MemberService`만 의존. 전체 테스트 통과.

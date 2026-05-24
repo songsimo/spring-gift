@@ -1,32 +1,24 @@
 package gift.auth;
 
 import gift.member.Member;
-import gift.member.MemberRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import gift.member.MemberService;
 import org.springframework.stereotype.Component;
 
-/**
- * Resolves the authenticated member from an Authorization header.
- *
- * @author brian.kim
- * @since 1.0
- */
 @Component
 public class AuthenticationResolver {
     private final JwtProvider jwtProvider;
-    private final MemberRepository memberRepository;
+    private final MemberService memberService;
 
-    @Autowired
-    public AuthenticationResolver(JwtProvider jwtProvider, MemberRepository memberRepository) {
+    public AuthenticationResolver(JwtProvider jwtProvider, MemberService memberService) {
         this.jwtProvider = jwtProvider;
-        this.memberRepository = memberRepository;
+        this.memberService = memberService;
     }
 
     public Member extractMember(String authorization) {
         try {
             final String token = authorization.replace("Bearer ", "");
             final String email = jwtProvider.getEmail(token);
-            return memberRepository.findByEmail(email).orElse(null);
+            return memberService.findByEmailOrNull(email);
         } catch (Exception e) {
             return null;
         }
