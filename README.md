@@ -284,6 +284,68 @@ API 엔드포인트 전체 목록, 주문 처리 6단계 흐름, DB 스키마 �
 
 ---
 
+## 아키텍처 결정 기록 (Architecture Decision Records)
+
+> 되돌리기 어렵거나 반복 규칙이 생기는 설계 결정을 기록합니다.
+
+---
+
+### ADR-001: 도메인 패키지 내 레이어 서브패키지 구조 채택
+
+**상태**: 채택 (2026-05-24)
+
+**컨텍스트**
+
+각 도메인 패키지(category, member, option, order, product, wish)에 Entity, Repository, Service, Controller, DTO가 같은 깊이에 나열되어 있었다. 파일 수가 늘수록 역할 구분이 어렵고 IDE 탐색 비용이 높아졌다.
+
+**선택지**
+
+| 구조 | 장점 | 단점 |
+|---|---|---|
+| 현 구조 유지 (flat) | 변경 없음 | 파일이 많아지면 역할 구분 불가 |
+| 레이어 먼저 → 도메인 (`service/product/`) | Spring 기본 예제와 유사 | 도메인 응집도 낮음; 한 도메인 파일이 여러 패키지에 분산 |
+| 도메인 먼저 → 레이어 (`product/model/`) | 도메인 응집도 유지 + 역할 명시 | 패키지 이동 비용 발생 |
+
+**결정**
+
+`<domain>/model/`, `<domain>/repository/`, `<domain>/service/`, `<domain>/web/` 4개 서브패키지 구조를 채택한다.
+
+- `model/`: Entity, Validator (도메인 핵심 객체)
+- `repository/`: JpaRepository 인터페이스
+- `service/`: Service + Request/Response DTO + 외부 Client
+- `web/`: Controller
+
+**결과**
+
+패키지 이름만으로 파일의 역할을 즉시 파악할 수 있다. `auth`, `exception`은 도메인이 아닌 인프라 관심사이므로 서브패키지 적용 대상에서 제외한다.
+
+---
+
+### ADR-002: Request/Response DTO를 `service/` 패키지에 배치
+
+**상태**: 채택 (2026-05-24)
+
+**컨텍스트**
+
+ADR-001 구조 설계 시 DTO(Request, Response)를 `service/`와 `web/` 중 어느 쪽에 둘지 결정해야 했다.
+
+**선택지**
+
+| 위치 | 설명 | 문제 |
+|---|---|---|
+| `web/` | 컨트롤러와 물리적으로 가까움 | `service/`가 `web/`의 타입을 반환해야 하므로 역방향 의존(service → web) 발생 |
+| `service/` | 서비스 인터페이스의 일부로 DTO를 정의 | 컨트롤러가 서비스 패키지를 import → 단방향 의존(web → service) 유지 |
+
+**결정**
+
+DTO를 `service/` 패키지에 배치한다. 서비스가 자신의 입출력 계약(Contract)을 소유하며, 컨트롤러는 서비스 패키지만 import하면 된다.
+
+**결과**
+
+`web → service → model/repository` 단방향 의존 그래프가 성립한다. `service/`가 `web/` 타입을 참조하는 역방향 의존이 발생하지 않는다.
+
+---
+
 ## 데이터베이스 스키마 (Database Schema)
 
 ```
