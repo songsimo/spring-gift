@@ -2,8 +2,8 @@ package gift.order;
 
 import gift.member.Member;
 import gift.member.MemberRepository;
-import gift.option.Option;
-import gift.option.OptionRepository;
+import gift.option.model.Option;
+import gift.option.repository.OptionRepository;
 import gift.wish.repository.WishRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

@@ -1,5 +1,8 @@
-package gift.option;
+package gift.option.web;
 
+import gift.option.service.OptionRequest;
+import gift.option.service.OptionResponse;
+import gift.option.service.OptionService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;

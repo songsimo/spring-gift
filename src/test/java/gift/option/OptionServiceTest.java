@@ -1,6 +1,12 @@
 package gift.option;
 
 import gift.category.model.Category;
+import gift.option.model.Option;
+import gift.option.model.OptionNameValidator;
+import gift.option.repository.OptionRepository;
+import gift.option.service.OptionRequest;
+import gift.option.service.OptionResponse;
+import gift.option.service.OptionService;
 import gift.order.OrderRepository;
 import gift.product.Product;
 import gift.product.ProductRepository;

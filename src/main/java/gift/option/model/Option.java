@@ -1,4 +1,4 @@
-package gift.option;
+package gift.option.model;
 
 import gift.product.Product;
 import jakarta.persistence.Column;

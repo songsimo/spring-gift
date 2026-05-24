@@ -3,7 +3,7 @@ package gift.order;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import gift.category.model.Category;
-import gift.option.Option;
+import gift.option.model.Option;
 import gift.product.Product;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
