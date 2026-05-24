@@ -592,3 +592,18 @@ DB CASCADE 대신 서비스 레이어에서 명시적으로 찜을 먼저 삭제
 
 **3. 결과 및 근거**
 `GET /api/members/me`에 유효한 JWT를 보내면 `{ "email": "...", "point": 5000 }` 응답. 토큰이 없거나 유효하지 않으면 401 반환. `MemberServiceTest` 전부 통과, 전체 테스트 GREEN.
+
+---
+
+### [2026-05-24] 도메인 패키지 세분화 (model/repository/service/web)
+
+**1. 문제 정의**
+각 도메인 패키지(category, member, option, order, product, wish) 안에 Entity, Repository, Service, Controller, DTO가 모두 같은 깊이에 나열되어 있어 파일이 많아질수록 역할 구분이 어렵다.
+
+**2. 상호작용 타임라인**
+- **Step 1**: 패키지 세분화 방향 제안 요청 → AI가 `model/`, `repository/`, `service/`, `web/` 4개 서브패키지 구조 + DTO는 `service/`에 배치(컨트롤러가 서비스 인터페이스를 import하는 단방향 의존) 제안 → 수용
+- **Step 2**: 도메인별 순서(category → wish → option → order → product → member) 확정 → 각 도메인마다 파일 이동 + package 선언 수정 + 크로스 도메인 import 수정 + 테스트 GREEN 확인 후 커밋 진행
+- **Step 3**: 예상치 못한 이슈들 처리 — 같은 패키지에 있던 테스트 파일은 이동 없이 explicit import 추가; `KakaoMessageClient.buildTemplate()`은 package-private이었으나 패키지가 달라져 `public`으로 변경
+
+**3. 결과 및 근거**
+6개 도메인 모두 세분화 완료. 각 도메인 커밋마다 전체 테스트 GREEN 확인. 최종 `./gradlew ktlintCheck` 통과.
