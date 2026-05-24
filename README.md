@@ -564,3 +564,17 @@ member ──< orders ───────────┘
 
 **3. 결과 및 근거**
 DB CASCADE 대신 서비스 레이어에서 명시적으로 찜을 먼저 삭제해 의도가 코드에 드러남. `ProductServiceTest` 전부 통과, 전체 테스트 GREEN.
+
+---
+
+### [2026-05-24] 옵션 수정 API 추가 (F-11)
+
+**1. 문제 정의**
+옵션 생성·삭제만 가능하고 수정 API가 없어, 관리자가 재고를 보정하거나 옵션명을 변경할 수 없었다.
+
+**2. 상호작용 타임라인**
+- **Step 1 [Red]**: `OptionServiceTest`에 `updateOption()` 케이스 5개 추가 (유효 요청·유효하지 않은 이름·중복명·자기 자신과 같은 이름·존재하지 않는 옵션). `OptionService.updateOption()` 미존재로 컴파일 오류(Red) 확인
+- **Step 2 [Green]**: `Option.update(name, quantity)` 엔티티 메서드 추가. `OptionRepository`에 `existsByProductIdAndNameAndIdNot()` 추가(자기 자신 제외 중복 체크). `OptionService.updateOption()` 구현. `OptionController`에 `PUT /{optionId}` 핸들러 추가 → 전체 GREEN
+
+**3. 결과 및 근거**
+`PUT /api/products/{productId}/options/{optionId}`로 옵션명·재고 수정 가능. 자기 자신과 동일한 이름은 허용, 타 옵션과 중복명은 차단. `OptionServiceTest` 14개 전부 통과, 전체 테스트 GREEN.

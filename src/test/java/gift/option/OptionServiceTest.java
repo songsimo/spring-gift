@@ -186,4 +186,69 @@ class OptionServiceTest {
         assertThatThrownBy(() -> optionService.deleteOption(1L, 999L))
             .isInstanceOf(IllegalArgumentException.class);
     }
+
+    @Test
+    @DisplayName("유효한 요청으로 옵션 수정 시 수정된 옵션을 반환한다")
+    void updateOption_validRequest_updatesOption() {
+        Category category = new Category(1L, "전자기기", "#1E90FF", "https://example.com/img.png", "전자제품");
+        Product product = new Product(1L, "MacBook", 1000000, "https://example.com/mac.png", category);
+        Option option = new Option(1L, product, "실버 256GB", 10);
+        OptionRequest request = new OptionRequest("골드 512GB", 20);
+        given(optionRepository.findById(1L)).willReturn(Optional.of(option));
+        given(optionRepository.existsByProductIdAndNameAndIdNot(1L, "골드 512GB", 1L)).willReturn(false);
+        given(optionRepository.save(any())).willReturn(option);
+
+        OptionResponse result = optionService.updateOption(1L, 1L, request);
+
+        assertThat(result.name()).isEqualTo("골드 512GB");
+        assertThat(result.quantity()).isEqualTo(20);
+    }
+
+    @Test
+    @DisplayName("유효하지 않은 이름으로 옵션 수정 시 예외가 발생한다")
+    void updateOption_invalidName_throwsException() {
+        OptionRequest request = new OptionRequest("잘못된!@#옵션", 10);
+
+        assertThatThrownBy(() -> optionService.updateOption(1L, 1L, request))
+            .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    @DisplayName("다른 옵션과 이름이 중복되면 예외가 발생한다")
+    void updateOption_duplicateName_throwsException() {
+        Category category = new Category(1L, "전자기기", "#1E90FF", "https://example.com/img.png", "전자제품");
+        Product product = new Product(1L, "MacBook", 1000000, "https://example.com/mac.png", category);
+        Option option = new Option(1L, product, "실버 256GB", 10);
+        OptionRequest request = new OptionRequest("스페이스그레이 512GB", 5);
+        given(optionRepository.findById(1L)).willReturn(Optional.of(option));
+        given(optionRepository.existsByProductIdAndNameAndIdNot(1L, "스페이스그레이 512GB", 1L)).willReturn(true);
+
+        assertThatThrownBy(() -> optionService.updateOption(1L, 1L, request))
+            .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    @DisplayName("자기 자신과 같은 이름으로 수정 시 정상 처리된다")
+    void updateOption_sameNameAsSelf_allowsUpdate() {
+        Category category = new Category(1L, "전자기기", "#1E90FF", "https://example.com/img.png", "전자제품");
+        Product product = new Product(1L, "MacBook", 1000000, "https://example.com/mac.png", category);
+        Option option = new Option(1L, product, "실버 256GB", 10);
+        OptionRequest request = new OptionRequest("실버 256GB", 20);
+        given(optionRepository.findById(1L)).willReturn(Optional.of(option));
+        given(optionRepository.existsByProductIdAndNameAndIdNot(1L, "실버 256GB", 1L)).willReturn(false);
+        given(optionRepository.save(any())).willReturn(option);
+
+        OptionResponse result = optionService.updateOption(1L, 1L, request);
+
+        assertThat(result.quantity()).isEqualTo(20);
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 옵션 수정 시 예외가 발생한다")
+    void updateOption_optionNotFound_throwsException() {
+        given(optionRepository.findById(999L)).willReturn(Optional.empty());
+
+        assertThatThrownBy(() -> optionService.updateOption(1L, 999L, new OptionRequest("실버 256GB", 10)))
+            .isInstanceOf(IllegalArgumentException.class);
+    }
 }

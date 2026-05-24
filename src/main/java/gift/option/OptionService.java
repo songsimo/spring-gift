@@ -40,6 +40,21 @@ public class OptionService {
         return OptionResponse.from(saved);
     }
 
+    public OptionResponse updateOption(Long productId, Long optionId, OptionRequest request) {
+        List<String> errors = OptionNameValidator.validate(request.name());
+        if (!errors.isEmpty()) {
+            throw new IllegalArgumentException(String.join(", ", errors));
+        }
+        Option option = optionRepository.findById(optionId)
+            .filter(o -> o.getProduct().getId().equals(productId))
+            .orElseThrow(() -> new IllegalArgumentException("Option not found: " + optionId));
+        if (optionRepository.existsByProductIdAndNameAndIdNot(productId, request.name(), optionId)) {
+            throw new IllegalArgumentException("이미 존재하는 옵션명입니다.");
+        }
+        option.update(request.name(), request.quantity());
+        return OptionResponse.from(optionRepository.save(option));
+    }
+
     public void deleteOption(Long productId, Long optionId) {
         productRepository.findById(productId)
             .orElseThrow(() -> new IllegalArgumentException("Product not found: " + productId));

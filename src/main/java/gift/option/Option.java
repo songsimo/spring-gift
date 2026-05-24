@@ -43,6 +43,11 @@ public class Option {
         this.quantity = quantity;
     }
 
+    public void update(String name, int quantity) {
+        this.name = name;
+        this.quantity = quantity;
+    }
+
     public void subtractQuantity(int amount) {
         if (amount <= 0) {
             throw new IllegalArgumentException("차감 수량은 1 이상이어야 합니다.");
