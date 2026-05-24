@@ -2,6 +2,7 @@ package gift.member;
 
 import gift.auth.JwtProvider;
 import gift.auth.TokenResponse;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -11,6 +12,7 @@ import java.util.List;
 public class MemberService {
     private final MemberRepository memberRepository;
     private final JwtProvider jwtProvider;
+    private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
     public MemberService(MemberRepository memberRepository, JwtProvider jwtProvider) {
         this.memberRepository = memberRepository;
@@ -50,7 +52,7 @@ public class MemberService {
         if (memberRepository.existsByEmail(email)) {
             throw new IllegalArgumentException("Email is already registered.");
         }
-        memberRepository.save(new Member(email, password));
+        memberRepository.save(new Member(email, encoder.encode(password)));
     }
 
     public Member findByEmailOrNull(String email) {
@@ -69,14 +71,14 @@ public class MemberService {
         if (memberRepository.existsByEmail(email)) {
             throw new IllegalArgumentException("Email is already registered.");
         }
-        Member member = memberRepository.save(new Member(email, password));
+        Member member = memberRepository.save(new Member(email, encoder.encode(password)));
         return new TokenResponse(jwtProvider.createToken(member.getEmail()));
     }
 
     public TokenResponse login(String email, String password) {
         Member member = memberRepository.findByEmail(email)
             .orElseThrow(() -> new IllegalArgumentException("Invalid email or password."));
-        if (member.getPassword() == null || !member.getPassword().equals(password)) {
+        if (member.getPassword() == null || !encoder.matches(password, member.getPassword())) {
             throw new IllegalArgumentException("Invalid email or password.");
         }
         return new TokenResponse(jwtProvider.createToken(member.getEmail()));

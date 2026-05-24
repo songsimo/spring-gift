@@ -5,9 +5,11 @@ import gift.auth.TokenResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.List;
 import java.util.Optional;
@@ -19,6 +21,8 @@ import static org.mockito.BDDMockito.given;
 
 @ExtendWith(MockitoExtension.class)
 class MemberServiceTest {
+
+    private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
     @Mock
     MemberRepository memberRepository;
@@ -158,7 +162,7 @@ class MemberServiceTest {
     @Test
     @DisplayName("올바른 이메일과 비밀번호로 로그인 시 토큰을 반환한다")
     void login_validCredentials_returnsToken() {
-        Member member = new Member(1L, "test@test.com", "password");
+        Member member = new Member(1L, "test@test.com", encoder.encode("password"));
         given(memberRepository.findByEmail("test@test.com")).willReturn(Optional.of(member));
         given(jwtProvider.createToken("test@test.com")).willReturn("jwt-token");
 
@@ -179,11 +183,38 @@ class MemberServiceTest {
     @Test
     @DisplayName("비밀번호가 틀리면 로그인 시 예외가 발생한다")
     void login_wrongPassword_throwsException() {
-        Member member = new Member(1L, "test@test.com", "password");
+        Member member = new Member(1L, "test@test.com", encoder.encode("password"));
         given(memberRepository.findByEmail("test@test.com")).willReturn(Optional.of(member));
 
         assertThatThrownBy(() -> memberService.login("test@test.com", "wrong"))
             .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    @DisplayName("회원가입 시 비밀번호가 BCrypt로 인코딩되어 저장된다")
+    void register_encodesPasswordBeforeSaving() {
+        given(memberRepository.existsByEmail("test@test.com")).willReturn(false);
+        given(memberRepository.save(any())).willAnswer(invocation -> invocation.getArgument(0));
+        given(jwtProvider.createToken("test@test.com")).willReturn("jwt-token");
+        ArgumentCaptor<Member> captor = ArgumentCaptor.forClass(Member.class);
+
+        memberService.register("test@test.com", "password");
+
+        org.mockito.Mockito.verify(memberRepository).save(captor.capture());
+        assertThat(encoder.matches("password", captor.getValue().getPassword())).isTrue();
+    }
+
+    @Test
+    @DisplayName("관리자 회원 생성 시 비밀번호가 BCrypt로 인코딩되어 저장된다")
+    void adminCreate_encodesPasswordBeforeSaving() {
+        given(memberRepository.existsByEmail("admin@test.com")).willReturn(false);
+        given(memberRepository.save(any())).willAnswer(invocation -> invocation.getArgument(0));
+        ArgumentCaptor<Member> captor = ArgumentCaptor.forClass(Member.class);
+
+        memberService.adminCreate("admin@test.com", "adminpw");
+
+        org.mockito.Mockito.verify(memberRepository).save(captor.capture());
+        assertThat(encoder.matches("adminpw", captor.getValue().getPassword())).isTrue();
     }
 
     @Test

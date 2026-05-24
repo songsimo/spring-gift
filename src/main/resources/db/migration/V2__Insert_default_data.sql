@@ -18,6 +18,7 @@ values ('제주 감귤 5kg', 25000, 'https://example.com/images/tangerine.jpg', 
 insert into product (name, price, image_url, category_id)
 values ('한우 등심 1kg', 65000, 'https://example.com/images/beef.jpg', 3);
 
+-- DEV ONLY: plain-text passwords for seed convenience. Production members are BCrypt-hashed via MemberService.
 insert into member (email, password, point)
 values ('admin@example.com', 'admin1234', 10000000);
 insert into member (email, password, point)

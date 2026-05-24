@@ -430,3 +430,22 @@ member ──< orders ───────────┘
 
 **3. 결과 및 근거**
 `AdminMemberControllerTest` 7개 테스트 전부 통과. 전체 테스트 GREEN.
+
+---
+
+### [2026-05-24] 비밀번호 BCrypt 해싱 적용
+
+**1. 문제 정의**
+`MemberService`가 비밀번호를 평문으로 저장하고(`new Member(email, password)`), `login()`에서 `.equals(password)` 평문 비교를 사용했다. DB 유출 시 모든 비밀번호가 즉시 노출되는 보안 결함이었다.
+
+**2. 상호작용 타임라인**
+- **Step 1 [의존성]**: `build.gradle.kts`에 `spring-security-crypto` 추가 (Spring Security 전체가 아닌 crypto 모듈만)
+- **Step 2 [Red]**: `MemberServiceTest`에 3개 케이스 추가·수정
+  - `login_validCredentials_returnsToken` — 모의 Member의 비밀번호를 `encoder.encode("password")`로 교체 → `equals()` 비교로 FAIL 확인
+  - `register_encodesPasswordBeforeSaving` — `ArgumentCaptor`로 저장 시 BCrypt 해시 여부 검증 → FAIL 확인
+  - `adminCreate_encodesPasswordBeforeSaving` — 동일 패턴 → FAIL 확인
+- **Step 3 [Green]**: `MemberService`에 `BCryptPasswordEncoder encoder` 필드 추가, `adminCreate()·register()` 저장 시 `encoder.encode()`, `login()` 비교 시 `encoder.matches()` 적용 → 3개 테스트 GREEN
+- **Step 4 [Refactor]**: `V2__Insert_default_data.sql` seed 비밀번호에 개발용 평문임을 명시하는 주석 추가
+
+**3. 결과 및 근거**
+`register()`, `adminCreate()` 저장 시 BCrypt 인코딩, `login()` 비교 시 `matches()` 사용. 전체 테스트 통과.
