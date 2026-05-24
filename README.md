@@ -550,3 +550,17 @@ member ──< orders ───────────┘
 
 **3. 결과 및 근거**
 클라이언트가 상품 조회 한 번으로 카테고리 이름까지 확인 가능. `ProductServiceTest` 전부 통과, 전체 테스트 GREEN.
+
+---
+
+### [2026-05-24] 상품 삭제 시 연관 찜 먼저 삭제 (F-10)
+
+**1. 문제 정의**
+`ProductService.deleteProduct()`가 상품을 삭제할 때 연관된 `wish` 레코드를 제거하지 않아, 찜이 있는 상품 삭제 시 DB FK 제약 위반 오류가 발생했다.
+
+**2. 상호작용 타임라인**
+- **Step 1 [Red]**: `ProductServiceTest`에 `deleteProduct_withWishes_removesWishesFirst` 테스트 추가. `WishRepository.deleteByProductId()` 미존재로 컴파일 오류(Red) 확인
+- **Step 2 [Green]**: `WishRepository`에 `deleteByProductId(Long productId)` 추가, `ProductService`에 `WishRepository` 의존성 주입, `deleteProduct()`에서 주문 검사 후 `wishRepository.deleteByProductId(id)` → `productRepository.deleteById(id)` 순으로 실행
+
+**3. 결과 및 근거**
+DB CASCADE 대신 서비스 레이어에서 명시적으로 찜을 먼저 삭제해 의도가 코드에 드러남. `ProductServiceTest` 전부 통과, 전체 테스트 GREEN.

@@ -3,6 +3,7 @@ package gift.product;
 import gift.category.Category;
 import gift.category.CategoryRepository;
 import gift.order.OrderRepository;
+import gift.wish.WishRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,8 +18,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -36,6 +35,9 @@ class ProductServiceTest {
 
     @Mock
     OrderRepository orderRepository;
+
+    @Mock
+    WishRepository wishRepository;
 
     @InjectMocks
     ProductService productService;
@@ -180,6 +182,17 @@ class ProductServiceTest {
         assertThatThrownBy(() -> productService.deleteProduct(1L))
             .isInstanceOf(IllegalArgumentException.class);
         then(productRepository).should(never()).deleteById(any());
+    }
+
+    @Test
+    @DisplayName("상품 삭제 시 연관된 찜이 먼저 삭제된다")
+    void deleteProduct_withWishes_removesWishesFirst() {
+        given(orderRepository.existsByOptionProductId(1L)).willReturn(false);
+
+        productService.deleteProduct(1L);
+
+        then(wishRepository).should().deleteByProductId(1L);
+        then(productRepository).should().deleteById(1L);
     }
 
     @Test
