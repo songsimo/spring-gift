@@ -1,5 +1,6 @@
 package gift.order;
 
+import gift.order.service.OrderRequest;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;

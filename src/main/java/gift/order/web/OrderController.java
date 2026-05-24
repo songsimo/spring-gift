@@ -1,6 +1,9 @@
-package gift.order;
+package gift.order.web;
 
 import gift.auth.AuthenticationResolver;
+import gift.order.service.OrderRequest;
+import gift.order.service.OrderResponse;
+import gift.order.service.OrderService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;

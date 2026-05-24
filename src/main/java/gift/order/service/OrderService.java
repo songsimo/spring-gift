@@ -1,9 +1,11 @@
-package gift.order;
+package gift.order.service;
 
 import gift.member.Member;
 import gift.member.MemberRepository;
 import gift.option.model.Option;
 import gift.option.repository.OptionRepository;
+import gift.order.model.Order;
+import gift.order.repository.OrderRepository;
 import gift.wish.repository.WishRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

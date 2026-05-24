@@ -7,7 +7,7 @@ import gift.option.repository.OptionRepository;
 import gift.option.service.OptionRequest;
 import gift.option.service.OptionResponse;
 import gift.option.service.OptionService;
-import gift.order.OrderRepository;
+import gift.order.repository.OrderRepository;
 import gift.product.Product;
 import gift.product.ProductRepository;
 import org.junit.jupiter.api.DisplayName;

@@ -3,7 +3,7 @@ package gift.option.service;
 import gift.option.model.Option;
 import gift.option.model.OptionNameValidator;
 import gift.option.repository.OptionRepository;
-import gift.order.OrderRepository;
+import gift.order.repository.OrderRepository;
 import gift.product.ProductRepository;
 import org.springframework.stereotype.Service;
 

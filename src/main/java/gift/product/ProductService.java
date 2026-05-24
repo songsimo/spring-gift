@@ -2,7 +2,7 @@ package gift.product;
 
 import gift.category.model.Category;
 import gift.category.repository.CategoryRepository;
-import gift.order.OrderRepository;
+import gift.order.repository.OrderRepository;
 import gift.wish.repository.WishRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

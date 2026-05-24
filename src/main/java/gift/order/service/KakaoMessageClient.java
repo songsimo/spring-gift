@@ -1,6 +1,7 @@
-package gift.order;
+package gift.order.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import gift.order.model.Order;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import gift.product.Product;
 import org.springframework.stereotype.Component;
@@ -32,7 +33,7 @@ public class KakaoMessageClient {
             .toBodilessEntity();
     }
 
-    String buildTemplate(Order order, Product product) {
+    public String buildTemplate(Order order, Product product) {
         var totalPrice = String.format("%,d", product.getPrice() * order.getQuantity());
         var message = order.getMessage() != null && !order.getMessage().isBlank()
             ? "\\n\\n💌 " + escapeJson(order.getMessage())

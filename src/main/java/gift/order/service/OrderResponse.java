@@ -1,5 +1,6 @@
-package gift.order;
+package gift.order.service;
 
+import gift.order.model.Order;
 import java.time.LocalDateTime;
 
 public record OrderResponse(
