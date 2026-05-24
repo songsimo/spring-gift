@@ -866,3 +866,17 @@ HTTP 상태 코드가 의미에 맞게 분리됨: 리소스 없음 → 404, 중�
 
 **3. 결과 및 근거**
 `updateMember` 호출 후 저장되는 비밀번호가 BCrypt 해시임을 테스트로 검증. `registerMember`, `adminCreate`, `updateMember` 세 경로 모두 동일하게 인코딩 적용. 전체 테스트 GREEN.
+
+---
+
+### [2026-05-25] 쓰기 메서드 @Transactional 누락 보완 (Task 14)
+
+**1. 문제 정의**
+`ProductService.deleteProduct()`(wish + product 두 쓰기), `OptionService.createOption/updateOption/deleteOption()`, `MemberService.registerMember/adminCreate()`(존재 여부 확인 + save)가 `@Transactional` 없이 실행되어, 중간 실패 시 DB 상태가 불일관해질 수 있었다.
+
+**2. 상호작용 타임라인**
+- **Step 1 [Red]**: 각 테스트 파일(`ProductServiceTest`, `OptionServiceTest`, `MemberServiceTest`)에 리플렉션으로 `@Transactional` 어노테이션 존재를 검사하는 테스트 8개 추가 → 어노테이션 미존재로 실패(Red) 확인
+- **Step 2 [Green]**: `ProductService` 3개(`createProduct`, `updateProduct`, `deleteProduct`), `OptionService` 3개(`createOption`, `updateOption`, `deleteOption`), `MemberService` 2개(`registerMember`, `adminCreate`)에 `@Transactional` 추가 → 전체 테스트 GREEN
+
+**3. 결과 및 근거**
+쓰기 작업이 있는 서비스 메서드에 `@Transactional`을 일괄 보완. 기존에 선언된 `updateMember`, `chargePoint`, `findOrCreateKakaoMember`, `OrderService.createOrder`와 일관성 확보. 전체 테스트 GREEN.

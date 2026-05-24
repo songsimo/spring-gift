@@ -48,6 +48,7 @@ public class MemberService {
         memberRepository.save(member);
     }
 
+    @Transactional
     public void adminCreate(String email, String password) {
         if (memberRepository.existsByEmail(email)) {
             throw new DuplicateException("이미 가입된 이메일입니다.");
@@ -73,6 +74,7 @@ public class MemberService {
         return memberRepository.save(member);
     }
 
+    @Transactional
     public Member registerMember(String email, String password) {
         if (memberRepository.existsByEmail(email)) {
             throw new DuplicateException("이미 가입된 이메일입니다.");

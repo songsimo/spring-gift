@@ -20,6 +20,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
+import org.springframework.transaction.annotation.Transactional;
+
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Optional;
 
@@ -327,5 +330,26 @@ class ProductServiceTest {
 
         assertThatThrownBy(() -> productService.adminUpdateProduct(999L, "MacBook", 1000000, "https://example.com/img.png", 1L))
             .isInstanceOf(NotFoundException.class);
+    }
+
+    @Test
+    @DisplayName("deleteProduct는 @Transactional이 선언되어 있다")
+    void deleteProduct_hasTransactionalAnnotation() throws NoSuchMethodException {
+        Method method = ProductService.class.getDeclaredMethod("deleteProduct", Long.class);
+        assertThat(method.isAnnotationPresent(Transactional.class)).isTrue();
+    }
+
+    @Test
+    @DisplayName("updateProduct는 @Transactional이 선언되어 있다")
+    void updateProduct_hasTransactionalAnnotation() throws NoSuchMethodException {
+        Method method = ProductService.class.getDeclaredMethod("updateProduct", Long.class, ProductRequest.class);
+        assertThat(method.isAnnotationPresent(Transactional.class)).isTrue();
+    }
+
+    @Test
+    @DisplayName("createProduct는 @Transactional이 선언되어 있다")
+    void createProduct_hasTransactionalAnnotation() throws NoSuchMethodException {
+        Method method = ProductService.class.getDeclaredMethod("createProduct", ProductRequest.class);
+        assertThat(method.isAnnotationPresent(Transactional.class)).isTrue();
     }
 }

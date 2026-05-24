@@ -12,6 +12,7 @@ import org.springframework.data.domain.Page;
 import java.util.List;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 
 @Service
@@ -42,6 +43,7 @@ public class ProductService {
             .orElseThrow(() -> new NotFoundException("상품을 찾을 수 없습니다. id=" + id));
     }
 
+    @Transactional
     public ProductResponse createProduct(ProductRequest request) {
         validateNotKakao(request.name());
         Category category = categoryRepository.findById(request.categoryId())
@@ -50,6 +52,7 @@ public class ProductService {
         return ProductResponse.from(saved);
     }
 
+    @Transactional
     public ProductResponse updateProduct(Long id, ProductRequest request) {
         validateNotKakao(request.name());
         Category category = categoryRepository.findById(request.categoryId())
@@ -61,6 +64,7 @@ public class ProductService {
         return ProductResponse.from(product);
     }
 
+    @Transactional
     public void deleteProduct(Long id) {
         if (orderRepository.existsByOptionProductId(id)) {
             throw new IllegalArgumentException("주문이 있는 상품은 삭제할 수 없습니다.");

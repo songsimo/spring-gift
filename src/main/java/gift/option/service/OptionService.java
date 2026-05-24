@@ -8,6 +8,7 @@ import gift.option.repository.OptionRepository;
 import gift.order.repository.OrderRepository;
 import gift.product.repository.ProductRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -31,6 +32,7 @@ public class OptionService {
             .toList();
     }
 
+    @Transactional
     public OptionResponse createOption(Long productId, OptionRequest request) {
         List<String> errors = OptionNameValidator.validate(request.name());
         if (!errors.isEmpty()) {
@@ -45,6 +47,7 @@ public class OptionService {
         return OptionResponse.from(saved);
     }
 
+    @Transactional
     public OptionResponse updateOption(Long productId, Long optionId, OptionRequest request) {
         List<String> errors = OptionNameValidator.validate(request.name());
         if (!errors.isEmpty()) {
@@ -60,6 +63,7 @@ public class OptionService {
         return OptionResponse.from(optionRepository.save(option));
     }
 
+    @Transactional
     public void deleteOption(Long productId, Long optionId) {
         productRepository.findById(productId)
             .orElseThrow(() -> new NotFoundException("상품을 찾을 수 없습니다. id=" + productId));

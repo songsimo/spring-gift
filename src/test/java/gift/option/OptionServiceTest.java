@@ -3,6 +3,9 @@ package gift.option;
 import gift.category.model.Category;
 import gift.exception.DuplicateException;
 import gift.exception.NotFoundException;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.lang.reflect.Method;
 import gift.option.model.Option;
 import gift.option.model.OptionNameValidator;
 import gift.option.repository.OptionRepository;
@@ -258,5 +261,26 @@ class OptionServiceTest {
 
         assertThatThrownBy(() -> optionService.updateOption(1L, 999L, new OptionRequest("실버 256GB", 10)))
             .isInstanceOf(NotFoundException.class);
+    }
+
+    @Test
+    @DisplayName("createOption은 @Transactional이 선언되어 있다")
+    void createOption_hasTransactionalAnnotation() throws NoSuchMethodException {
+        Method method = OptionService.class.getDeclaredMethod("createOption", Long.class, OptionRequest.class);
+        assertThat(method.isAnnotationPresent(Transactional.class)).isTrue();
+    }
+
+    @Test
+    @DisplayName("updateOption은 @Transactional이 선언되어 있다")
+    void updateOption_hasTransactionalAnnotation() throws NoSuchMethodException {
+        Method method = OptionService.class.getDeclaredMethod("updateOption", Long.class, Long.class, OptionRequest.class);
+        assertThat(method.isAnnotationPresent(Transactional.class)).isTrue();
+    }
+
+    @Test
+    @DisplayName("deleteOption은 @Transactional이 선언되어 있다")
+    void deleteOption_hasTransactionalAnnotation() throws NoSuchMethodException {
+        Method method = OptionService.class.getDeclaredMethod("deleteOption", Long.class, Long.class);
+        assertThat(method.isAnnotationPresent(Transactional.class)).isTrue();
     }
 }

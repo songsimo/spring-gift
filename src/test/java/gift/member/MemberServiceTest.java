@@ -6,6 +6,9 @@ import gift.member.model.Member;
 import gift.member.repository.MemberRepository;
 import gift.member.service.MemberResponse;
 import gift.member.service.MemberService;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.lang.reflect.Method;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -284,5 +287,19 @@ class MemberServiceTest {
 
         assertThat(result.email()).isEqualTo("test@test.com");
         assertThat(result.point()).isEqualTo(3000);
+    }
+
+    @Test
+    @DisplayName("registerMember는 @Transactional이 선언되어 있다")
+    void registerMember_hasTransactionalAnnotation() throws NoSuchMethodException {
+        Method method = MemberService.class.getDeclaredMethod("registerMember", String.class, String.class);
+        assertThat(method.isAnnotationPresent(Transactional.class)).isTrue();
+    }
+
+    @Test
+    @DisplayName("adminCreate는 @Transactional이 선언되어 있다")
+    void adminCreate_hasTransactionalAnnotation() throws NoSuchMethodException {
+        Method method = MemberService.class.getDeclaredMethod("adminCreate", String.class, String.class);
+        assertThat(method.isAnnotationPresent(Transactional.class)).isTrue();
     }
 }
