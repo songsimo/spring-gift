@@ -409,3 +409,24 @@ member ──< orders ───────────┘
 
 **3. 결과 및 근거**
 `Wish` 엔티티 `@UniqueConstraint` + Flyway `V3` 마이그레이션으로 애플리케이션·DB 양 레벨에서 중복 찜이 방지된다. `WishRepositoryTest` 1개 통과, 전체 테스트 GREEN.
+
+---
+
+### [2026-05-24] AdminMemberController 테스트 작성
+
+**1. 문제 정의**
+`AdminMemberController`에 테스트가 없어, 7개 엔드포인트(목록/추가폼/생성/수정폼/수정/포인트충전/삭제)의 동작이 코드 변경 시 검증되지 않았다.
+
+**2. 상호작용 타임라인**
+- **Step 1**: `AdminMemberControllerTest` 파일 작성 요청 → AI가 `@WebMvcTest(AdminMemberController.class)` + `@MockitoBean MemberService` 기반으로 7개 케이스 작성 → 수용
+  - `list`: 200 + `member/list` 뷰 + `members` 모델
+  - `newForm`: 200 + `member/new` 뷰
+  - `create` (정상): redirect `/admin/members`
+  - `create` (중복 이메일): 200 + `member/new` 뷰 + `error`, `email` 모델
+  - `editForm`: 200 + `member/edit` 뷰 + `member` 모델
+  - `update`: redirect `/admin/members`
+  - `chargePoint`: redirect `/admin/members`
+  - `delete`: redirect `/admin/members`
+
+**3. 결과 및 근거**
+`AdminMemberControllerTest` 7개 테스트 전부 통과. 전체 테스트 GREEN.
