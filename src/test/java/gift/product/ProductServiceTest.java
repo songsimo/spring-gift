@@ -175,4 +175,109 @@ class ProductServiceTest {
         assertThat(result).hasSize(1);
         assertThat(result.getFirst().getName()).isEqualTo("MacBook");
     }
+
+    @Test
+    @DisplayName("관리자가 ID로 상품 엔티티를 조회한다")
+    void getProductEntity_existingId_returnsProduct() {
+        Category category = new Category(1L, "전자기기", "#1E90FF", "https://example.com/img.png", "전자제품");
+        given(productRepository.findById(1L)).willReturn(Optional.of(
+            new Product(1L, "MacBook", 1000000, "https://example.com/mac.png", category)
+        ));
+
+        Product result = productService.getProductEntity(1L);
+
+        assertThat(result.getName()).isEqualTo("MacBook");
+    }
+
+    @Test
+    @DisplayName("관리자가 존재하지 않는 ID로 상품 엔티티 조회 시 예외가 발생한다")
+    void getProductEntity_nonExistingId_throwsException() {
+        given(productRepository.findById(999L)).willReturn(Optional.empty());
+
+        assertThatThrownBy(() -> productService.getProductEntity(999L))
+            .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    @DisplayName("관리자가 유효한 요청으로 상품을 생성한다")
+    void adminCreateProduct_validRequest_savesProduct() {
+        Category category = new Category(1L, "전자기기", "#1E90FF", "https://example.com/img.png", "전자제품");
+        given(categoryRepository.findById(1L)).willReturn(Optional.of(category));
+
+        productService.adminCreateProduct("MacBook", 1000000, "https://example.com/img.png", 1L);
+
+        then(productRepository).should().save(any());
+    }
+
+    @Test
+    @DisplayName("관리자는 카카오가 포함된 상품명으로 생성할 수 있다")
+    void adminCreateProduct_kakaoName_savesProduct() {
+        Category category = new Category(1L, "전자기기", "#1E90FF", "https://example.com/img.png", "전자제품");
+        given(categoryRepository.findById(1L)).willReturn(Optional.of(category));
+
+        productService.adminCreateProduct("카카오 선물", 1000, "https://example.com/img.png", 1L);
+
+        then(productRepository).should().save(any());
+    }
+
+    @Test
+    @DisplayName("관리자가 유효하지 않은 상품명으로 생성 시 예외가 발생한다")
+    void adminCreateProduct_invalidName_throwsException() {
+        assertThatThrownBy(() -> productService.adminCreateProduct("!@#invalid", 1000, "https://example.com/img.png", 1L))
+            .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    @DisplayName("관리자가 존재하지 않는 카테고리로 상품 생성 시 예외가 발생한다")
+    void adminCreateProduct_categoryNotFound_throwsException() {
+        given(categoryRepository.findById(999L)).willReturn(Optional.empty());
+
+        assertThatThrownBy(() -> productService.adminCreateProduct("MacBook", 1000000, "https://example.com/img.png", 999L))
+            .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    @DisplayName("관리자가 유효한 요청으로 상품을 수정한다")
+    void adminUpdateProduct_validRequest_updatesProduct() {
+        Category category = new Category(1L, "전자기기", "#1E90FF", "https://example.com/img.png", "전자제품");
+        Product existing = new Product(1L, "OldName", 500000, "https://example.com/old.png", category);
+        given(categoryRepository.findById(1L)).willReturn(Optional.of(category));
+        given(productRepository.findById(1L)).willReturn(Optional.of(existing));
+
+        productService.adminUpdateProduct(1L, "MacBook", 1000000, "https://example.com/mac.png", 1L);
+
+        assertThat(existing.getName()).isEqualTo("MacBook");
+        then(productRepository).should().save(existing);
+    }
+
+    @Test
+    @DisplayName("관리자는 카카오가 포함된 상품명으로 수정할 수 있다")
+    void adminUpdateProduct_kakaoName_updatesProduct() {
+        Category category = new Category(1L, "전자기기", "#1E90FF", "https://example.com/img.png", "전자제품");
+        Product existing = new Product(1L, "OldName", 500000, "https://example.com/old.png", category);
+        given(categoryRepository.findById(1L)).willReturn(Optional.of(category));
+        given(productRepository.findById(1L)).willReturn(Optional.of(existing));
+
+        productService.adminUpdateProduct(1L, "카카오 선물", 1000, "https://example.com/img.png", 1L);
+
+        assertThat(existing.getName()).isEqualTo("카카오 선물");
+    }
+
+    @Test
+    @DisplayName("관리자가 유효하지 않은 상품명으로 수정 시 예외가 발생한다")
+    void adminUpdateProduct_invalidName_throwsException() {
+        assertThatThrownBy(() -> productService.adminUpdateProduct(1L, "!@#invalid", 1000, "https://example.com/img.png", 1L))
+            .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    @DisplayName("관리자가 존재하지 않는 상품 수정 시 예외가 발생한다")
+    void adminUpdateProduct_productNotFound_throwsException() {
+        Category category = new Category(1L, "전자기기", "#1E90FF", "https://example.com/img.png", "전자제품");
+        given(categoryRepository.findById(1L)).willReturn(Optional.of(category));
+        given(productRepository.findById(999L)).willReturn(Optional.empty());
+
+        assertThatThrownBy(() -> productService.adminUpdateProduct(999L, "MacBook", 1000000, "https://example.com/img.png", 1L))
+            .isInstanceOf(IllegalArgumentException.class);
+    }
 }

@@ -319,6 +319,22 @@ member ──< orders ───────────┘
 
 ---
 
+### [2026-05-24] AdminProductController 서비스 레이어 분리
+
+**1. 문제 정의**
+`AdminProductController`가 `ProductRepository`와 `CategoryRepository`를 직접 주입해 서비스 레이어를 우회하고 있었다. REST API 컨트롤러(`ProductController`)는 이미 분리됐지만 어드민 컨트롤러만 남아 있던 구조적 불일치를 해소했다.
+
+**2. 상호작용 타임라인**
+- **Step 1 [Red]**: `ProductServiceTest`에 `getProductEntity`, `adminCreateProduct`, `adminUpdateProduct` 신규 메서드 테스트 10개 추가 → 컴파일 오류(RED) 확인 → 수용
+- **Step 2 [Green]**: `ProductService`에 `getProductEntity()`, `adminCreateProduct()`, `adminUpdateProduct()` 3개 메서드 구현 → 테스트 GREEN 전환 → 수용. `adminCreate/Update`는 `allowKakao=true`로 카카오 상품명 허용
+- **Step 3 [Red]**: `AdminProductControllerTest` 신규 작성 (list/newForm/create/editForm/update/delete 8개 케이스) → 수용
+- **Step 4 [Refactor]**: `AdminProductController` 리팩토링 — `ProductRepository`, `CategoryRepository` 필드 제거, `CategoryService` 주입으로 교체 → 수용
+
+**3. 결과 및 근거**
+`AdminProductController`에서 `ProductRepository`, `CategoryRepository` 직접 의존성 완전 제거. `ProductService`와 `CategoryService`만 의존. `ProductServiceTest` 10개 신규 + `AdminProductControllerTest` 8개 신규 테스트 전부 통과.
+
+---
+
 ### [2026-05-24] CategoryService.update() 포맷 버그 수정
 
 **1. 문제 정의**

@@ -60,4 +60,32 @@ public class ProductService {
     public void deleteProduct(Long id) {
         productRepository.deleteById(id);
     }
+
+    public Product getProductEntity(Long id) {
+        return productRepository.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("Product not found: " + id));
+    }
+
+    public void adminCreateProduct(String name, int price, String imageUrl, Long categoryId) {
+        List<String> errors = ProductNameValidator.validate(name, true);
+        if (!errors.isEmpty()) {
+            throw new IllegalArgumentException(String.join(", ", errors));
+        }
+        Category category = categoryRepository.findById(categoryId)
+            .orElseThrow(() -> new IllegalArgumentException("Category not found: " + categoryId));
+        productRepository.save(new Product(name, price, imageUrl, category));
+    }
+
+    public void adminUpdateProduct(Long id, String name, int price, String imageUrl, Long categoryId) {
+        List<String> errors = ProductNameValidator.validate(name, true);
+        if (!errors.isEmpty()) {
+            throw new IllegalArgumentException(String.join(", ", errors));
+        }
+        Category category = categoryRepository.findById(categoryId)
+            .orElseThrow(() -> new IllegalArgumentException("Category not found: " + categoryId));
+        Product product = productRepository.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("Product not found: " + id));
+        product.update(name, price, imageUrl, category);
+        productRepository.save(product);
+    }
 }
