@@ -364,6 +364,39 @@ TDD 순서:
 
 ---
 
+### Task 10 — 커스텀 예외 계층 도입
+
+**문제**: 현재 모든 예외(not found, duplicate, unauthorized)가 `IllegalArgumentException`으로 통일되어 HTTP 400만 반환. 클라이언트가 에러 종류를 구분할 수 없음.
+
+**설계**:
+- `gift.exception.BusinessException` (추상 베이스)
+  - `NotFoundException` → HTTP 404
+  - `DuplicateException` → HTTP 409
+- `GlobalExceptionHandler`에 각 예외 타입별 핸들러 추가
+- 서비스 레이어에서 상황에 맞는 예외 사용으로 교체
+
+**작업 범위**: `gift/exception/` 패키지 + 서비스 클래스들 + `GlobalExceptionHandlerTest`  
+**테스트**: `GlobalExceptionHandlerTest`에 NotFoundException→404, DuplicateException→409 케이스 추가  
+**완료 조건**: `GlobalExceptionHandler`가 세 타입 모두 올바른 상태 코드 반환
+
+**프롬프트**:
+```
+모든 서비스 예외가 IllegalArgumentException으로 통일되어 HTTP 400만 반환 중이야.
+커스텀 예외 계층을 도입해 404/409를 구분해줘.
+
+TDD 순서:
+[Red] GlobalExceptionHandlerTest에 두 케이스 추가:
+  - NotFoundException 발생 → 404 반환
+  - DuplicateException 발생 → 409 반환
+[Green] BusinessException, NotFoundException, DuplicateException 클래스 생성
+        GlobalExceptionHandler에 각 타입별 @ExceptionHandler 추가
+[Refactor] 서비스 레이어에서 "not found" 케이스 → NotFoundException,
+           "duplicate" 케이스 → DuplicateException으로 교체
+기존 테스트 전부 통과 확인 후 README 로그 추가해.
+```
+
+---
+
 # 기능 개선 작업 (Functional Improvements)
 
 > 코드 품질 작업(Task 1~8)과 별도로 관리한다.  
@@ -743,24 +776,25 @@ F-9 (옵션 수정 API)   ← 독립
 ## 전체 완료 체크리스트
 
 ### 코드 품질 / 아키텍처
-- [ ] Task 1: `CategoryService.update()` 포맷 버그 수정
-- [ ] Task 2: 서비스 메서드 `@Transactional` 추가
-- [ ] Task 3: `AdminProductController` 서비스 레이어 분리
-- [ ] Task 4: `@RestControllerAdvice` 전역 예외 처리기
-- [ ] Task 5: 주문 후 찜 자동 제거
-- [ ] Task 6: `KakaoAuthService` / `AuthenticationResolver` 의존성 정리
-- [ ] Task 7: `wish` 테이블 유니크 제약 추가
-- [ ] Task 8: 어드민 컨트롤러 테스트 작성
+- [x] Task 1: `CategoryService.update()` 포맷 버그 수정
+- [x] Task 2: 서비스 메서드 `@Transactional` 추가
+- [x] Task 3: `AdminProductController` 서비스 레이어 분리
+- [x] Task 4: `@RestControllerAdvice` 전역 예외 처리기
+- [x] Task 5: 주문 후 찜 자동 제거
+- [x] Task 6: `KakaoAuthService` / `AuthenticationResolver` 의존성 정리
+- [x] Task 7: `wish` 테이블 유니크 제약 추가
+- [x] Task 8: 어드민 컨트롤러 테스트 작성
 - [x] Task 9: `Product` 도메인 검증 내재화
+- [x] Task 10: 커스텀 예외 계층 도입 (`NotFoundException` → 404, `DuplicateException` → 409)
 
 ### 기능 개선
-- [ ] Task F-1: 비밀번호 BCrypt 해싱
-- [ ] Task F-2: 카테고리/상품/옵션 삭제 시 연관 데이터 검사
-- [ ] Task F-3: `Option.subtractQuantity()` 음수/0 방어
-- [ ] Task F-4: 입력 검증 강화 (메시지 길이, 색상 코드)
-- [ ] Task F-5: `KakaoMessageClient` JSON 이스케이프 처리
-- [ ] Task F-6: `OrderResponse` 개선 (상품명·옵션명·총금액)
-- [ ] Task F-7: `ProductResponse`에 카테고리명 포함
-- [ ] Task F-8: 회원 본인 정보 조회 API (`GET /api/members/me`)
-- [ ] Task F-9: 옵션 수정 API (`PUT` 엔드포인트)
-- [ ] Task F-10: 상품 삭제 시 연관 찜 제거
+- [x] Task F-1: 비밀번호 BCrypt 해싱
+- [x] Task F-2: 카테고리/상품/옵션 삭제 시 연관 데이터 검사
+- [x] Task F-3: `Option.subtractQuantity()` 음수/0 방어
+- [x] Task F-4: 입력 검증 강화 (메시지 길이)
+- [x] Task F-5: `KakaoMessageClient` JSON 이스케이프 처리
+- [x] Task F-6: `OrderResponse` 개선 (상품명·옵션명·총금액)
+- [x] Task F-7: `ProductResponse`에 카테고리명 포함
+- [x] Task F-8: 회원 본인 정보 조회 API (`GET /api/members/me`)
+- [x] Task F-9: 옵션 수정 API (`PUT` 엔드포인트)
+- [x] Task F-10: 상품 삭제 시 연관 찜 제거

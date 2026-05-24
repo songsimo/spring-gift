@@ -5,6 +5,7 @@ import gift.category.repository.CategoryRepository;
 import gift.category.service.CategoryRequest;
 import gift.category.service.CategoryResponse;
 import gift.category.service.CategoryService;
+import gift.exception.NotFoundException;
 import gift.product.repository.ProductRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -85,7 +86,7 @@ class CategoryServiceTest {
         given(categoryRepository.findById(999L)).willReturn(Optional.empty());
 
         assertThatThrownBy(() -> categoryService.update(999L, request))
-            .isInstanceOf(IllegalArgumentException.class);
+            .isInstanceOf(NotFoundException.class);
     }
 
     @Test

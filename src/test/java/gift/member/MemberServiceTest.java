@@ -2,6 +2,8 @@ package gift.member;
 
 import gift.auth.JwtProvider;
 import gift.auth.TokenResponse;
+import gift.exception.DuplicateException;
+import gift.exception.NotFoundException;
 import gift.member.model.Member;
 import gift.member.repository.MemberRepository;
 import gift.member.service.MemberResponse;
@@ -56,7 +58,7 @@ class MemberServiceTest {
         given(memberRepository.findById(99L)).willReturn(Optional.empty());
 
         assertThatThrownBy(() -> memberService.updateMember(99L, "x@test.com", "pw"))
-            .isInstanceOf(IllegalArgumentException.class);
+            .isInstanceOf(NotFoundException.class);
     }
 
     @Test
@@ -76,7 +78,7 @@ class MemberServiceTest {
         given(memberRepository.findById(99L)).willReturn(Optional.empty());
 
         assertThatThrownBy(() -> memberService.findById(99L))
-            .isInstanceOf(IllegalArgumentException.class);
+            .isInstanceOf(NotFoundException.class);
     }
 
     @Test
@@ -96,7 +98,7 @@ class MemberServiceTest {
         given(memberRepository.existsByEmail("dup@test.com")).willReturn(true);
 
         assertThatThrownBy(() -> memberService.adminCreate("dup@test.com", "pw"))
-            .isInstanceOf(IllegalArgumentException.class);
+            .isInstanceOf(DuplicateException.class);
     }
 
     @Test
@@ -131,7 +133,7 @@ class MemberServiceTest {
         given(memberRepository.findById(99L)).willReturn(Optional.empty());
 
         assertThatThrownBy(() -> memberService.chargePoint(99L, 500))
-            .isInstanceOf(IllegalArgumentException.class);
+            .isInstanceOf(NotFoundException.class);
     }
 
     @Test
@@ -160,7 +162,7 @@ class MemberServiceTest {
         given(memberRepository.existsByEmail("test@test.com")).willReturn(true);
 
         assertThatThrownBy(() -> memberService.register("test@test.com", "password"))
-            .isInstanceOf(IllegalArgumentException.class);
+            .isInstanceOf(DuplicateException.class);
     }
 
     @Test

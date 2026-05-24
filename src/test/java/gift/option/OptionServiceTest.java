@@ -1,6 +1,8 @@
 package gift.option;
 
 import gift.category.model.Category;
+import gift.exception.DuplicateException;
+import gift.exception.NotFoundException;
 import gift.option.model.Option;
 import gift.option.model.OptionNameValidator;
 import gift.option.repository.OptionRepository;
@@ -66,7 +68,7 @@ class OptionServiceTest {
         given(productRepository.findById(999L)).willReturn(Optional.empty());
 
         assertThatThrownBy(() -> optionService.getOptions(999L))
-            .isInstanceOf(IllegalArgumentException.class);
+            .isInstanceOf(NotFoundException.class);
     }
 
     @Test
@@ -101,7 +103,7 @@ class OptionServiceTest {
         given(productRepository.findById(999L)).willReturn(Optional.empty());
 
         assertThatThrownBy(() -> optionService.createOption(999L, request))
-            .isInstanceOf(IllegalArgumentException.class);
+            .isInstanceOf(NotFoundException.class);
     }
 
     @Test
@@ -114,7 +116,7 @@ class OptionServiceTest {
         given(optionRepository.existsByProductIdAndName(1L, "실버 256GB")).willReturn(true);
 
         assertThatThrownBy(() -> optionService.createOption(1L, request))
-            .isInstanceOf(IllegalArgumentException.class);
+            .isInstanceOf(DuplicateException.class);
     }
 
     @Test
@@ -174,7 +176,7 @@ class OptionServiceTest {
         given(productRepository.findById(999L)).willReturn(Optional.empty());
 
         assertThatThrownBy(() -> optionService.deleteOption(999L, 1L))
-            .isInstanceOf(IllegalArgumentException.class);
+            .isInstanceOf(NotFoundException.class);
     }
 
     @Test
@@ -190,7 +192,7 @@ class OptionServiceTest {
         given(optionRepository.findById(999L)).willReturn(Optional.empty());
 
         assertThatThrownBy(() -> optionService.deleteOption(1L, 999L))
-            .isInstanceOf(IllegalArgumentException.class);
+            .isInstanceOf(NotFoundException.class);
     }
 
     @Test
@@ -230,7 +232,7 @@ class OptionServiceTest {
         given(optionRepository.existsByProductIdAndNameAndIdNot(1L, "스페이스그레이 512GB", 1L)).willReturn(true);
 
         assertThatThrownBy(() -> optionService.updateOption(1L, 1L, request))
-            .isInstanceOf(IllegalArgumentException.class);
+            .isInstanceOf(DuplicateException.class);
     }
 
     @Test
@@ -255,6 +257,6 @@ class OptionServiceTest {
         given(optionRepository.findById(999L)).willReturn(Optional.empty());
 
         assertThatThrownBy(() -> optionService.updateOption(1L, 999L, new OptionRequest("실버 256GB", 10)))
-            .isInstanceOf(IllegalArgumentException.class);
+            .isInstanceOf(NotFoundException.class);
     }
 }

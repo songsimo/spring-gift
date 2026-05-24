@@ -1,5 +1,6 @@
 package gift.wish.service;
 
+import gift.exception.NotFoundException;
 import gift.product.model.Product;
 import gift.product.repository.ProductRepository;
 import gift.wish.model.Wish;
@@ -24,7 +25,7 @@ public class WishService {
 
     public WishResponse addWish(Long memberId, Long productId) {
         Product product = productRepository.findById(productId)
-            .orElseThrow(() -> new IllegalArgumentException("Product not found: " + productId));
+            .orElseThrow(() -> new NotFoundException("상품을 찾을 수 없습니다. id=" + productId));
         return wishRepository.findByMemberIdAndProductId(memberId, productId)
             .map(WishResponse::from)
             .orElseGet(() -> WishResponse.from(wishRepository.save(new Wish(memberId, product))));
@@ -32,7 +33,7 @@ public class WishService {
 
     public void removeWish(Long memberId, Long wishId) {
         Wish wish = wishRepository.findById(wishId)
-            .orElseThrow(() -> new IllegalArgumentException("Wish not found: " + wishId));
+            .orElseThrow(() -> new NotFoundException("찜을 찾을 수 없습니다. id=" + wishId));
         if (!wish.getMemberId().equals(memberId)) {
             throw new IllegalArgumentException("본인의 찜 목록만 삭제할 수 있습니다.");
         }

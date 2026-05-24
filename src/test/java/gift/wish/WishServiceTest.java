@@ -1,6 +1,7 @@
 package gift.wish;
 
 import gift.category.model.Category;
+import gift.exception.NotFoundException;
 import gift.product.model.Product;
 import gift.product.repository.ProductRepository;
 import gift.wish.model.Wish;
@@ -88,7 +89,7 @@ class WishServiceTest {
         given(productRepository.findById(999L)).willReturn(Optional.empty());
 
         assertThatThrownBy(() -> wishService.addWish(1L, 999L))
-            .isInstanceOf(IllegalArgumentException.class);
+            .isInstanceOf(NotFoundException.class);
     }
 
     @Test
@@ -110,7 +111,7 @@ class WishServiceTest {
         given(wishRepository.findById(999L)).willReturn(Optional.empty());
 
         assertThatThrownBy(() -> wishService.removeWish(1L, 999L))
-            .isInstanceOf(IllegalArgumentException.class);
+            .isInstanceOf(NotFoundException.class);
     }
 
     @Test

@@ -2,6 +2,7 @@ package gift.product;
 
 import gift.category.model.Category;
 import gift.category.repository.CategoryRepository;
+import gift.exception.NotFoundException;
 import gift.order.repository.OrderRepository;
 import gift.product.model.Product;
 import gift.product.repository.ProductRepository;
@@ -83,7 +84,7 @@ class ProductServiceTest {
         given(productRepository.findById(999L)).willReturn(Optional.empty());
 
         assertThatThrownBy(() -> productService.getProduct(999L))
-            .isInstanceOf(IllegalArgumentException.class);
+            .isInstanceOf(NotFoundException.class);
     }
 
     @Test
@@ -119,7 +120,7 @@ class ProductServiceTest {
         given(categoryRepository.findById(999L)).willReturn(Optional.empty());
 
         assertThatThrownBy(() -> productService.createProduct(request))
-            .isInstanceOf(IllegalArgumentException.class);
+            .isInstanceOf(NotFoundException.class);
     }
 
     @Test
@@ -154,7 +155,7 @@ class ProductServiceTest {
         given(categoryRepository.findById(999L)).willReturn(Optional.empty());
 
         assertThatThrownBy(() -> productService.updateProduct(1L, request))
-            .isInstanceOf(IllegalArgumentException.class);
+            .isInstanceOf(NotFoundException.class);
     }
 
     @Test
@@ -166,7 +167,7 @@ class ProductServiceTest {
         given(productRepository.findById(999L)).willReturn(Optional.empty());
 
         assertThatThrownBy(() -> productService.updateProduct(999L, request))
-            .isInstanceOf(IllegalArgumentException.class);
+            .isInstanceOf(NotFoundException.class);
     }
 
     @Test
@@ -234,7 +235,7 @@ class ProductServiceTest {
         given(productRepository.findById(999L)).willReturn(Optional.empty());
 
         assertThatThrownBy(() -> productService.getProductEntity(999L))
-            .isInstanceOf(IllegalArgumentException.class);
+            .isInstanceOf(NotFoundException.class);
     }
 
     @Test
@@ -262,6 +263,9 @@ class ProductServiceTest {
     @Test
     @DisplayName("관리자가 유효하지 않은 상품명으로 생성 시 예외가 발생한다")
     void adminCreateProduct_invalidName_throwsException() {
+        Category category = new Category(1L, "전자기기", "#1E90FF", "https://example.com/img.png", "전자제품");
+        given(categoryRepository.findById(1L)).willReturn(Optional.of(category));
+
         assertThatThrownBy(() -> productService.adminCreateProduct("!@#invalid", 1000, "https://example.com/img.png", 1L))
             .isInstanceOf(IllegalArgumentException.class);
     }
@@ -272,7 +276,7 @@ class ProductServiceTest {
         given(categoryRepository.findById(999L)).willReturn(Optional.empty());
 
         assertThatThrownBy(() -> productService.adminCreateProduct("MacBook", 1000000, "https://example.com/img.png", 999L))
-            .isInstanceOf(IllegalArgumentException.class);
+            .isInstanceOf(NotFoundException.class);
     }
 
     @Test
@@ -305,6 +309,11 @@ class ProductServiceTest {
     @Test
     @DisplayName("관리자가 유효하지 않은 상품명으로 수정 시 예외가 발생한다")
     void adminUpdateProduct_invalidName_throwsException() {
+        Category category = new Category(1L, "전자기기", "#1E90FF", "https://example.com/img.png", "전자제품");
+        Product existing = new Product(1L, "MacBook", 1000000, "https://example.com/mac.png", category);
+        given(categoryRepository.findById(1L)).willReturn(Optional.of(category));
+        given(productRepository.findById(1L)).willReturn(Optional.of(existing));
+
         assertThatThrownBy(() -> productService.adminUpdateProduct(1L, "!@#invalid", 1000, "https://example.com/img.png", 1L))
             .isInstanceOf(IllegalArgumentException.class);
     }
@@ -317,6 +326,6 @@ class ProductServiceTest {
         given(productRepository.findById(999L)).willReturn(Optional.empty());
 
         assertThatThrownBy(() -> productService.adminUpdateProduct(999L, "MacBook", 1000000, "https://example.com/img.png", 1L))
-            .isInstanceOf(IllegalArgumentException.class);
+            .isInstanceOf(NotFoundException.class);
     }
 }

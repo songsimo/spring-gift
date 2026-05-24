@@ -12,6 +12,7 @@ import gift.order.service.OrderRequest;
 import gift.order.service.OrderResponse;
 import gift.order.service.OrderService;
 import gift.product.model.Product;
+import gift.exception.NotFoundException;
 import gift.wish.model.Wish;
 import gift.wish.repository.WishRepository;
 import org.junit.jupiter.api.DisplayName;
@@ -102,7 +103,7 @@ class OrderServiceTest {
         given(optionRepository.findById(999L)).willReturn(Optional.empty());
 
         assertThatThrownBy(() -> orderService.createOrder(1L, new OrderRequest(999L, 1, null)))
-            .isInstanceOf(IllegalArgumentException.class);
+            .isInstanceOf(NotFoundException.class);
     }
 
     @Test

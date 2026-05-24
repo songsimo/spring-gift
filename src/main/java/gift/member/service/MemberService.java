@@ -1,6 +1,8 @@
 package gift.member.service;
 
 import gift.auth.JwtProvider;
+import gift.exception.DuplicateException;
+import gift.exception.NotFoundException;
 import gift.member.model.Member;
 import gift.member.repository.MemberRepository;
 import gift.auth.TokenResponse;
@@ -27,13 +29,13 @@ public class MemberService {
 
     public Member findById(Long id) {
         return memberRepository.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("Member not found. id=" + id));
+            .orElseThrow(() -> new NotFoundException("회원을 찾을 수 없습니다. id=" + id));
     }
 
     @Transactional
     public void updateMember(Long id, String email, String password) {
         Member member = memberRepository.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("Member not found. id=" + id));
+            .orElseThrow(() -> new NotFoundException("회원을 찾을 수 없습니다. id=" + id));
         member.update(email, password);
         memberRepository.save(member);
     }
@@ -45,21 +47,21 @@ public class MemberService {
     @Transactional
     public void chargePoint(Long id, int amount) {
         Member member = memberRepository.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("Member not found. id=" + id));
+            .orElseThrow(() -> new NotFoundException("회원을 찾을 수 없습니다. id=" + id));
         member.chargePoint(amount);
         memberRepository.save(member);
     }
 
     public void adminCreate(String email, String password) {
         if (memberRepository.existsByEmail(email)) {
-            throw new IllegalArgumentException("Email is already registered.");
+            throw new DuplicateException("이미 가입된 이메일입니다.");
         }
         memberRepository.save(new Member(email, encoder.encode(password)));
     }
 
     public MemberResponse getMyInfo(String email) {
         Member member = memberRepository.findByEmail(email)
-            .orElseThrow(() -> new IllegalArgumentException("Member not found: " + email));
+            .orElseThrow(() -> new NotFoundException("회원을 찾을 수 없습니다. email=" + email));
         return MemberResponse.from(member);
     }
 
@@ -77,7 +79,7 @@ public class MemberService {
 
     public TokenResponse register(String email, String password) {
         if (memberRepository.existsByEmail(email)) {
-            throw new IllegalArgumentException("Email is already registered.");
+            throw new DuplicateException("이미 가입된 이메일입니다.");
         }
         Member member = memberRepository.save(new Member(email, encoder.encode(password)));
         return new TokenResponse(jwtProvider.createToken(member.getEmail()));

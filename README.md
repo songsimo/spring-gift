@@ -808,3 +808,18 @@ DB CASCADE 대신 서비스 레이어에서 명시적으로 찜을 먼저 삭제
 
 **3. 결과 및 근거**
 6개 도메인 모두 세분화 완료. 각 도메인 커밋마다 전체 테스트 GREEN 확인. 최종 `./gradlew ktlintCheck` 통과.
+
+---
+
+### [2026-05-25] 커스텀 예외 계층 도입 — NotFoundException(404) / DuplicateException(409) (Task 10)
+
+**1. 문제 정의**
+`GlobalExceptionHandler`가 모든 예외를 `IllegalArgumentException`으로 통일하여 HTTP 400만 반환하고 있어 클라이언트가 "찾을 수 없음(404)"과 "중복(409)"을 구분할 수 없었다.
+
+**2. 상호작용 타임라인**
+- **Step 1 [Red]**: `GlobalExceptionHandlerTest`에 `NotFoundException → 404`, `DuplicateException → 409` 케이스 추가 — `NotFoundException`·`DuplicateException` 클래스 미존재로 컴파일 오류(Red) 확인
+- **Step 2 [Green]**: `gift.exception` 패키지에 `BusinessException(abstract)`, `NotFoundException`, `DuplicateException` 생성. `GlobalExceptionHandler`에 타입별 핸들러 추가 → `GlobalExceptionHandlerTest` 4개 전부 GREEN
+- **Step 3 [Refactor]**: 서비스 레이어 6개 클래스(`CategoryService`, `MemberService`, `OrderService`, `OptionService`, `WishService`, `ProductService`) 에서 "not found" 케이스 → `NotFoundException`, 중복 이메일·옵션명 케이스 → `DuplicateException`으로 교체. 기존 테스트 25개 예외 타입 어노테이션 업데이트(단, 로그인 실패·비즈니스 규칙 위반은 `IllegalArgumentException` 유지)
+
+**3. 결과 및 근거**
+HTTP 상태 코드가 의미에 맞게 분리됨: 리소스 없음 → 404, 중복 등록 → 409, 유효하지 않은 입력 → 400. 전체 테스트 123개 전부 GREEN.

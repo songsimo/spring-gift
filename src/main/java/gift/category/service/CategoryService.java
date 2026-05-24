@@ -2,6 +2,7 @@ package gift.category.service;
 
 import gift.category.model.Category;
 import gift.category.repository.CategoryRepository;
+import gift.exception.NotFoundException;
 import gift.product.repository.ProductRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,7 +33,7 @@ public class CategoryService {
     @Transactional
     public CategoryResponse update(Long id, CategoryRequest request) {
         Category category = categoryRepository.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("Category not found: " + id));
+            .orElseThrow(() -> new NotFoundException("카테고리를 찾을 수 없습니다. id=" + id));
         category.update(request.name(), request.color(), request.imageUrl(), request.description());
         categoryRepository.save(category);
         return CategoryResponse.from(category);

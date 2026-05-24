@@ -2,6 +2,7 @@ package gift.product.service;
 
 import gift.category.model.Category;
 import gift.category.repository.CategoryRepository;
+import gift.exception.NotFoundException;
 import gift.order.repository.OrderRepository;
 import gift.product.model.Product;
 import gift.product.model.ProductNameValidator;
@@ -38,13 +39,13 @@ public class ProductService {
     public ProductResponse getProduct(Long id) {
         return productRepository.findById(id)
             .map(ProductResponse::from)
-            .orElseThrow(() -> new IllegalArgumentException("Product not found: " + id));
+            .orElseThrow(() -> new NotFoundException("상품을 찾을 수 없습니다. id=" + id));
     }
 
     public ProductResponse createProduct(ProductRequest request) {
         validateNotKakao(request.name());
         Category category = categoryRepository.findById(request.categoryId())
-            .orElseThrow(() -> new IllegalArgumentException("Category not found: " + request.categoryId()));
+            .orElseThrow(() -> new NotFoundException("카테고리를 찾을 수 없습니다. id=" + request.categoryId()));
         Product saved = productRepository.save(request.toEntity(category));
         return ProductResponse.from(saved);
     }
@@ -52,9 +53,9 @@ public class ProductService {
     public ProductResponse updateProduct(Long id, ProductRequest request) {
         validateNotKakao(request.name());
         Category category = categoryRepository.findById(request.categoryId())
-            .orElseThrow(() -> new IllegalArgumentException("Category not found: " + request.categoryId()));
+            .orElseThrow(() -> new NotFoundException("카테고리를 찾을 수 없습니다. id=" + request.categoryId()));
         Product product = productRepository.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("Product not found: " + id));
+            .orElseThrow(() -> new NotFoundException("상품을 찾을 수 없습니다. id=" + id));
         product.update(request.name(), request.price(), request.imageUrl(), category);
         productRepository.save(product);
         return ProductResponse.from(product);
@@ -70,20 +71,20 @@ public class ProductService {
 
     public Product getProductEntity(Long id) {
         return productRepository.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("Product not found: " + id));
+            .orElseThrow(() -> new NotFoundException("상품을 찾을 수 없습니다. id=" + id));
     }
 
     public void adminCreateProduct(String name, int price, String imageUrl, Long categoryId) {
         Category category = categoryRepository.findById(categoryId)
-            .orElseThrow(() -> new IllegalArgumentException("Category not found: " + categoryId));
+            .orElseThrow(() -> new NotFoundException("카테고리를 찾을 수 없습니다. id=" + categoryId));
         productRepository.save(new Product(name, price, imageUrl, category));
     }
 
     public void adminUpdateProduct(Long id, String name, int price, String imageUrl, Long categoryId) {
         Category category = categoryRepository.findById(categoryId)
-            .orElseThrow(() -> new IllegalArgumentException("Category not found: " + categoryId));
+            .orElseThrow(() -> new NotFoundException("카테고리를 찾을 수 없습니다. id=" + categoryId));
         Product product = productRepository.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("Product not found: " + id));
+            .orElseThrow(() -> new NotFoundException("상품을 찾을 수 없습니다. id=" + id));
         product.update(name, price, imageUrl, category);
         productRepository.save(product);
     }
