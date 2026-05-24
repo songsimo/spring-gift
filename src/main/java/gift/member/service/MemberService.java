@@ -1,11 +1,9 @@
 package gift.member.service;
 
-import gift.auth.JwtProvider;
 import gift.exception.DuplicateException;
 import gift.exception.NotFoundException;
 import gift.member.model.Member;
 import gift.member.repository.MemberRepository;
-import gift.auth.TokenResponse;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,12 +13,10 @@ import java.util.List;
 @Service
 public class MemberService {
     private final MemberRepository memberRepository;
-    private final JwtProvider jwtProvider;
     private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
-    public MemberService(MemberRepository memberRepository, JwtProvider jwtProvider) {
+    public MemberService(MemberRepository memberRepository) {
         this.memberRepository = memberRepository;
-        this.jwtProvider = jwtProvider;
     }
 
     public List<Member> findAll() {
@@ -77,20 +73,20 @@ public class MemberService {
         return memberRepository.save(member);
     }
 
-    public TokenResponse register(String email, String password) {
+    public Member registerMember(String email, String password) {
         if (memberRepository.existsByEmail(email)) {
             throw new DuplicateException("이미 가입된 이메일입니다.");
         }
-        Member member = memberRepository.save(new Member(email, encoder.encode(password)));
-        return new TokenResponse(jwtProvider.createToken(member.getEmail()));
+        return memberRepository.save(new Member(email, encoder.encode(password)));
     }
 
-    public TokenResponse login(String email, String password) {
+    public Member authenticate(String email, String password) {
         Member member = memberRepository.findByEmail(email)
             .orElseThrow(() -> new IllegalArgumentException("Invalid email or password."));
         if (member.getPassword() == null || !encoder.matches(password, member.getPassword())) {
             throw new IllegalArgumentException("Invalid email or password.");
         }
-        return new TokenResponse(jwtProvider.createToken(member.getEmail()));
+        return member;
     }
+
 }

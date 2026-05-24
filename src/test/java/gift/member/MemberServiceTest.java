@@ -1,7 +1,5 @@
 package gift.member;
 
-import gift.auth.JwtProvider;
-import gift.auth.TokenResponse;
 import gift.exception.DuplicateException;
 import gift.exception.NotFoundException;
 import gift.member.model.Member;
@@ -32,9 +30,6 @@ class MemberServiceTest {
 
     @Mock
     MemberRepository memberRepository;
-
-    @Mock
-    JwtProvider jwtProvider;
 
     @InjectMocks
     MemberService memberService;
@@ -145,66 +140,63 @@ class MemberServiceTest {
     }
 
     @Test
-    @DisplayName("신규 이메일로 회원가입 시 토큰을 반환한다")
-    void register_newEmail_returnsToken() {
+    @DisplayName("신규 이메일로 회원가입 시 회원을 저장하고 반환한다")
+    void registerMember_newEmail_returnsMember() {
         given(memberRepository.existsByEmail("test@test.com")).willReturn(false);
-        given(memberRepository.save(any())).willReturn(new Member("test@test.com", "password"));
-        given(jwtProvider.createToken("test@test.com")).willReturn("jwt-token");
+        given(memberRepository.save(any())).willReturn(new Member("test@test.com", "hashed"));
 
-        TokenResponse result = memberService.register("test@test.com", "password");
+        Member result = memberService.registerMember("test@test.com", "password");
 
-        assertThat(result.token()).isEqualTo("jwt-token");
+        assertThat(result.getEmail()).isEqualTo("test@test.com");
     }
 
     @Test
     @DisplayName("이미 등록된 이메일로 회원가입 시 예외가 발생한다")
-    void register_duplicateEmail_throwsException() {
+    void registerMember_duplicateEmail_throwsException() {
         given(memberRepository.existsByEmail("test@test.com")).willReturn(true);
 
-        assertThatThrownBy(() -> memberService.register("test@test.com", "password"))
+        assertThatThrownBy(() -> memberService.registerMember("test@test.com", "password"))
             .isInstanceOf(DuplicateException.class);
     }
 
     @Test
-    @DisplayName("올바른 이메일과 비밀번호로 로그인 시 토큰을 반환한다")
-    void login_validCredentials_returnsToken() {
+    @DisplayName("올바른 이메일과 비밀번호로 인증 시 회원을 반환한다")
+    void authenticate_validCredentials_returnsMember() {
         Member member = new Member(1L, "test@test.com", encoder.encode("password"));
         given(memberRepository.findByEmail("test@test.com")).willReturn(Optional.of(member));
-        given(jwtProvider.createToken("test@test.com")).willReturn("jwt-token");
 
-        TokenResponse result = memberService.login("test@test.com", "password");
+        Member result = memberService.authenticate("test@test.com", "password");
 
-        assertThat(result.token()).isEqualTo("jwt-token");
+        assertThat(result.getEmail()).isEqualTo("test@test.com");
     }
 
     @Test
-    @DisplayName("존재하지 않는 이메일로 로그인 시 예외가 발생한다")
-    void login_emailNotFound_throwsException() {
+    @DisplayName("존재하지 않는 이메일로 인증 시 예외가 발생한다")
+    void authenticate_emailNotFound_throwsException() {
         given(memberRepository.findByEmail("none@test.com")).willReturn(Optional.empty());
 
-        assertThatThrownBy(() -> memberService.login("none@test.com", "password"))
+        assertThatThrownBy(() -> memberService.authenticate("none@test.com", "password"))
             .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
-    @DisplayName("비밀번호가 틀리면 로그인 시 예외가 발생한다")
-    void login_wrongPassword_throwsException() {
+    @DisplayName("비밀번호가 틀리면 인증 시 예외가 발생한다")
+    void authenticate_wrongPassword_throwsException() {
         Member member = new Member(1L, "test@test.com", encoder.encode("password"));
         given(memberRepository.findByEmail("test@test.com")).willReturn(Optional.of(member));
 
-        assertThatThrownBy(() -> memberService.login("test@test.com", "wrong"))
+        assertThatThrownBy(() -> memberService.authenticate("test@test.com", "wrong"))
             .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     @DisplayName("회원가입 시 비밀번호가 BCrypt로 인코딩되어 저장된다")
-    void register_encodesPasswordBeforeSaving() {
+    void registerMember_encodesPasswordBeforeSaving() {
         given(memberRepository.existsByEmail("test@test.com")).willReturn(false);
         given(memberRepository.save(any())).willAnswer(invocation -> invocation.getArgument(0));
-        given(jwtProvider.createToken("test@test.com")).willReturn("jwt-token");
         ArgumentCaptor<Member> captor = ArgumentCaptor.forClass(Member.class);
 
-        memberService.register("test@test.com", "password");
+        memberService.registerMember("test@test.com", "password");
 
         org.mockito.Mockito.verify(memberRepository).save(captor.capture());
         assertThat(encoder.matches("password", captor.getValue().getPassword())).isTrue();

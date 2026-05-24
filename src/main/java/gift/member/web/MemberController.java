@@ -1,10 +1,11 @@
 package gift.member.web;
 
+import gift.auth.AuthService;
 import gift.auth.AuthenticationResolver;
+import gift.auth.TokenResponse;
 import gift.member.service.MemberRequest;
 import gift.member.service.MemberResponse;
 import gift.member.service.MemberService;
-import gift.auth.TokenResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,10 +20,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/members")
 public class MemberController {
     private final MemberService memberService;
+    private final AuthService authService;
     private final AuthenticationResolver authenticationResolver;
 
-    public MemberController(MemberService memberService, AuthenticationResolver authenticationResolver) {
+    public MemberController(MemberService memberService, AuthService authService, AuthenticationResolver authenticationResolver) {
         this.memberService = memberService;
+        this.authService = authService;
         this.authenticationResolver = authenticationResolver;
     }
 
@@ -39,11 +42,11 @@ public class MemberController {
 
     @PostMapping("/register")
     public ResponseEntity<TokenResponse> register(@Valid @RequestBody MemberRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(memberService.register(request.email(), request.password()));
+        return ResponseEntity.status(HttpStatus.CREATED).body(authService.register(request.email(), request.password()));
     }
 
     @PostMapping("/login")
     public ResponseEntity<TokenResponse> login(@Valid @RequestBody MemberRequest request) {
-        return ResponseEntity.ok(memberService.login(request.email(), request.password()));
+        return ResponseEntity.ok(authService.login(request.email(), request.password()));
     }
 }

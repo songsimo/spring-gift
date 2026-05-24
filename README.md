@@ -823,3 +823,18 @@ DB CASCADE 대신 서비스 레이어에서 명시적으로 찜을 먼저 삭제
 
 **3. 결과 및 근거**
 HTTP 상태 코드가 의미에 맞게 분리됨: 리소스 없음 → 404, 중복 등록 → 409, 유효하지 않은 입력 → 400. 전체 테스트 123개 전부 GREEN.
+
+---
+
+### [2026-05-25] MemberService JWT 의존 제거 — AuthService 분리 (Task 11)
+
+**1. 문제 정의**
+`MemberService`(도메인 서비스)가 `JwtProvider`(인프라)를 직접 주입받아 `TokenResponse`를 반환하고 있어 레이어 위반이었고, 토큰 발급 책임이 도메인 서비스에 혼재되어 있었다.
+
+**2. 상호작용 타임라인**
+- **Step 1 [Red]**: `AuthServiceTest` 신규 작성 — `AuthService.register()`, `AuthService.login()` 메서드가 없어 컴파일 오류(Red) 확인
+- **Step 2 [Green]**: `MemberService`에 `registerMember(email, password): Member`, `authenticate(email, password): Member` 추가. `gift.auth.AuthService` 신규 생성 — `MemberService` 호출 후 `JwtProvider`로 토큰 발급 → `AuthServiceTest` 5개 전부 GREEN
+- **Step 3 [Refactor]**: `MemberController`에서 register/login 위임 대상을 `MemberService` → `AuthService`로 변경. `MemberService`에서 구 `register()`, `login()`, `JwtProvider` 필드 완전 제거. `MemberServiceTest`에서 JwtProvider Mock 제거, 관련 테스트를 `registerMember`/`authenticate` 기반으로 재작성
+
+**3. 결과 및 근거**
+`MemberService`에 `JwtProvider` 의존 없음. 토큰 발급은 `auth` 계층(`AuthService`, `KakaoAuthService`)에서만 수행하는 대칭 구조 완성. 전체 테스트 GREEN.

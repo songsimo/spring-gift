@@ -364,6 +364,27 @@ TDD 순서:
 
 ---
 
+### Task 11 — `MemberService`에서 JWT 의존 제거 (`AuthService` 분리)
+
+**문제**: `MemberService`(도메인 서비스)가 `JwtProvider`(인프라)를 직접 주입받아 `TokenResponse`를 반환.  
+도메인 레이어가 인프라 레이어에 의존하는 레이어 위반이며, 토큰 발급 책임이 도메인 서비스에 혼재.
+
+**설계**:
+- `gift.auth.AuthService` (신규) — 토큰 발급 전담
+  - `register(email, password): TokenResponse` — MemberService.registerMember() 후 JWT 발급
+  - `login(email, password): TokenResponse` — MemberService.authenticate() 후 JWT 발급
+- `MemberService` 수정
+  - `registerMember(email, password): Member` — 회원 저장만, TokenResponse 반환 안 함
+  - `authenticate(email, password): Member` — 자격 증명 검증 후 Member 반환, JWT 발급 안 함
+  - `JwtProvider` 필드 제거
+- `MemberController` — `AuthService` 에만 위임 (register/login)
+
+**작업 범위**: `AuthService.java`(신규), `MemberService.java`, `MemberController.java`  
+**테스트**: `AuthServiceTest` 신규 작성, `MemberServiceTest` 수정  
+**완료 조건**: `MemberService`에 `JwtProvider` 필드 없음, 기존 테스트 전부 GREEN
+
+---
+
 ### Task 10 — 커스텀 예외 계층 도입
 
 **문제**: 현재 모든 예외(not found, duplicate, unauthorized)가 `IllegalArgumentException`으로 통일되어 HTTP 400만 반환. 클라이언트가 에러 종류를 구분할 수 없음.
@@ -786,6 +807,7 @@ F-9 (옵션 수정 API)   ← 독립
 - [x] Task 8: 어드민 컨트롤러 테스트 작성
 - [x] Task 9: `Product` 도메인 검증 내재화
 - [x] Task 10: 커스텀 예외 계층 도입 (`NotFoundException` → 404, `DuplicateException` → 409)
+- [x] Task 11: `MemberService` JWT 의존 제거 (`AuthService` 분리)
 
 ### 기능 개선
 - [x] Task F-1: 비밀번호 BCrypt 해싱
