@@ -1,5 +1,6 @@
 package gift.category;
 
+import gift.product.ProductRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -8,9 +9,11 @@ import java.util.List;
 @Service
 public class CategoryService {
     private final CategoryRepository categoryRepository;
+    private final ProductRepository productRepository;
 
-    public CategoryService(CategoryRepository categoryRepository) {
+    public CategoryService(CategoryRepository categoryRepository, ProductRepository productRepository) {
         this.categoryRepository = categoryRepository;
+        this.productRepository = productRepository;
     }
 
     public List<CategoryResponse> getAll() {
@@ -34,6 +37,9 @@ public class CategoryService {
     }
 
     public void delete(Long id) {
+        if (productRepository.existsByCategoryId(id)) {
+            throw new IllegalArgumentException("카테고리에 속한 상품이 있어 삭제할 수 없습니다.");
+        }
         categoryRepository.deleteById(id);
     }
 }

@@ -1,5 +1,6 @@
 package gift.category;
 
+import gift.product.ProductRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -8,7 +9,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
-
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -16,12 +16,16 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.never;
 
 @ExtendWith(MockitoExtension.class)
 class CategoryServiceTest {
 
     @Mock
     CategoryRepository categoryRepository;
+
+    @Mock
+    ProductRepository productRepository;
 
     @InjectMocks
     CategoryService categoryService;
@@ -80,10 +84,22 @@ class CategoryServiceTest {
     }
 
     @Test
-    @DisplayName("카테고리 삭제 시 리포지토리의 deleteById를 호출한다")
-    void delete_callsRepositoryDeleteById() {
+    @DisplayName("상품이 없는 카테고리는 정상 삭제된다")
+    void delete_categoryWithNoProducts_deletesSuccessfully() {
+        given(productRepository.existsByCategoryId(1L)).willReturn(false);
+
         categoryService.delete(1L);
 
         then(categoryRepository).should().deleteById(1L);
+    }
+
+    @Test
+    @DisplayName("상품이 있는 카테고리 삭제 시 예외가 발생한다")
+    void delete_categoryWithProducts_throwsException() {
+        given(productRepository.existsByCategoryId(1L)).willReturn(true);
+
+        assertThatThrownBy(() -> categoryService.delete(1L))
+            .isInstanceOf(IllegalArgumentException.class);
+        then(categoryRepository).should(never()).deleteById(any());
     }
 }

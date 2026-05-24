@@ -449,3 +449,20 @@ member ──< orders ───────────┘
 
 **3. 결과 및 근거**
 `register()`, `adminCreate()` 저장 시 BCrypt 인코딩, `login()` 비교 시 `matches()` 사용. 전체 테스트 통과.
+
+---
+
+### [2026-05-24] 상품이 있는 카테고리 삭제 시 FK 에러 방지
+
+**1. 문제 정의**
+`CategoryService.delete()`가 상품이 있는 카테고리를 그대로 `deleteById()`로 삭제 시도해, MySQL FK 제약(`product.category_id`)이 `DataIntegrityViolationException`(500)을 던졌다. 서비스 레벨에서 사전 검사가 없었다.
+
+**2. 상호작용 타임라인**
+- **Step 1 [Red]**: `CategoryServiceTest`에 `@Mock ProductRepository` 추가, 테스트 2개 교체
+  - `delete_categoryWithNoProducts_deletesSuccessfully` — `existsByCategoryId` false 시 정상 삭제
+  - `delete_categoryWithProducts_throwsException` — `existsByCategoryId` true 시 `IllegalArgumentException`
+  → `ProductRepository.existsByCategoryId()` 미존재로 컴파일 오류 → 메서드 추가 후 런타임 FAIL(Red) 확인
+- **Step 2 [Green]**: `CategoryService`에 `ProductRepository` 주입, `delete()` 첫 줄에 `existsByCategoryId` 검사 추가 → 테스트 GREEN
+
+**3. 결과 및 근거**
+상품이 있는 카테고리 삭제 시 `IllegalArgumentException` 발생 → `GlobalExceptionHandler`가 400으로 변환. DB FK 에러 없음. `CategoryServiceTest` 6개 테스트 전부 통과.
