@@ -880,3 +880,16 @@ HTTP 상태 코드가 의미에 맞게 분리됨: 리소스 없음 → 404, 중�
 
 **3. 결과 및 근거**
 쓰기 작업이 있는 서비스 메서드에 `@Transactional`을 일괄 보완. 기존에 선언된 `updateMember`, `chargePoint`, `findOrCreateKakaoMember`, `OrderService.createOrder`와 일관성 확보. 전체 테스트 GREEN.
+
+---
+
+### [2026-05-25] WishController @WebMvcTest 테스트 작성 (Task 15)
+
+**1. 문제 정의**
+`WishController`(GET/POST/DELETE `/api/wishes`)에 컨트롤러 단위 테스트가 없어, 인증 실패 시 401 반환 / 유효 요청 시 올바른 HTTP 상태 코드 반환 여부를 자동화된 방법으로 검증할 수 없었다.
+
+**2. 상호작용 타임라인**
+- **Step 1**: `@WebMvcTest(WishController.class)`로 `WishControllerTest` 신규 작성 — `AuthenticationResolver`, `WishService`를 `@MockitoBean`으로 주입. 유효 토큰/무효 토큰 시나리오 7개 테스트 → 첫 실행부터 GREEN (기존 구현이 올바르게 동작함을 검증)
+
+**3. 결과 및 근거**
+GET(목록), POST(추가), DELETE(삭제) 세 엔드포인트 모두 정상 경로(200/201/204)와 인증 실패 경로(401), 입력 검증 실패(400) 총 7개 시나리오 커버. 전체 테스트 GREEN.
