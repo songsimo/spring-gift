@@ -1,4 +1,6 @@
-package gift.wish;
+package gift.wish.service;
+
+import gift.wish.model.Wish;
 
 public record WishResponse(
     Long id,

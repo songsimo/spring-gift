@@ -2,6 +2,8 @@ package gift.wish;
 
 import gift.category.model.Category;
 import gift.product.Product;
+import gift.wish.model.Wish;
+import gift.wish.repository.WishRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

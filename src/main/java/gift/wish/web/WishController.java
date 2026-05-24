@@ -1,6 +1,9 @@
-package gift.wish;
+package gift.wish.web;
 
 import gift.auth.AuthenticationResolver;
+import gift.wish.service.WishRequest;
+import gift.wish.service.WishResponse;
+import gift.wish.service.WishService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

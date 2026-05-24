@@ -1,7 +1,9 @@
-package gift.wish;
+package gift.wish.service;
 
 import gift.product.Product;
 import gift.product.ProductRepository;
+import gift.wish.model.Wish;
+import gift.wish.repository.WishRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;

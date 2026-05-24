@@ -1,4 +1,4 @@
-package gift.wish;
+package gift.wish.model;
 
 import gift.product.Product;
 import jakarta.persistence.Entity;

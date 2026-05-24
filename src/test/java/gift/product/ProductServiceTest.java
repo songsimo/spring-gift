@@ -3,7 +3,7 @@ package gift.product;
 import gift.category.model.Category;
 import gift.category.repository.CategoryRepository;
 import gift.order.OrderRepository;
-import gift.wish.WishRepository;
+import gift.wish.repository.WishRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
