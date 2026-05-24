@@ -522,3 +522,17 @@ member ──< orders ───────────┘
 
 **3. 결과 및 근거**
 `"` `\` 등 JSON 특수문자를 Jackson이 안전하게 이스케이프. `KakaoMessageClientTest` 3개 케이스(정상·따옴표포함·null) 전부 통과, 전체 테스트 GREEN.
+
+---
+
+### [2026-05-24] OrderResponse 개선 (상품명·옵션명·총금액 추가)
+
+**1. 문제 정의**
+`OrderResponse`가 `optionId`만 반환해 클라이언트가 상품명·옵션명·총금액을 알려면 추가 API를 호출해야 했다.
+
+**2. 상호작용 타임라인**
+- **Step 1 [Red]**: `OrderServiceTest` 두 케이스에 `productName()`, `optionName()`, `totalPrice()` 검증 추가 → 필드 미존재로 컴파일 오류(Red) 확인
+- **Step 2 [Green]**: `OrderResponse` 레코드에 `productName`, `optionName`, `totalPrice` 추가. `from()` 팩토리에서 `option.getProduct().getName()`, `option.getName()`, `product.getPrice() * quantity` 로 채움 → 전체 GREEN
+
+**3. 결과 및 근거**
+클라이언트가 단일 주문 응답만으로 상품명·옵션명·총금액 확인 가능. `OrderServiceTest` 전부 통과, 전체 테스트 GREEN.

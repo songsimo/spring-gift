@@ -61,7 +61,11 @@ class OrderServiceTest {
         Page<OrderResponse> result = orderService.getOrders(1L, Pageable.unpaged());
 
         assertThat(result.getContent()).hasSize(1);
-        assertThat(result.getContent().getFirst().quantity()).isEqualTo(2);
+        OrderResponse first = result.getContent().getFirst();
+        assertThat(first.quantity()).isEqualTo(2);
+        assertThat(first.productName()).isEqualTo("MacBook");
+        assertThat(first.optionName()).isEqualTo("실버 256GB");
+        assertThat(first.totalPrice()).isEqualTo(2000000);
     }
 
     @Test
@@ -81,6 +85,9 @@ class OrderServiceTest {
 
         assertThat(result.quantity()).isEqualTo(2);
         assertThat(result.message()).isEqualTo("선물이에요");
+        assertThat(result.productName()).isEqualTo("MacBook");
+        assertThat(result.optionName()).isEqualTo("실버 256GB");
+        assertThat(result.totalPrice()).isEqualTo(2000000);
     }
 
     @Test
