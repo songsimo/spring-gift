@@ -962,3 +962,17 @@ GET(목록), POST(추가), DELETE(삭제) 세 엔드포인트 모두 정상 경�
 
 **3. 결과 및 근거**
 `KakaoAuthController` 포함 프로젝트 내 전체 컨트롤러 테스트 완비. 카카오 알림 실패 시 memberId와 오류 메시지가 WARN 레벨로 기록되어 운영 추적 가능. 전체 테스트 GREEN.
+
+---
+
+### [2026-05-25] 크로스 도메인 리포지토리 참조 제거 (Task 21)
+
+**1. 문제 정의**
+`OptionService`가 `OrderRepository`를, `ProductService`가 `OrderRepository`/`WishRepository`를 직접 주입받아 사용하고 있었다. 서비스가 다른 도메인의 리포지토리를 직접 참조하는 레이어 위반으로, 도메인 간 경계가 불명확했다.
+
+**2. 상호작용 타임라인**
+- **Step 1 [Red]**: `OptionServiceTest`에서 `@Mock OrderRepository` → `@Mock OrderService`, `ProductServiceTest`에서 `@Mock OrderRepository/WishRepository` → `@Mock OrderService/WishService`로 변경 → 컴파일 실패(Red) 확인
+- **Step 2 [Green]**: `OrderService`에 `existsByOptionId()`, `existsByProductId()` 추가. `WishService`에 `deleteByProductId()` 추가. `OptionService`의 `OrderRepository` → `OrderService` 교체. `ProductService`의 `OrderRepository/WishRepository` → `OrderService/WishService` 교체. 전체 테스트 GREEN.
+
+**3. 결과 및 근거**
+`OptionService`와 `ProductService`가 다른 도메인의 리포지토리를 직접 참조하지 않도록 서비스 계층 위임으로 변경. 도메인 경계 명확화. 전체 테스트 GREEN.

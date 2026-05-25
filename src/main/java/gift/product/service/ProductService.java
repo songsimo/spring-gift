@@ -3,11 +3,11 @@ package gift.product.service;
 import gift.category.model.Category;
 import gift.category.repository.CategoryRepository;
 import gift.exception.NotFoundException;
-import gift.order.repository.OrderRepository;
+import gift.order.service.OrderService;
 import gift.product.model.Product;
 import gift.product.model.ProductNameValidator;
 import gift.product.repository.ProductRepository;
-import gift.wish.repository.WishRepository;
+import gift.wish.service.WishService;
 import org.springframework.data.domain.Page;
 import java.util.List;
 import org.springframework.data.domain.Pageable;
@@ -19,14 +19,14 @@ import org.springframework.transaction.annotation.Transactional;
 public class ProductService {
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
-    private final OrderRepository orderRepository;
-    private final WishRepository wishRepository;
+    private final OrderService orderService;
+    private final WishService wishService;
 
-    public ProductService(ProductRepository productRepository, CategoryRepository categoryRepository, OrderRepository orderRepository, WishRepository wishRepository) {
+    public ProductService(ProductRepository productRepository, CategoryRepository categoryRepository, OrderService orderService, WishService wishService) {
         this.productRepository = productRepository;
         this.categoryRepository = categoryRepository;
-        this.orderRepository = orderRepository;
-        this.wishRepository = wishRepository;
+        this.orderService = orderService;
+        this.wishService = wishService;
     }
 
     public List<Product> findAll() {
@@ -66,10 +66,10 @@ public class ProductService {
 
     @Transactional
     public void deleteProduct(Long id) {
-        if (orderRepository.existsByOptionProductId(id)) {
+        if (orderService.existsByProductId(id)) {
             throw new IllegalArgumentException("주문이 있는 상품은 삭제할 수 없습니다.");
         }
-        wishRepository.deleteByProductId(id);
+        wishService.deleteByProductId(id);
         productRepository.deleteById(id);
     }
 

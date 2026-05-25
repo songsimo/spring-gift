@@ -3,13 +3,13 @@ package gift.product;
 import gift.category.model.Category;
 import gift.category.repository.CategoryRepository;
 import gift.exception.NotFoundException;
-import gift.order.repository.OrderRepository;
+import gift.order.service.OrderService;
 import gift.product.model.Product;
 import gift.product.repository.ProductRepository;
 import gift.product.service.ProductRequest;
 import gift.product.service.ProductResponse;
 import gift.product.service.ProductService;
-import gift.wish.repository.WishRepository;
+import gift.wish.service.WishService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -43,10 +43,10 @@ class ProductServiceTest {
     CategoryRepository categoryRepository;
 
     @Mock
-    OrderRepository orderRepository;
+    OrderService orderService;
 
     @Mock
-    WishRepository wishRepository;
+    WishService wishService;
 
     @InjectMocks
     ProductService productService;
@@ -176,7 +176,7 @@ class ProductServiceTest {
     @Test
     @DisplayName("주문이 없는 상품은 정상 삭제된다")
     void deleteProduct_noOrders_deletesSuccessfully() {
-        given(orderRepository.existsByOptionProductId(1L)).willReturn(false);
+        given(orderService.existsByProductId(1L)).willReturn(false);
 
         productService.deleteProduct(1L);
 
@@ -186,7 +186,7 @@ class ProductServiceTest {
     @Test
     @DisplayName("주문이 있는 상품 삭제 시 예외가 발생한다")
     void deleteProduct_hasOrders_throwsException() {
-        given(orderRepository.existsByOptionProductId(1L)).willReturn(true);
+        given(orderService.existsByProductId(1L)).willReturn(true);
 
         assertThatThrownBy(() -> productService.deleteProduct(1L))
             .isInstanceOf(IllegalArgumentException.class);
@@ -196,11 +196,11 @@ class ProductServiceTest {
     @Test
     @DisplayName("상품 삭제 시 연관된 찜이 먼저 삭제된다")
     void deleteProduct_withWishes_removesWishesFirst() {
-        given(orderRepository.existsByOptionProductId(1L)).willReturn(false);
+        given(orderService.existsByProductId(1L)).willReturn(false);
 
         productService.deleteProduct(1L);
 
-        then(wishRepository).should().deleteByProductId(1L);
+        then(wishService).should().deleteByProductId(1L);
         then(productRepository).should().deleteById(1L);
     }
 

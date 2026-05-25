@@ -5,7 +5,7 @@ import gift.exception.NotFoundException;
 import gift.option.model.Option;
 import gift.option.model.OptionNameValidator;
 import gift.option.repository.OptionRepository;
-import gift.order.repository.OrderRepository;
+import gift.order.service.OrderService;
 import gift.product.repository.ProductRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,12 +16,12 @@ import java.util.List;
 public class OptionService {
     private final OptionRepository optionRepository;
     private final ProductRepository productRepository;
-    private final OrderRepository orderRepository;
+    private final OrderService orderService;
 
-    public OptionService(OptionRepository optionRepository, ProductRepository productRepository, OrderRepository orderRepository) {
+    public OptionService(OptionRepository optionRepository, ProductRepository productRepository, OrderService orderService) {
         this.optionRepository = optionRepository;
         this.productRepository = productRepository;
-        this.orderRepository = orderRepository;
+        this.orderService = orderService;
     }
 
     public List<OptionResponse> getOptions(Long productId) {
@@ -74,7 +74,7 @@ public class OptionService {
         Option option = optionRepository.findById(optionId)
             .filter(o -> o.getProduct().getId().equals(productId))
             .orElseThrow(() -> new NotFoundException("옵션을 찾을 수 없습니다. id=" + optionId));
-        if (orderRepository.existsByOptionId(optionId)) {
+        if (orderService.existsByOptionId(optionId)) {
             throw new IllegalArgumentException("주문이 있는 옵션은 삭제할 수 없습니다.");
         }
         optionRepository.delete(option);

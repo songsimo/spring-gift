@@ -12,7 +12,7 @@ import gift.option.repository.OptionRepository;
 import gift.option.service.OptionRequest;
 import gift.option.service.OptionResponse;
 import gift.option.service.OptionService;
-import gift.order.repository.OrderRepository;
+import gift.order.service.OrderService;
 import gift.product.model.Product;
 import gift.product.repository.ProductRepository;
 import org.junit.jupiter.api.DisplayName;
@@ -42,7 +42,7 @@ class OptionServiceTest {
     ProductRepository productRepository;
 
     @Mock
-    OrderRepository orderRepository;
+    OrderService orderService;
 
     @InjectMocks
     OptionService optionService;
@@ -134,7 +134,7 @@ class OptionServiceTest {
             new Option(product, "스페이스그레이 512GB", 5)
         ));
         given(optionRepository.findById(1L)).willReturn(Optional.of(option));
-        given(orderRepository.existsByOptionId(1L)).willReturn(false);
+        given(orderService.existsByOptionId(1L)).willReturn(false);
 
         optionService.deleteOption(1L, 1L);
 
@@ -153,7 +153,7 @@ class OptionServiceTest {
             new Option(product, "스페이스그레이 512GB", 5)
         ));
         given(optionRepository.findById(1L)).willReturn(Optional.of(option));
-        given(orderRepository.existsByOptionId(1L)).willReturn(true);
+        given(orderService.existsByOptionId(1L)).willReturn(true);
 
         assertThatThrownBy(() -> optionService.deleteOption(1L, 1L))
             .isInstanceOf(IllegalArgumentException.class);

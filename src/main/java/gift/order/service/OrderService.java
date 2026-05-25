@@ -42,6 +42,14 @@ public class OrderService {
         return orderRepository.findByMemberId(memberId, pageable).map(OrderResponse::from);
     }
 
+    public boolean existsByOptionId(Long optionId) {
+        return orderRepository.existsByOptionId(optionId);
+    }
+
+    public boolean existsByProductId(Long productId) {
+        return orderRepository.existsByOptionProductId(productId);
+    }
+
     @Transactional
     public OrderResponse createOrder(Long memberId, OrderRequest request) {
         Option option = optionRepository.findById(request.optionId())

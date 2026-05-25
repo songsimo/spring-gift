@@ -8,6 +8,7 @@ import gift.wish.repository.WishRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class WishService {
@@ -29,6 +30,11 @@ public class WishService {
         return wishRepository.findByMemberIdAndProductId(memberId, productId)
             .map(WishResponse::from)
             .orElseGet(() -> WishResponse.from(wishRepository.save(new Wish(memberId, product))));
+    }
+
+    @Transactional
+    public void deleteByProductId(Long productId) {
+        wishRepository.deleteByProductId(productId);
     }
 
     public void removeWish(Long memberId, Long wishId) {
