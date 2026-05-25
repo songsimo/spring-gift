@@ -7,7 +7,7 @@ import gift.option.model.Option;
 import gift.option.repository.OptionRepository;
 import gift.order.model.Order;
 import gift.order.repository.OrderRepository;
-import gift.wish.repository.WishRepository;
+import gift.wish.service.WishService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -22,20 +22,20 @@ public class OrderService {
     private final OptionRepository optionRepository;
     private final MemberRepository memberRepository;
     private final KakaoMessageClient kakaoMessageClient;
-    private final WishRepository wishRepository;
+    private final WishService wishService;
 
     public OrderService(
         OrderRepository orderRepository,
         OptionRepository optionRepository,
         MemberRepository memberRepository,
         KakaoMessageClient kakaoMessageClient,
-        WishRepository wishRepository
+        WishService wishService
     ) {
         this.orderRepository = orderRepository;
         this.optionRepository = optionRepository;
         this.memberRepository = memberRepository;
         this.kakaoMessageClient = kakaoMessageClient;
-        this.wishRepository = wishRepository;
+        this.wishService = wishService;
     }
 
     public Page<OrderResponse> getOrders(Long memberId, Pageable pageable) {
@@ -64,8 +64,7 @@ public class OrderService {
         memberRepository.save(member);
 
         Order saved = orderRepository.save(new Order(option, memberId, request.quantity(), request.message()));
-        wishRepository.findByMemberIdAndProductId(memberId, option.getProduct().getId())
-            .ifPresent(wishRepository::delete);
+        wishService.removeByMemberAndProduct(memberId, option.getProduct().getId());
         boolean notificationSent = sendKakaoMessageIfPossible(member, saved, option);
         return OrderResponse.of(saved, notificationSent);
     }

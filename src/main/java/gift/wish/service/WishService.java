@@ -37,6 +37,12 @@ public class WishService {
         wishRepository.deleteByProductId(productId);
     }
 
+    @Transactional
+    public void removeByMemberAndProduct(Long memberId, Long productId) {
+        wishRepository.findByMemberIdAndProductId(memberId, productId)
+            .ifPresent(wishRepository::delete);
+    }
+
     public void removeWish(Long memberId, Long wishId) {
         Wish wish = wishRepository.findById(wishId)
             .orElseThrow(() -> new NotFoundException("찜을 찾을 수 없습니다. id=" + wishId));

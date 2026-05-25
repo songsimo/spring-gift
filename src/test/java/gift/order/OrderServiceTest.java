@@ -13,8 +13,7 @@ import gift.order.service.OrderResponse;
 import gift.order.service.OrderService;
 import gift.product.model.Product;
 import gift.exception.NotFoundException;
-import gift.wish.model.Wish;
-import gift.wish.repository.WishRepository;
+import gift.wish.service.WishService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,7 +32,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
-import static org.mockito.Mockito.never;
 
 @ExtendWith(MockitoExtension.class)
 class OrderServiceTest {
@@ -51,7 +49,7 @@ class OrderServiceTest {
     KakaoMessageClient kakaoMessageClient;
 
     @Mock
-    WishRepository wishRepository;
+    WishService wishService;
 
     @InjectMocks
     OrderService orderService;
@@ -128,20 +126,18 @@ class OrderServiceTest {
         Option option = new Option(1L, product, "실버 256GB", 10);
         Member member = new Member("test@test.com", "password");
         member.chargePoint(3000000);
-        Wish wish = new Wish(1L, product);
         given(optionRepository.findById(1L)).willReturn(Optional.of(option));
         given(memberRepository.findById(1L)).willReturn(Optional.of(member));
         given(orderRepository.save(any())).willReturn(new Order(option, 1L, 2, "선물이에요"));
-        given(wishRepository.findByMemberIdAndProductId(1L, 1L)).willReturn(Optional.of(wish));
 
         orderService.createOrder(1L, new OrderRequest(1L, 2, "선물이에요"));
 
-        then(wishRepository).should().delete(wish);
+        then(wishService).should().removeByMemberAndProduct(1L, 1L);
     }
 
     @Test
-    @DisplayName("주문 시 해당 상품의 찜이 없으면 삭제 없이 진행된다")
-    void createOrder_noWish_proceedsNormally() {
+    @DisplayName("주문 시 찜 삭제 처리를 WishService에 위임한다")
+    void createOrder_delegatesWishRemovalToWishService() {
         Category category = new Category(1L, "전자기기", "#1E90FF", "https://example.com/img.png", "전자제품");
         Product product = new Product(1L, "MacBook", 1000000, "https://example.com/mac.png", category);
         Option option = new Option(1L, product, "실버 256GB", 10);
@@ -150,11 +146,10 @@ class OrderServiceTest {
         given(optionRepository.findById(1L)).willReturn(Optional.of(option));
         given(memberRepository.findById(1L)).willReturn(Optional.of(member));
         given(orderRepository.save(any())).willReturn(new Order(option, 1L, 2, "선물이에요"));
-        given(wishRepository.findByMemberIdAndProductId(1L, 1L)).willReturn(Optional.empty());
 
         orderService.createOrder(1L, new OrderRequest(1L, 2, "선물이에요"));
 
-        then(wishRepository).should(never()).delete(any(Wish.class));
+        then(wishService).should().removeByMemberAndProduct(1L, 1L);
     }
 
     @Test

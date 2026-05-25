@@ -976,3 +976,17 @@ GET(목록), POST(추가), DELETE(삭제) 세 엔드포인트 모두 정상 경�
 
 **3. 결과 및 근거**
 `OptionService`와 `ProductService`가 다른 도메인의 리포지토리를 직접 참조하지 않도록 서비스 계층 위임으로 변경. 도메인 경계 명확화. 전체 테스트 GREEN.
+
+---
+
+### [2026-05-25] `OrderService`의 `WishRepository` 직접 참조 제거 (Task 22)
+
+**1. 문제 정의**
+`OrderService.createOrder()`가 `WishRepository`를 직접 주입받아 `findByMemberIdAndProductId()` / `delete()` 를 호출하고 있었다. Task 21에서 `OptionService`/`ProductService` 간 크로스 도메인 참조는 제거했으나 `OrderService` → `WishRepository` 참조가 남아 있었다.
+
+**2. 상호작용 타임라인**
+- **Step 1 [Red]**: `OrderServiceTest`의 `@Mock WishRepository` → `@Mock WishService`로 교체, `wishRepository.*` 호출을 `wishService.removeByMemberAndProduct()` 검증으로 변경 → 컴파일 실패(Red). 찜 없는 경우 테스트는 "WishService에 위임" 검증으로 재설계.
+- **Step 2 [Green]**: `WishService`에 `removeByMemberAndProduct(memberId, productId)` 추가 (내부에서 `findByMemberIdAndProductId` + `ifPresent(delete)` 처리). `OrderService`의 `WishRepository` 필드 → `WishService` 교체, `createOrder()` 내 위임 호출로 변경. 전체 테스트 GREEN.
+
+**3. 결과 및 근거**
+`OrderService`가 `WishRepository`를 직접 참조하지 않으며, 찜 삭제 로직이 `WishService` 내부로 캡슐화됨. 프로젝트 전체에서 크로스 도메인 리포지토리 참조가 완전히 제거. 전체 테스트 GREEN.
