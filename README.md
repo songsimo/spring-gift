@@ -990,3 +990,17 @@ GET(목록), POST(추가), DELETE(삭제) 세 엔드포인트 모두 정상 경�
 
 **3. 결과 및 근거**
 `OrderService`가 `WishRepository`를 직접 참조하지 않으며, 찜 삭제 로직이 `WishService` 내부로 캡슐화됨. 프로젝트 전체에서 크로스 도메인 리포지토리 참조가 완전히 제거. 전체 테스트 GREEN.
+
+---
+
+### [2026-05-25] `authenticate()` 인증 실패 HTTP 상태코드 수정 (Task 23)
+
+**1. 문제 정의**
+`MemberService.authenticate()`가 잘못된 이메일/비밀번호에 `IllegalArgumentException`을 던져 `GlobalExceptionHandler`가 HTTP 400을 반환하고 있었다. 인증 실패는 HTTP 401이어야 한다.
+
+**2. 상호작용 타임라인**
+- **Step 1 [Red]**: `MemberServiceTest`의 `authenticate_emailNotFound_throwsException`, `authenticate_wrongPassword_throwsException` 두 케이스의 기대 예외를 `IllegalArgumentException` → `UnauthorizedException`으로 변경 → RED 확인
+- **Step 2 [Green]**: `MemberService.authenticate()`에서 `IllegalArgumentException("Invalid email or password.")` → `UnauthorizedException("이메일 또는 비밀번호가 올바르지 않습니다.")` 교체. 영문 메시지도 함께 한국어로 통일. 전체 테스트 GREEN.
+
+**3. 결과 및 근거**
+로그인 실패 시 HTTP 400(Bad Request)이 아닌 HTTP 401(Unauthorized)이 반환됨. 오류 메시지도 영문에서 한국어로 통일. 전체 테스트 GREEN.

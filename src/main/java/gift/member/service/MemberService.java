@@ -2,6 +2,7 @@ package gift.member.service;
 
 import gift.exception.DuplicateException;
 import gift.exception.NotFoundException;
+import gift.exception.UnauthorizedException;
 import gift.member.model.Member;
 import gift.member.repository.MemberRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -84,9 +85,9 @@ public class MemberService {
 
     public Member authenticate(String email, String password) {
         Member member = memberRepository.findByEmail(email)
-            .orElseThrow(() -> new IllegalArgumentException("Invalid email or password."));
+            .orElseThrow(() -> new UnauthorizedException("이메일 또는 비밀번호가 올바르지 않습니다."));
         if (member.getPassword() == null || !encoder.matches(password, member.getPassword())) {
-            throw new IllegalArgumentException("Invalid email or password.");
+            throw new UnauthorizedException("이메일 또는 비밀번호가 올바르지 않습니다.");
         }
         return member;
     }

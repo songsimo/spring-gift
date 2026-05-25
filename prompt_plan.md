@@ -836,6 +836,7 @@ F-9 (옵션 수정 API)   ← 독립
 - [x] Task 20: `KakaoAuthController` 테스트 작성 + `OrderService` 카카오 알림 실패 로깅 추가
 - [x] Task 21: 크로스 도메인 리포지토리 참조 제거 (`OptionService`/`ProductService` → Service 위임)
 - [x] Task 22: `OrderService`의 `WishRepository` 직접 참조 제거 (`WishService` 위임)
+- [x] Task 23: `authenticate()` 인증 실패 예외를 `UnauthorizedException`(401)으로 교체
 
 ### 기능 개선
 - [x] Task F-1: 비밀번호 BCrypt 해싱

@@ -2,6 +2,7 @@ package gift.member;
 
 import gift.exception.DuplicateException;
 import gift.exception.NotFoundException;
+import gift.exception.UnauthorizedException;
 import gift.member.model.Member;
 import gift.member.repository.MemberRepository;
 import gift.member.service.MemberResponse;
@@ -191,7 +192,7 @@ class MemberServiceTest {
         given(memberRepository.findByEmail("none@test.com")).willReturn(Optional.empty());
 
         assertThatThrownBy(() -> memberService.authenticate("none@test.com", "password"))
-            .isInstanceOf(IllegalArgumentException.class);
+            .isInstanceOf(UnauthorizedException.class);
     }
 
     @Test
@@ -201,7 +202,7 @@ class MemberServiceTest {
         given(memberRepository.findByEmail("test@test.com")).willReturn(Optional.of(member));
 
         assertThatThrownBy(() -> memberService.authenticate("test@test.com", "wrong"))
-            .isInstanceOf(IllegalArgumentException.class);
+            .isInstanceOf(UnauthorizedException.class);
     }
 
     @Test
