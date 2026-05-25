@@ -8,6 +8,8 @@ import gift.option.repository.OptionRepository;
 import gift.order.model.Order;
 import gift.order.repository.OrderRepository;
 import gift.wish.repository.WishRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -15,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class OrderService {
+    private static final Logger log = LoggerFactory.getLogger(OrderService.class);
     private final OrderRepository orderRepository;
     private final OptionRepository optionRepository;
     private final MemberRepository memberRepository;
@@ -66,7 +69,8 @@ public class OrderService {
         try {
             kakaoMessageClient.sendToMe(member.getKakaoAccessToken(), order, option.getProduct());
             return true;
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            log.warn("카카오 알림 전송 실패 (memberId={}): {}", order.getMemberId(), e.getMessage());
             return false;
         }
     }

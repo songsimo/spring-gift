@@ -948,3 +948,17 @@ GET(목록), POST(추가), DELETE(삭제) 세 엔드포인트 모두 정상 경�
 
 **3. 결과 및 근거**
 `CategoryController` 7개, `ProductController` 9개 총 16개 테스트 추가. Task 15~19로 프로젝트 내 모든 REST API 컨트롤러와 어드민 컨트롤러에 @WebMvcTest 완비. 전체 테스트 GREEN.
+
+---
+
+### [2026-05-25] KakaoAuthController 테스트 + OrderService 로깅 추가 (Task 20)
+
+**1. 문제 정의**
+① `KakaoAuthController`(GET `/login`, GET `/callback`)에 테스트가 없었다. ② `OrderService.sendKakaoMessageIfPossible()`의 `catch (Exception ignored)`가 실패 원인을 로그 없이 무시하여 운영 환경에서 카카오 알림 오류 추적이 불가능했다.
+
+**2. 상호작용 타임라인**
+- **Step 1**: `KakaoAuthControllerTest` 작성 — 302 리다이렉트, 200 콜백 2개 시나리오 → GREEN
+- **Step 2 [Refactor]**: `OrderService`에 SLF4J Logger 추가. `catch (Exception ignored)` → `catch (Exception e) { log.warn(...) }` 변경. 기존 `OrderServiceTest` 8개 모두 GREEN 유지.
+
+**3. 결과 및 근거**
+`KakaoAuthController` 포함 프로젝트 내 전체 컨트롤러 테스트 완비. 카카오 알림 실패 시 memberId와 오류 메시지가 WARN 레벨로 기록되어 운영 추적 가능. 전체 테스트 GREEN.
