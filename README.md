@@ -934,3 +934,17 @@ GET(목록), POST(추가), DELETE(삭제) 세 엔드포인트 모두 정상 경�
 
 **3. 결과 및 근거**
 컨트롤러 3개에서 null check 분기 완전 제거. 인증 실패는 예외 계층(`NotFoundException`, `DuplicateException`과 동일 구조)으로 처리되어 일관성 확보. 전체 테스트 GREEN.
+
+---
+
+### [2026-05-25] CategoryController, ProductController @WebMvcTest 테스트 작성 (Task 19)
+
+**1. 문제 정의**
+`CategoryController`(GET/POST/PUT/DELETE `/api/categories`)와 `ProductController`(GET/POST/PUT/DELETE `/api/products`)에 컨트롤러 단위 테스트가 없어, HTTP 상태 코드와 입력 검증 동작을 자동화된 방법으로 확인할 수 없었다.
+
+**2. 상호작용 타임라인**
+- **Step 1**: `CategoryControllerTest` 작성 — CRUD 7개 시나리오(정상/404/400) → GREEN
+- **Step 2**: `ProductControllerTest` 작성 — CRUD 9개 시나리오(정상/404/400) → GREEN
+
+**3. 결과 및 근거**
+`CategoryController` 7개, `ProductController` 9개 총 16개 테스트 추가. Task 15~19로 프로젝트 내 모든 REST API 컨트롤러와 어드민 컨트롤러에 @WebMvcTest 완비. 전체 테스트 GREEN.
