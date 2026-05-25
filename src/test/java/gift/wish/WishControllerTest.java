@@ -115,6 +115,19 @@ class WishControllerTest {
     }
 
     @Test
+    @DisplayName("타인의 찜 삭제 시도 시 401을 반환한다")
+    void removeWish_notOwner_returns401() throws Exception {
+        Member member = new Member(1L, "test@test.com", "pw");
+        given(authenticationResolver.extractMember("Bearer valid-token")).willReturn(member);
+        org.mockito.BDDMockito.willThrow(new UnauthorizedException("본인의 찜 목록만 삭제할 수 있습니다."))
+            .given(wishService).removeWish(1L, 1L);
+
+        mockMvc.perform(delete("/api/wishes/1")
+                .header("Authorization", "Bearer valid-token"))
+            .andExpect(status().isUnauthorized());
+    }
+
+    @Test
     @DisplayName("찜 추가 시 productId가 없으면 400을 반환한다")
     void addWish_missingProductId_returns400() throws Exception {
         Member member = new Member(1L, "test@test.com", "pw");

@@ -1146,3 +1146,17 @@ Task 28에서 `MemberService` 조회 메서드에 `@Transactional(readOnly = tru
 
 **3. 결과 및 근거**
 주문 생성 시 옵션 row와 회원 row에 배타적 잠금이 걸려 동시 트랜잭션이 대기. 재고·포인트 race condition 해소. 잠금 획득 순서(옵션 먼저, 회원 나중)가 일관되어 deadlock 위험 없음. 전체 테스트 GREEN.
+
+---
+
+### [2026-05-25] `WishService.removeWish()` 권한 오류 예외 교정 (Task 34)
+
+**1. 문제 정의**
+`WishService.removeWish()`에서 타인의 찜을 삭제하려 할 때 `IllegalArgumentException`을 던져 HTTP 400을 반환하고 있었다. 인증된 사용자의 권한 오류는 401이 적절하며, 프로젝트에 이미 `UnauthorizedException`이 존재한다.
+
+**2. 상호작용 타임라인**
+- **Step 1 [Red]**: `WishServiceTest.removeWish_notOwner_throwsException`의 기대 예외를 `UnauthorizedException`으로 교체 → RED 확인
+- **Step 2 [Green]**: `WishService.removeWish()`의 `throw new IllegalArgumentException(...)` → `throw new UnauthorizedException(...)` 교체. `WishControllerTest`에 "타인 찜 삭제 시도 → 401" 케이스 추가. 전체 테스트 GREEN.
+
+**3. 결과 및 근거**
+타인 찜 삭제 시도 시 HTTP 400 대신 401 반환. `GlobalExceptionHandler.handleUnauthorized()`가 처리. 전체 테스트 GREEN.

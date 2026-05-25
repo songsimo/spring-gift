@@ -1,6 +1,7 @@
 package gift.wish.service;
 
 import gift.exception.NotFoundException;
+import gift.exception.UnauthorizedException;
 import gift.product.model.Product;
 import gift.product.repository.ProductRepository;
 import gift.wish.model.Wish;
@@ -50,7 +51,7 @@ public class WishService {
         Wish wish = wishRepository.findById(wishId)
             .orElseThrow(() -> new NotFoundException("찜을 찾을 수 없습니다. id=" + wishId));
         if (!wish.getMemberId().equals(memberId)) {
-            throw new IllegalArgumentException("본인의 찜 목록만 삭제할 수 있습니다.");
+            throw new UnauthorizedException("본인의 찜 목록만 삭제할 수 있습니다.");
         }
         wishRepository.delete(wish);
     }

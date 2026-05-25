@@ -2,6 +2,7 @@ package gift.wish;
 
 import gift.category.model.Category;
 import gift.exception.NotFoundException;
+import gift.exception.UnauthorizedException;
 import gift.product.model.Product;
 import gift.product.repository.ProductRepository;
 import gift.wish.model.Wish;
@@ -126,7 +127,7 @@ class WishServiceTest {
         given(wishRepository.findById(1L)).willReturn(Optional.of(wish));
 
         assertThatThrownBy(() -> wishService.removeWish(1L, 1L))
-            .isInstanceOf(IllegalArgumentException.class);
+            .isInstanceOf(UnauthorizedException.class);
     }
 
     @Test
