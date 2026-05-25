@@ -1088,3 +1088,17 @@ CLAUDE.md 규칙("Never write multi-paragraph docstrings or multi-line comment b
 
 **3. 결과 및 근거**
 6개 파일의 Javadoc 제거 및 불필요한 `@Autowired` 2개 제거. 스타일 규칙을 코드베이스 전반에 일관 적용. 전체 테스트 GREEN.
+
+---
+
+### [2026-05-25] `MemberService` 조회 메서드 `@Transactional(readOnly = true)` 누락 보완 (Task 30)
+
+**1. 문제 정의**
+Task 28에서 `MemberService` 조회 메서드에 `@Transactional(readOnly = true)`를 추가했으나, `findByEmailOrNull()`과 `authenticate()` 두 메서드가 누락된 채 남아 있었다.
+
+**2. 상호작용 타임라인**
+- **Step 1 [Red]**: `MemberServiceTest`에 두 메서드의 `readOnly = true` 속성을 검증하는 리플렉션 테스트 추가 → RED 확인
+- **Step 2 [Green]**: `findByEmailOrNull()`과 `authenticate()`에 `@Transactional(readOnly = true)` 추가 → 전체 테스트 GREEN
+
+**3. 결과 및 근거**
+`MemberService`의 모든 조회 메서드가 `@Transactional(readOnly = true)`를 보유하게 됨. 전체 테스트 GREEN.

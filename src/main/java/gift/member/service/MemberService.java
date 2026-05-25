@@ -67,6 +67,7 @@ public class MemberService {
         return MemberResponse.from(member);
     }
 
+    @Transactional(readOnly = true)
     public Member findByEmailOrNull(String email) {
         return memberRepository.findByEmail(email).orElse(null);
     }
@@ -87,6 +88,7 @@ public class MemberService {
         return memberRepository.save(new Member(email, encoder.encode(password)));
     }
 
+    @Transactional(readOnly = true)
     public Member authenticate(String email, String password) {
         Member member = memberRepository.findByEmail(email)
             .orElseThrow(() -> new UnauthorizedException("이메일 또는 비밀번호가 올바르지 않습니다."));

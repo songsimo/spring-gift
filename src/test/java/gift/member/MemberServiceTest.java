@@ -328,4 +328,22 @@ class MemberServiceTest {
         assertThat(annotation).isNotNull();
         assertThat(annotation.readOnly()).isTrue();
     }
+
+    @Test
+    @DisplayName("findByEmailOrNull은 @Transactional(readOnly = true)이 선언되어 있다")
+    void findByEmailOrNull_hasReadOnlyTransactionalAnnotation() throws NoSuchMethodException {
+        Method method = MemberService.class.getDeclaredMethod("findByEmailOrNull", String.class);
+        Transactional annotation = method.getAnnotation(Transactional.class);
+        assertThat(annotation).isNotNull();
+        assertThat(annotation.readOnly()).isTrue();
+    }
+
+    @Test
+    @DisplayName("authenticate는 @Transactional(readOnly = true)이 선언되어 있다")
+    void authenticate_hasReadOnlyTransactionalAnnotation() throws NoSuchMethodException {
+        Method method = MemberService.class.getDeclaredMethod("authenticate", String.class, String.class);
+        Transactional annotation = method.getAnnotation(Transactional.class);
+        assertThat(annotation).isNotNull();
+        assertThat(annotation.readOnly()).isTrue();
+    }
 }
