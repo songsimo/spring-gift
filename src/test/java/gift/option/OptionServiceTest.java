@@ -1,6 +1,7 @@
 package gift.option;
 
 import gift.category.model.Category;
+import gift.exception.ConflictException;
 import gift.exception.DuplicateException;
 import gift.exception.NotFoundException;
 import org.springframework.transaction.annotation.Transactional;
@@ -156,7 +157,7 @@ class OptionServiceTest {
         given(orderService.existsByOptionId(1L)).willReturn(true);
 
         assertThatThrownBy(() -> optionService.deleteOption(1L, 1L))
-            .isInstanceOf(IllegalArgumentException.class);
+            .isInstanceOf(ConflictException.class);
         then(optionRepository).should(never()).delete(any());
     }
 
@@ -170,7 +171,7 @@ class OptionServiceTest {
         given(optionRepository.findByProductId(1L)).willReturn(List.of(option));
 
         assertThatThrownBy(() -> optionService.deleteOption(1L, 1L))
-            .isInstanceOf(IllegalArgumentException.class);
+            .isInstanceOf(ConflictException.class);
     }
 
     @Test

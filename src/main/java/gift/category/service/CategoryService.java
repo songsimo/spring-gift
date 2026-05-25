@@ -2,6 +2,7 @@ package gift.category.service;
 
 import gift.category.model.Category;
 import gift.category.repository.CategoryRepository;
+import gift.exception.ConflictException;
 import gift.exception.NotFoundException;
 import gift.product.service.ProductService;
 import org.springframework.stereotype.Service;
@@ -44,7 +45,7 @@ public class CategoryService {
     @Transactional
     public void delete(Long id) {
         if (productService.existsByCategoryId(id)) {
-            throw new IllegalArgumentException("카테고리에 속한 상품이 있어 삭제할 수 없습니다.");
+            throw new ConflictException("카테고리에 속한 상품이 있어 삭제할 수 없습니다.");
         }
         categoryRepository.deleteById(id);
     }

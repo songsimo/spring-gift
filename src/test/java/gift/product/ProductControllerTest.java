@@ -124,12 +124,12 @@ class ProductControllerTest {
     }
 
     @Test
-    @DisplayName("주문이 있는 상품 삭제 시 400을 반환한다")
-    void deleteProduct_hasOrders_returns400() throws Exception {
-        willThrow(new IllegalArgumentException("주문이 있는 상품은 삭제할 수 없습니다."))
+    @DisplayName("주문이 있는 상품 삭제 시 409를 반환한다")
+    void deleteProduct_hasOrders_returns409() throws Exception {
+        willThrow(new gift.exception.ConflictException("주문이 있는 상품은 삭제할 수 없습니다."))
             .given(productService).deleteProduct(1L);
 
         mockMvc.perform(delete("/api/products/1"))
-            .andExpect(status().isBadRequest());
+            .andExpect(status().isConflict());
     }
 }

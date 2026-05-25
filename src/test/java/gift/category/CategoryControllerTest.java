@@ -105,12 +105,12 @@ class CategoryControllerTest {
     }
 
     @Test
-    @DisplayName("상품이 있는 카테고리 삭제 시 400을 반환한다")
-    void deleteCategory_hasProducts_returns400() throws Exception {
-        willThrow(new IllegalArgumentException("상품이 있는 카테고리는 삭제할 수 없습니다."))
+    @DisplayName("상품이 있는 카테고리 삭제 시 409를 반환한다")
+    void deleteCategory_hasProducts_returns409() throws Exception {
+        willThrow(new gift.exception.ConflictException("카테고리에 속한 상품이 있어 삭제할 수 없습니다."))
             .given(categoryService).delete(1L);
 
         mockMvc.perform(delete("/api/categories/1"))
-            .andExpect(status().isBadRequest());
+            .andExpect(status().isConflict());
     }
 }

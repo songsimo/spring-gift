@@ -5,6 +5,7 @@ import gift.category.repository.CategoryRepository;
 import gift.category.service.CategoryRequest;
 import gift.category.service.CategoryResponse;
 import gift.category.service.CategoryService;
+import gift.exception.ConflictException;
 import gift.exception.NotFoundException;
 import gift.product.service.ProductService;
 import org.junit.jupiter.api.DisplayName;
@@ -108,7 +109,7 @@ class CategoryServiceTest {
         given(productService.existsByCategoryId(1L)).willReturn(true);
 
         assertThatThrownBy(() -> categoryService.delete(1L))
-            .isInstanceOf(IllegalArgumentException.class);
+            .isInstanceOf(ConflictException.class);
         then(categoryRepository).should(never()).deleteById(any());
     }
 

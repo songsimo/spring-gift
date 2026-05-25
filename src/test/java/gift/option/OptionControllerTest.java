@@ -111,12 +111,12 @@ class OptionControllerTest {
     }
 
     @Test
-    @DisplayName("마지막 옵션 삭제 시 400을 반환한다")
-    void deleteOption_lastOption_returns400() throws Exception {
-        willThrow(new IllegalArgumentException("옵션이 1개인 상품은 옵션을 삭제할 수 없습니다."))
+    @DisplayName("마지막 옵션 삭제 시 409를 반환한다")
+    void deleteOption_lastOption_returns409() throws Exception {
+        willThrow(new gift.exception.ConflictException("옵션이 1개인 상품은 옵션을 삭제할 수 없습니다."))
             .given(optionService).deleteOption(1L, 1L);
 
         mockMvc.perform(delete("/api/products/1/options/1"))
-            .andExpect(status().isBadRequest());
+            .andExpect(status().isConflict());
     }
 }

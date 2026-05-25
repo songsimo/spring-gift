@@ -1160,3 +1160,17 @@ Task 28에서 `MemberService` 조회 메서드에 `@Transactional(readOnly = tru
 
 **3. 결과 및 근거**
 타인 찜 삭제 시도 시 HTTP 400 대신 401 반환. `GlobalExceptionHandler.handleUnauthorized()`가 처리. 전체 테스트 GREEN.
+
+---
+
+### [2026-05-25] 삭제 불가 조건 예외 교정 — `ConflictException`(409) 도입 (Task 35)
+
+**1. 문제 정의**
+`CategoryService.delete()`, `ProductService.deleteProduct()`, `OptionService.deleteOption()`에서 삭제 불가 조건(연관 데이터 존재, 마지막 옵션)을 `IllegalArgumentException`으로 던져 HTTP 400을 반환하고 있었다. 이는 요청 자체는 유효하지만 서버 상태와 충돌하는 상황이므로 HTTP 409 Conflict가 의미상 적절하다.
+
+**2. 상호작용 타임라인**
+- **Step 1 [Red]**: 각 서비스 테스트(`CategoryServiceTest`, `ProductServiceTest`, `OptionServiceTest`)의 삭제 불가 케이스 기대 예외를 `ConflictException`으로 교체. 컨트롤러 테스트(`CategoryControllerTest`, `ProductControllerTest`, `OptionControllerTest`)에 409 반환 케이스 추가/수정. 전체 테스트 RED 확인.
+- **Step 2 [Green]**: `gift.exception.ConflictException` 클래스 신규 생성 (`BusinessException` 상속). `GlobalExceptionHandler`에 `ConflictException` → 409 핸들러 추가. `CategoryService.delete()`, `ProductService.deleteProduct()`, `OptionService.deleteOption()` 두 곳의 `IllegalArgumentException` → `ConflictException`으로 교체.
+
+**3. 결과 및 근거**
+삭제 불가 조건 응답이 HTTP 400 → 409로 교정. 전체 테스트 BUILD SUCCESSFUL.

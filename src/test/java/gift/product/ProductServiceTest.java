@@ -2,6 +2,7 @@ package gift.product;
 
 import gift.category.model.Category;
 import gift.category.repository.CategoryRepository;
+import gift.exception.ConflictException;
 import gift.exception.NotFoundException;
 import gift.order.service.OrderService;
 import gift.product.model.Product;
@@ -189,7 +190,7 @@ class ProductServiceTest {
         given(orderService.existsByProductId(1L)).willReturn(true);
 
         assertThatThrownBy(() -> productService.deleteProduct(1L))
-            .isInstanceOf(IllegalArgumentException.class);
+            .isInstanceOf(ConflictException.class);
         then(productRepository).should(never()).deleteById(any());
     }
 

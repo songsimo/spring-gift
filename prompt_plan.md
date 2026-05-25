@@ -848,6 +848,7 @@ F-9 (옵션 수정 API)   ← 독립
 - [x] Task 32: `AdminProductController` — `NotFoundException` 미처리 버그 수정 (create·update 각각 적절한 처리)
 - [x] Task 33: 재고·포인트 동시성 버그 수정 — `OptionRepository`, `MemberRepository`에 비관적 잠금(`PESSIMISTIC_WRITE`) 적용
 - [x] Task 34: `WishService.removeWish()` 권한 오류 예외 교정 — `IllegalArgumentException`(400) → `UnauthorizedException`(401)
+- [x] Task 35: 삭제 불가 조건 예외 교정 — `ConflictException`(409) 도입 (`CategoryService.delete`, `ProductService.deleteProduct`, `OptionService.deleteOption`)
 
 ### 기능 개선
 - [x] Task F-1: 비밀번호 BCrypt 해싱

@@ -2,6 +2,7 @@ package gift.product.service;
 
 import gift.category.model.Category;
 import gift.category.repository.CategoryRepository;
+import gift.exception.ConflictException;
 import gift.exception.NotFoundException;
 import gift.order.service.OrderService;
 import gift.product.model.Product;
@@ -70,7 +71,7 @@ public class ProductService {
     @Transactional
     public void deleteProduct(Long id) {
         if (orderService.existsByProductId(id)) {
-            throw new IllegalArgumentException("주문이 있는 상품은 삭제할 수 없습니다.");
+            throw new ConflictException("주문이 있는 상품은 삭제할 수 없습니다.");
         }
         wishService.deleteByProductId(id);
         productRepository.deleteById(id);

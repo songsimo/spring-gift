@@ -1,5 +1,6 @@
 package gift.option.service;
 
+import gift.exception.ConflictException;
 import gift.exception.DuplicateException;
 import gift.exception.NotFoundException;
 import gift.option.model.Option;
@@ -68,13 +69,13 @@ public class OptionService {
         productService.getProductEntity(productId);
         List<Option> options = optionRepository.findByProductId(productId);
         if (options.size() <= 1) {
-            throw new IllegalArgumentException("옵션이 1개인 상품은 옵션을 삭제할 수 없습니다.");
+            throw new ConflictException("옵션이 1개인 상품은 옵션을 삭제할 수 없습니다.");
         }
         Option option = optionRepository.findById(optionId)
             .filter(o -> o.getProduct().getId().equals(productId))
             .orElseThrow(() -> new NotFoundException("옵션을 찾을 수 없습니다. id=" + optionId));
         if (orderService.existsByOptionId(optionId)) {
-            throw new IllegalArgumentException("주문이 있는 옵션은 삭제할 수 없습니다.");
+            throw new ConflictException("주문이 있는 옵션은 삭제할 수 없습니다.");
         }
         optionRepository.delete(option);
     }
