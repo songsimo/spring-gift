@@ -1,5 +1,6 @@
 package gift.member.web;
 
+import gift.exception.DuplicateException;
 import gift.member.service.MemberService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -37,7 +38,7 @@ public class AdminMemberController {
     ) {
         try {
             memberService.adminCreate(email, password);
-        } catch (IllegalArgumentException e) {
+        } catch (DuplicateException e) {
             populateNewFormError(model, email, e.getMessage());
             return "member/new";
         }

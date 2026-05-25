@@ -1,5 +1,6 @@
 package gift.member;
 
+import gift.exception.DuplicateException;
 import gift.member.model.Member;
 import gift.member.service.MemberService;
 import gift.member.web.AdminMemberController;
@@ -62,7 +63,7 @@ class AdminMemberControllerTest {
     @Test
     @DisplayName("중복 이메일로 회원 생성 시 에러와 함께 new 폼을 반환한다")
     void create_duplicateEmail_returnsNewFormWithError() throws Exception {
-        willThrow(new IllegalArgumentException("Email is already registered."))
+        willThrow(new DuplicateException("이미 가입된 이메일입니다."))
             .given(memberService).adminCreate("dup@test.com", "password");
 
         mockMvc.perform(post("/admin/members")

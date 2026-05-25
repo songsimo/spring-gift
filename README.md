@@ -1102,3 +1102,18 @@ Task 28에서 `MemberService` 조회 메서드에 `@Transactional(readOnly = tru
 
 **3. 결과 및 근거**
 `MemberService`의 모든 조회 메서드가 `@Transactional(readOnly = true)`를 보유하게 됨. 전체 테스트 GREEN.
+
+---
+
+### [2026-05-25] `AdminMemberController.create()` 예외 catch 버그 수정 (Task 31)
+
+**1. 문제 정의**
+`AdminMemberController.create()`가 중복 이메일 에러를 `catch (IllegalArgumentException e)`로 잡고 있었으나, `MemberService.adminCreate()`는 `DuplicateException`(→ `BusinessException` → `RuntimeException`)을 던진다. 두 예외는 상속 관계가 없어 catch 블록이 동작하지 않았고, 어드민 UI에서 중복 이메일 제출 시 폼이 아닌 raw 409 응답이 노출되었다.
+
+**2. 상호작용 타임라인**
+- **Step 1**: `AdminMemberControllerTest.create_duplicateEmail_returnsNewFormWithError`가 `IllegalArgumentException`을 mock해 테스트를 통과시키고 있었음을 발견. 예외 계층 확인으로 실제 버그 재현 조건 파악.
+- **Step 2 [Red]**: 테스트의 mock 예외를 `DuplicateException`으로 변경 → RED (409 응답, view 불일치)
+- **Step 3 [Green]**: `AdminMemberController.create()`의 catch를 `DuplicateException`으로 변경, import 추가 → 전체 테스트 GREEN
+
+**3. 결과 및 근거**
+어드민 UI에서 중복 이메일 제출 시 `member/new` 폼과 에러 메시지가 정상 표시됨. 전체 테스트 GREEN.
