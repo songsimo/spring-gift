@@ -1004,3 +1004,17 @@ GET(목록), POST(추가), DELETE(삭제) 세 엔드포인트 모두 정상 경�
 
 **3. 결과 및 근거**
 로그인 실패 시 HTTP 400(Bad Request)이 아닌 HTTP 401(Unauthorized)이 반환됨. 오류 메시지도 영문에서 한국어로 통일. 전체 테스트 GREEN.
+
+---
+
+### [2026-05-25] `CategoryService`의 `ProductRepository` 직접 참조 제거 (Task 24)
+
+**1. 문제 정의**
+`CategoryService`가 카테고리 삭제 시 연관 상품 존재 여부를 `ProductRepository.existsByCategoryId()`로 직접 조회하고 있었다. Task 21~22에서 제거한 크로스 도메인 패턴이 `CategoryService`에도 남아 있었다.
+
+**2. 상호작용 타임라인**
+- **Step 1 [Red]**: `CategoryServiceTest`의 `@Mock ProductRepository` → `@Mock ProductService`로 변경, mock 호출도 `productService.existsByCategoryId()`로 교체 → RED 확인
+- **Step 2 [Green]**: `ProductService`에 `existsByCategoryId(Long categoryId): boolean` 추가. `CategoryService`의 `ProductRepository` 필드 → `ProductService`로 교체. 전체 테스트 GREEN.
+
+**3. 결과 및 근거**
+`CategoryService`가 `ProductRepository`를 직접 참조하지 않게 됨. 프로젝트 내 모든 서비스가 다른 도메인의 리포지토리를 직접 의존하지 않는 구조 완성. 전체 테스트 GREEN.

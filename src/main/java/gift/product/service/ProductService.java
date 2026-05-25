@@ -73,6 +73,10 @@ public class ProductService {
         productRepository.deleteById(id);
     }
 
+    public boolean existsByCategoryId(Long categoryId) {
+        return productRepository.existsByCategoryId(categoryId);
+    }
+
     public Product getProductEntity(Long id) {
         return productRepository.findById(id)
             .orElseThrow(() -> new NotFoundException("상품을 찾을 수 없습니다. id=" + id));

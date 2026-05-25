@@ -3,7 +3,7 @@ package gift.category.service;
 import gift.category.model.Category;
 import gift.category.repository.CategoryRepository;
 import gift.exception.NotFoundException;
-import gift.product.repository.ProductRepository;
+import gift.product.service.ProductService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,11 +12,11 @@ import java.util.List;
 @Service
 public class CategoryService {
     private final CategoryRepository categoryRepository;
-    private final ProductRepository productRepository;
+    private final ProductService productService;
 
-    public CategoryService(CategoryRepository categoryRepository, ProductRepository productRepository) {
+    public CategoryService(CategoryRepository categoryRepository, ProductService productService) {
         this.categoryRepository = categoryRepository;
-        this.productRepository = productRepository;
+        this.productService = productService;
     }
 
     public List<CategoryResponse> getAll() {
@@ -40,7 +40,7 @@ public class CategoryService {
     }
 
     public void delete(Long id) {
-        if (productRepository.existsByCategoryId(id)) {
+        if (productService.existsByCategoryId(id)) {
             throw new IllegalArgumentException("카테고리에 속한 상품이 있어 삭제할 수 없습니다.");
         }
         categoryRepository.deleteById(id);
