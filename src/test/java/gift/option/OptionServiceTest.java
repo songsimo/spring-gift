@@ -14,7 +14,7 @@ import gift.option.service.OptionResponse;
 import gift.option.service.OptionService;
 import gift.order.service.OrderService;
 import gift.product.model.Product;
-import gift.product.repository.ProductRepository;
+import gift.product.service.ProductService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -39,7 +39,7 @@ class OptionServiceTest {
     OptionRepository optionRepository;
 
     @Mock
-    ProductRepository productRepository;
+    ProductService productService;
 
     @Mock
     OrderService orderService;
@@ -52,7 +52,7 @@ class OptionServiceTest {
     void getOptions_existingProductId_returnsOptions() {
         Category category = new Category(1L, "전자기기", "#1E90FF", "https://example.com/img.png", "전자제품");
         Product product = new Product(1L, "MacBook", 1000000, "https://example.com/mac.png", category);
-        given(productRepository.findById(1L)).willReturn(Optional.of(product));
+        given(productService.getProductEntity(1L)).willReturn(product);
         given(optionRepository.findByProductId(1L)).willReturn(List.of(
             new Option(product, "실버 256GB", 10),
             new Option(product, "스페이스그레이 512GB", 5)
@@ -68,7 +68,7 @@ class OptionServiceTest {
     @Test
     @DisplayName("존재하지 않는 상품의 옵션 조회 시 예외가 발생한다")
     void getOptions_nonExistingProductId_throwsException() {
-        given(productRepository.findById(999L)).willReturn(Optional.empty());
+        given(productService.getProductEntity(999L)).willThrow(new NotFoundException("상품을 찾을 수 없습니다. id=999"));
 
         assertThatThrownBy(() -> optionService.getOptions(999L))
             .isInstanceOf(NotFoundException.class);
@@ -80,7 +80,7 @@ class OptionServiceTest {
         Category category = new Category(1L, "전자기기", "#1E90FF", "https://example.com/img.png", "전자제품");
         Product product = new Product(1L, "MacBook", 1000000, "https://example.com/mac.png", category);
         OptionRequest request = new OptionRequest("실버 256GB", 10);
-        given(productRepository.findById(1L)).willReturn(Optional.of(product));
+        given(productService.getProductEntity(1L)).willReturn(product);
         given(optionRepository.existsByProductIdAndName(1L, "실버 256GB")).willReturn(false);
         given(optionRepository.save(any())).willReturn(new Option(product, "실버 256GB", 10));
 
@@ -103,7 +103,7 @@ class OptionServiceTest {
     @DisplayName("존재하지 않는 상품에 옵션 생성 시 예외가 발생한다")
     void createOption_productNotFound_throwsException() {
         OptionRequest request = new OptionRequest("실버 256GB", 10);
-        given(productRepository.findById(999L)).willReturn(Optional.empty());
+        given(productService.getProductEntity(999L)).willThrow(new NotFoundException("상품을 찾을 수 없습니다. id=999"));
 
         assertThatThrownBy(() -> optionService.createOption(999L, request))
             .isInstanceOf(NotFoundException.class);
@@ -115,7 +115,7 @@ class OptionServiceTest {
         Category category = new Category(1L, "전자기기", "#1E90FF", "https://example.com/img.png", "전자제품");
         Product product = new Product(1L, "MacBook", 1000000, "https://example.com/mac.png", category);
         OptionRequest request = new OptionRequest("실버 256GB", 10);
-        given(productRepository.findById(1L)).willReturn(Optional.of(product));
+        given(productService.getProductEntity(1L)).willReturn(product);
         given(optionRepository.existsByProductIdAndName(1L, "실버 256GB")).willReturn(true);
 
         assertThatThrownBy(() -> optionService.createOption(1L, request))
@@ -128,7 +128,7 @@ class OptionServiceTest {
         Category category = new Category(1L, "전자기기", "#1E90FF", "https://example.com/img.png", "전자제품");
         Product product = new Product(1L, "MacBook", 1000000, "https://example.com/mac.png", category);
         Option option = new Option(1L, product, "실버 256GB", 10);
-        given(productRepository.findById(1L)).willReturn(Optional.of(product));
+        given(productService.getProductEntity(1L)).willReturn(product);
         given(optionRepository.findByProductId(1L)).willReturn(List.of(
             option,
             new Option(product, "스페이스그레이 512GB", 5)
@@ -147,7 +147,7 @@ class OptionServiceTest {
         Category category = new Category(1L, "전자기기", "#1E90FF", "https://example.com/img.png", "전자제품");
         Product product = new Product(1L, "MacBook", 1000000, "https://example.com/mac.png", category);
         Option option = new Option(1L, product, "실버 256GB", 10);
-        given(productRepository.findById(1L)).willReturn(Optional.of(product));
+        given(productService.getProductEntity(1L)).willReturn(product);
         given(optionRepository.findByProductId(1L)).willReturn(List.of(
             option,
             new Option(product, "스페이스그레이 512GB", 5)
@@ -166,7 +166,7 @@ class OptionServiceTest {
         Category category = new Category(1L, "전자기기", "#1E90FF", "https://example.com/img.png", "전자제품");
         Product product = new Product(1L, "MacBook", 1000000, "https://example.com/mac.png", category);
         Option option = new Option(1L, product, "실버 256GB", 10);
-        given(productRepository.findById(1L)).willReturn(Optional.of(product));
+        given(productService.getProductEntity(1L)).willReturn(product);
         given(optionRepository.findByProductId(1L)).willReturn(List.of(option));
 
         assertThatThrownBy(() -> optionService.deleteOption(1L, 1L))
@@ -176,7 +176,7 @@ class OptionServiceTest {
     @Test
     @DisplayName("존재하지 않는 상품의 옵션 삭제 시 예외가 발생한다")
     void deleteOption_productNotFound_throwsException() {
-        given(productRepository.findById(999L)).willReturn(Optional.empty());
+        given(productService.getProductEntity(999L)).willThrow(new NotFoundException("상품을 찾을 수 없습니다. id=999"));
 
         assertThatThrownBy(() -> optionService.deleteOption(999L, 1L))
             .isInstanceOf(NotFoundException.class);
@@ -187,7 +187,7 @@ class OptionServiceTest {
     void deleteOption_optionNotFound_throwsException() {
         Category category = new Category(1L, "전자기기", "#1E90FF", "https://example.com/img.png", "전자제품");
         Product product = new Product(1L, "MacBook", 1000000, "https://example.com/mac.png", category);
-        given(productRepository.findById(1L)).willReturn(Optional.of(product));
+        given(productService.getProductEntity(1L)).willReturn(product);
         given(optionRepository.findByProductId(1L)).willReturn(List.of(
             new Option(1L, product, "실버 256GB", 10),
             new Option(2L, product, "스페이스그레이 512GB", 5)

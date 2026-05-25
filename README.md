@@ -1046,3 +1046,17 @@ Task 14에서 `@Transactional`을 추가했지만 여전히 7개 쓰기 메서�
 
 **3. 결과 및 근거**
 `@Valid` 검증 실패도 커스텀 예외와 동일한 400 plain string 형식으로 응답함. 클라이언트가 단일 형식의 에러 응답만 처리하면 됨. 전체 테스트 GREEN.
+
+---
+
+### [2026-05-25] `OptionService`의 `ProductRepository` 직접 참조 제거 (Task 27)
+
+**1. 문제 정의**
+`OptionService`가 `ProductRepository.findById()`를 직접 호출해 상품 존재 여부를 확인하고 있었다. Tasks 21~24에서 다른 서비스들의 크로스 도메인 참조는 제거했지만 `OptionService`에 이 패턴이 남아 있었다.
+
+**2. 상호작용 타임라인**
+- **Step 1 [Red]**: `OptionServiceTest`의 `@Mock ProductRepository` → `@Mock ProductService`로 교체. `productRepository.findById().willReturn(Optional.of(...))` → `productService.getProductEntity().willReturn(...)`, `willReturn(Optional.empty())` → `willThrow(NotFoundException)` 로 일괄 변환 → RED 확인 (Optional import 제거 오류로 컴파일 실패 → 즉시 복구 후 GREEN)
+- **Step 2 [Green]**: `OptionService`의 `ProductRepository` 필드 → `ProductService`로 교체. `getOptions/createOption/deleteOption`의 `productRepository.findById().orElseThrow()` → `productService.getProductEntity()` 단순화. 전체 테스트 GREEN.
+
+**3. 결과 및 근거**
+`OptionService`가 `ProductRepository`를 직접 참조하지 않음. 프로젝트 내 모든 서비스가 타 도메인 리포지토리를 직접 의존하지 않는 구조가 `OptionService`까지 완전히 적용됨. 전체 테스트 GREEN.
