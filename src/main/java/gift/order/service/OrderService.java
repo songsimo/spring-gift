@@ -55,12 +55,12 @@ public class OrderService {
 
     @Transactional
     public OrderResponse createOrder(Long memberId, OrderRequest request) {
-        Option option = optionRepository.findById(request.optionId())
+        Option option = optionRepository.findByIdForUpdate(request.optionId())
             .orElseThrow(() -> new NotFoundException("옵션을 찾을 수 없습니다. id=" + request.optionId()));
         option.subtractQuantity(request.quantity());
         optionRepository.save(option);
 
-        Member member = memberRepository.findById(memberId)
+        Member member = memberRepository.findByIdForUpdate(memberId)
             .orElseThrow(() -> new NotFoundException("회원을 찾을 수 없습니다. id=" + memberId));
         int price = option.getProduct().getPrice() * request.quantity();
         member.deductPoint(price);

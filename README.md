@@ -1131,3 +1131,18 @@ Task 28에서 `MemberService` 조회 메서드에 `@Transactional(readOnly = tru
 
 **3. 결과 및 근거**
 `create()`는 카테고리 미발견 시 에러 메시지와 함께 폼을 재표시. `update()`는 상품/카테고리 미발견 시 목록으로 리다이렉트(폼에 표시할 엔티티가 없으므로). 전체 테스트 GREEN.
+
+---
+
+### [2026-05-25] 재고·포인트 동시성 버그 수정 — 비관적 잠금 적용 (Task 33)
+
+**1. 문제 정의**
+`OrderService.createOrder()`에서 재고(`Option.quantity`)와 포인트(`Member.point`)를 READ → VALIDATE → WRITE 패턴으로 처리한다. 동시 주문 요청이 들어오면 두 트랜잭션이 같은 값을 읽어 검증을 모두 통과하고, 결과적으로 재고 초과 판매·포인트 이중 차감이 발생한다.
+
+**2. 상호작용 타임라인**
+- **Step 1**: DB 원자적 UPDATE 방식(더 효율적이나 엔티티 검증 로직 우회, Hibernate 1차 캐시 동기화 문제)과 비관적 잠금 방식을 비교 분석. 현재 도메인 불변식을 엔티티에 두는 설계 원칙에 맞는 비관적 잠금 선택.
+- **Step 2 [Red]**: `OrderServiceTest`의 `findById` 스텁을 모두 `findByIdForUpdate`로 교체 → 컴파일 오류(메서드 미존재)로 RED 확인.
+- **Step 3 [Green]**: `OptionRepository`, `MemberRepository`에 `@Lock(PESSIMISTIC_WRITE) @Query` 메서드 추가. `OrderService.createOrder()`에서 새 메서드 호출로 교체 → 전체 테스트 GREEN.
+
+**3. 결과 및 근거**
+주문 생성 시 옵션 row와 회원 row에 배타적 잠금이 걸려 동시 트랜잭션이 대기. 재고·포인트 race condition 해소. 잠금 획득 순서(옵션 먼저, 회원 나중)가 일관되어 deadlock 위험 없음. 전체 테스트 GREEN.

@@ -87,8 +87,8 @@ class OrderServiceTest {
         Member member = new Member("test@test.com", "password");
         member.chargePoint(3000000);
         OrderRequest request = new OrderRequest(1L, 2, "선물이에요");
-        given(optionRepository.findById(1L)).willReturn(Optional.of(option));
-        given(memberRepository.findById(1L)).willReturn(Optional.of(member));
+        given(optionRepository.findByIdForUpdate(1L)).willReturn(Optional.of(option));
+        given(memberRepository.findByIdForUpdate(1L)).willReturn(Optional.of(member));
         given(orderRepository.save(any())).willReturn(new Order(option, 1L, 2, "선물이에요"));
 
         OrderResponse result = orderService.createOrder(1L, request);
@@ -103,7 +103,7 @@ class OrderServiceTest {
     @Test
     @DisplayName("존재하지 않는 옵션으로 주문 생성 시 예외가 발생한다")
     void createOrder_optionNotFound_throwsException() {
-        given(optionRepository.findById(999L)).willReturn(Optional.empty());
+        given(optionRepository.findByIdForUpdate(999L)).willReturn(Optional.empty());
 
         assertThatThrownBy(() -> orderService.createOrder(1L, new OrderRequest(999L, 1, null)))
             .isInstanceOf(NotFoundException.class);
@@ -116,8 +116,8 @@ class OrderServiceTest {
         Product product = new Product(1L, "MacBook", 1000000, "https://example.com/mac.png", category);
         Option option = new Option(1L, product, "실버 256GB", 10);
         Member member = new Member("test@test.com", "password");
-        given(optionRepository.findById(1L)).willReturn(Optional.of(option));
-        given(memberRepository.findById(1L)).willReturn(Optional.of(member));
+        given(optionRepository.findByIdForUpdate(1L)).willReturn(Optional.of(option));
+        given(memberRepository.findByIdForUpdate(1L)).willReturn(Optional.of(member));
 
         assertThatThrownBy(() -> orderService.createOrder(1L, new OrderRequest(1L, 2, null)))
             .isInstanceOf(IllegalArgumentException.class);
@@ -131,8 +131,8 @@ class OrderServiceTest {
         Option option = new Option(1L, product, "실버 256GB", 10);
         Member member = new Member("test@test.com", "password");
         member.chargePoint(3000000);
-        given(optionRepository.findById(1L)).willReturn(Optional.of(option));
-        given(memberRepository.findById(1L)).willReturn(Optional.of(member));
+        given(optionRepository.findByIdForUpdate(1L)).willReturn(Optional.of(option));
+        given(memberRepository.findByIdForUpdate(1L)).willReturn(Optional.of(member));
         given(orderRepository.save(any())).willReturn(new Order(option, 1L, 2, "선물이에요"));
 
         orderService.createOrder(1L, new OrderRequest(1L, 2, "선물이에요"));
@@ -148,8 +148,8 @@ class OrderServiceTest {
         Option option = new Option(1L, product, "실버 256GB", 10);
         Member member = new Member("test@test.com", "password");
         member.chargePoint(3000000);
-        given(optionRepository.findById(1L)).willReturn(Optional.of(option));
-        given(memberRepository.findById(1L)).willReturn(Optional.of(member));
+        given(optionRepository.findByIdForUpdate(1L)).willReturn(Optional.of(option));
+        given(memberRepository.findByIdForUpdate(1L)).willReturn(Optional.of(member));
         given(orderRepository.save(any())).willReturn(new Order(option, 1L, 2, "선물이에요"));
 
         orderService.createOrder(1L, new OrderRequest(1L, 2, "선물이에요"));
@@ -166,8 +166,8 @@ class OrderServiceTest {
         Member member = new Member("test@test.com", "password");
         member.chargePoint(3000000);
         member.updateKakaoAccessToken("kakao-token");
-        given(optionRepository.findById(1L)).willReturn(Optional.of(option));
-        given(memberRepository.findById(1L)).willReturn(Optional.of(member));
+        given(optionRepository.findByIdForUpdate(1L)).willReturn(Optional.of(option));
+        given(memberRepository.findByIdForUpdate(1L)).willReturn(Optional.of(member));
         given(orderRepository.save(any())).willReturn(new Order(option, 1L, 2, "선물이에요"));
 
         OrderResponse result = orderService.createOrder(1L, new OrderRequest(1L, 2, "선물이에요"));
@@ -183,8 +183,8 @@ class OrderServiceTest {
         Option option = new Option(1L, product, "실버 256GB", 10);
         Member member = new Member("test@test.com", "password");
         member.chargePoint(3000000);
-        given(optionRepository.findById(1L)).willReturn(Optional.of(option));
-        given(memberRepository.findById(1L)).willReturn(Optional.of(member));
+        given(optionRepository.findByIdForUpdate(1L)).willReturn(Optional.of(option));
+        given(memberRepository.findByIdForUpdate(1L)).willReturn(Optional.of(member));
         given(orderRepository.save(any())).willReturn(new Order(option, 1L, 2, "선물이에요"));
 
         OrderResponse result = orderService.createOrder(1L, new OrderRequest(1L, 2, "선물이에요"));
@@ -201,8 +201,8 @@ class OrderServiceTest {
         Member member = new Member("test@test.com", "password");
         member.chargePoint(3000000);
         member.updateKakaoAccessToken("kakao-token");
-        given(optionRepository.findById(1L)).willReturn(Optional.of(option));
-        given(memberRepository.findById(1L)).willReturn(Optional.of(member));
+        given(optionRepository.findByIdForUpdate(1L)).willReturn(Optional.of(option));
+        given(memberRepository.findByIdForUpdate(1L)).willReturn(Optional.of(member));
         given(orderRepository.save(any())).willReturn(new Order(option, 1L, 2, "선물이에요"));
         org.mockito.Mockito.doThrow(new RuntimeException("카카오 서버 오류"))
             .when(kakaoMessageClient).sendToMe(any(), any(), any());
