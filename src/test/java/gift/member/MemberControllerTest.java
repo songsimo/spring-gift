@@ -3,6 +3,7 @@ package gift.member;
 import gift.auth.AuthService;
 import gift.auth.AuthenticationResolver;
 import gift.auth.TokenResponse;
+import gift.exception.UnauthorizedException;
 import gift.member.model.Member;
 import gift.member.service.MemberResponse;
 import gift.member.service.MemberService;
@@ -52,7 +53,7 @@ class MemberControllerTest {
     @Test
     @DisplayName("유효하지 않은 토큰으로 내 정보 조회 시 401을 반환한다")
     void getMyInfo_invalidToken_returns401() throws Exception {
-        given(authenticationResolver.extractMember("Bearer bad-token")).willReturn(null);
+        given(authenticationResolver.extractMember("Bearer bad-token")).willThrow(new UnauthorizedException("인증이 필요합니다."));
 
         mockMvc.perform(get("/api/members/me")
                 .header("Authorization", "Bearer bad-token"))

@@ -31,9 +31,6 @@ public class OrderController {
         Pageable pageable
     ) {
         var member = authenticationResolver.extractMember(authorization);
-        if (member == null) {
-            return ResponseEntity.status(401).build();
-        }
         return ResponseEntity.ok(orderService.getOrders(member.getId(), pageable));
     }
 
@@ -51,9 +48,6 @@ public class OrderController {
         @Valid @RequestBody OrderRequest request
     ) {
         var member = authenticationResolver.extractMember(authorization);
-        if (member == null) {
-            return ResponseEntity.status(401).build();
-        }
         OrderResponse response = orderService.createOrder(member.getId(), request);
         return ResponseEntity.created(URI.create("/api/orders/" + response.id()))
             .body(response);

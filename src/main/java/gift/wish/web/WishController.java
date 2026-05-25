@@ -32,9 +32,6 @@ public class WishController {
         Pageable pageable
     ) {
         var member = authenticationResolver.extractMember(authorization);
-        if (member == null) {
-            return ResponseEntity.status(401).build();
-        }
         return ResponseEntity.ok(wishService.getWishes(member.getId(), pageable));
     }
 
@@ -44,9 +41,6 @@ public class WishController {
         @Valid @RequestBody WishRequest request
     ) {
         var member = authenticationResolver.extractMember(authorization);
-        if (member == null) {
-            return ResponseEntity.status(401).build();
-        }
         WishResponse response = wishService.addWish(member.getId(), request.productId());
         return ResponseEntity.created(URI.create("/api/wishes/" + response.id()))
             .body(response);
@@ -58,9 +52,6 @@ public class WishController {
         @PathVariable Long id
     ) {
         var member = authenticationResolver.extractMember(authorization);
-        if (member == null) {
-            return ResponseEntity.status(401).build();
-        }
         wishService.removeWish(member.getId(), id);
         return ResponseEntity.noContent().build();
     }

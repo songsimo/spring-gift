@@ -67,6 +67,19 @@ class GlobalExceptionHandlerTest {
     }
 
     @Test
+    @DisplayName("서비스에서 UnauthorizedException 발생 시 401을 반환한다")
+    void unauthorizedException_returns401WithMessage() throws Exception {
+        given(categoryService.update(anyLong(), any()))
+            .willThrow(new UnauthorizedException("인증이 필요합니다."));
+
+        mockMvc.perform(put("/api/categories/999")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"name\":\"test\",\"color\":\"#FF0000\",\"imageUrl\":\"https://example.com/img.png\"}"))
+            .andExpect(status().isUnauthorized())
+            .andExpect(content().string("인증이 필요합니다."));
+    }
+
+    @Test
     @DisplayName("정상 요청은 기존대로 처리된다")
     void normalRequest_processesNormally() throws Exception {
         given(categoryService.getAll()).willReturn(java.util.List.of());

@@ -1,5 +1,6 @@
 package gift.auth;
 
+import gift.exception.UnauthorizedException;
 import gift.member.model.Member;
 import gift.member.service.MemberService;
 import org.springframework.stereotype.Component;
@@ -18,9 +19,15 @@ public class AuthenticationResolver {
         try {
             final String token = authorization.replace("Bearer ", "");
             final String email = jwtProvider.getEmail(token);
-            return memberService.findByEmailOrNull(email);
+            Member member = memberService.findByEmailOrNull(email);
+            if (member == null) {
+                throw new UnauthorizedException("인증이 필요합니다.");
+            }
+            return member;
+        } catch (UnauthorizedException e) {
+            throw e;
         } catch (Exception e) {
-            return null;
+            throw new UnauthorizedException("인증이 필요합니다.");
         }
     }
 }

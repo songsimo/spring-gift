@@ -1,6 +1,7 @@
 package gift.order;
 
 import gift.auth.AuthenticationResolver;
+import gift.exception.UnauthorizedException;
 import gift.member.model.Member;
 import gift.order.service.OrderResponse;
 import gift.order.service.OrderService;
@@ -61,7 +62,7 @@ class OrderControllerTest {
     @Test
     @DisplayName("유효하지 않은 토큰으로 주문 목록 조회 시 401을 반환한다")
     void getOrders_invalidToken_returns401() throws Exception {
-        given(authenticationResolver.extractMember("Bearer bad-token")).willReturn(null);
+        given(authenticationResolver.extractMember("Bearer bad-token")).willThrow(new UnauthorizedException("인증이 필요합니다."));
 
         mockMvc.perform(get("/api/orders")
                 .header("Authorization", "Bearer bad-token"))
@@ -87,7 +88,7 @@ class OrderControllerTest {
     @Test
     @DisplayName("유효하지 않은 토큰으로 주문 생성 시 401을 반환한다")
     void createOrder_invalidToken_returns401() throws Exception {
-        given(authenticationResolver.extractMember("Bearer bad-token")).willReturn(null);
+        given(authenticationResolver.extractMember("Bearer bad-token")).willThrow(new UnauthorizedException("인증이 필요합니다."));
 
         mockMvc.perform(post("/api/orders")
                 .header("Authorization", "Bearer bad-token")

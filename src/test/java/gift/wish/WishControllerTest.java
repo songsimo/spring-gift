@@ -1,6 +1,7 @@
 package gift.wish;
 
 import gift.auth.AuthenticationResolver;
+import gift.exception.UnauthorizedException;
 import gift.member.model.Member;
 import gift.wish.service.WishRequest;
 import gift.wish.service.WishResponse;
@@ -57,7 +58,7 @@ class WishControllerTest {
     @Test
     @DisplayName("유효하지 않은 토큰으로 찜 목록 조회 시 401을 반환한다")
     void getWishes_invalidToken_returns401() throws Exception {
-        given(authenticationResolver.extractMember("Bearer bad-token")).willReturn(null);
+        given(authenticationResolver.extractMember("Bearer bad-token")).willThrow(new UnauthorizedException("인증이 필요합니다."));
 
         mockMvc.perform(get("/api/wishes")
                 .header("Authorization", "Bearer bad-token"))
@@ -83,7 +84,7 @@ class WishControllerTest {
     @Test
     @DisplayName("유효하지 않은 토큰으로 찜 추가 시 401을 반환한다")
     void addWish_invalidToken_returns401() throws Exception {
-        given(authenticationResolver.extractMember("Bearer bad-token")).willReturn(null);
+        given(authenticationResolver.extractMember("Bearer bad-token")).willThrow(new UnauthorizedException("인증이 필요합니다."));
 
         mockMvc.perform(post("/api/wishes")
                 .header("Authorization", "Bearer bad-token")
@@ -106,7 +107,7 @@ class WishControllerTest {
     @Test
     @DisplayName("유효하지 않은 토큰으로 찜 삭제 시 401을 반환한다")
     void removeWish_invalidToken_returns401() throws Exception {
-        given(authenticationResolver.extractMember("Bearer bad-token")).willReturn(null);
+        given(authenticationResolver.extractMember("Bearer bad-token")).willThrow(new UnauthorizedException("인증이 필요합니다."));
 
         mockMvc.perform(delete("/api/wishes/1")
                 .header("Authorization", "Bearer bad-token"))

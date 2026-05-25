@@ -34,9 +34,6 @@ public class MemberController {
         @RequestHeader("Authorization") String authorization
     ) {
         var member = authenticationResolver.extractMember(authorization);
-        if (member == null) {
-            return ResponseEntity.status(401).build();
-        }
         return ResponseEntity.ok(memberService.getMyInfo(member.getEmail()));
     }
 

@@ -920,3 +920,17 @@ GET(목록), POST(추가), DELETE(삭제) 세 엔드포인트 모두 정상 경�
 
 **3. 결과 및 근거**
 `/me`(유효/무효 토큰), `/register`(정상/이메일 형식 오류/비밀번호 누락), `/login`(정상/미존재 이메일) 7개 시나리오 커버. Task 15~17로 REST API 컨트롤러 전체에 @WebMvcTest 적용 완료. 전체 테스트 GREEN.
+
+---
+
+### [2026-05-25] UnauthorizedException 도입 — 컨트롤러 null check 제거 (Task 18)
+
+**1. 문제 정의**
+`WishController`, `OrderController`, `MemberController` 세 곳에 `authenticationResolver.extractMember()` 호출 후 null 체크 → 401 반환 패턴이 동일하게 반복되었다. 예외 계층(`BusinessException`)과도 불일치했다.
+
+**2. 상호작용 타임라인**
+- **Step 1 [Red]**: `GlobalExceptionHandlerTest`에 `UnauthorizedException → 401` 테스트 추가 → 클래스 미존재로 컴파일 실패
+- **Step 2 [Green]**: `UnauthorizedException extends BusinessException` 생성. `GlobalExceptionHandler`에 핸들러 추가(401). `AuthenticationResolver.extractMember()`가 null이거나 예외 발생 시 `UnauthorizedException` throw로 변경. 컨트롤러 3개에서 null check 4줄씩 제거. 컨트롤러 테스트에서 `willReturn(null)` → `willThrow(UnauthorizedException)` 업데이트.
+
+**3. 결과 및 근거**
+컨트롤러 3개에서 null check 분기 완전 제거. 인증 실패는 예외 계층(`NotFoundException`, `DuplicateException`과 동일 구조)으로 처리되어 일관성 확보. 전체 테스트 GREEN.
