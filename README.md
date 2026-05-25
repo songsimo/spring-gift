@@ -1074,3 +1074,17 @@ Task 14에서 `@Transactional`을 추가했지만 여전히 7개 쓰기 메서�
 
 **3. 결과 및 근거**
 모든 서비스 메서드가 읽기/쓰기 의도에 맞는 트랜잭션 어노테이션을 가지게 됨. 전체 테스트 GREEN.
+
+---
+
+### [2026-05-25] 멀티라인 Javadoc 블록 및 불필요한 `@Autowired` 제거 (Task 29)
+
+**1. 문제 정의**
+CLAUDE.md 규칙("Never write multi-paragraph docstrings or multi-line comment blocks — one short line max")에 위반되는 멀티라인 Javadoc 블록이 6개 파일에 남아 있었다. 또한 단일 생성자 클래스에 불필요한 `@Autowired`가 붙어 있었다.
+
+**2. 상호작용 타임라인**
+- **Step 1 [Edit]**: `AdminMemberController`, `Member`, `MemberRequest`, `TokenResponse`, `MemberRepository`, `JwtProvider` 6개 파일에서 5~6줄짜리 `/** ... */` Javadoc 블록 전체 제거. `AdminMemberController`와 `JwtProvider` 생성자에서 `@Autowired` 및 import 제거.
+- **Step 2 [Verify]**: `./gradlew test` → BUILD SUCCESSFUL. 코드 동작 변화 없음.
+
+**3. 결과 및 근거**
+6개 파일의 Javadoc 제거 및 불필요한 `@Autowired` 2개 제거. 스타일 규칙을 코드베이스 전반에 일관 적용. 전체 테스트 GREEN.
