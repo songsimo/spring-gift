@@ -14,6 +14,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -77,6 +78,16 @@ class GlobalExceptionHandlerTest {
                 .content("{\"name\":\"test\",\"color\":\"#FF0000\",\"imageUrl\":\"https://example.com/img.png\"}"))
             .andExpect(status().isUnauthorized())
             .andExpect(content().string("인증이 필요합니다."));
+    }
+
+    @Test
+    @DisplayName("@Valid 검증 실패 시 400과 필드 오류 메시지를 반환한다")
+    void validationFailure_returns400WithFieldError() throws Exception {
+        mockMvc.perform(post("/api/categories")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"name\":\"\",\"color\":\"#FF0000\",\"imageUrl\":\"https://example.com/img.png\"}"))
+            .andExpect(status().isBadRequest())
+            .andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.emptyString())));
     }
 
     @Test

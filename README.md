@@ -1032,3 +1032,17 @@ Task 14에서 `@Transactional`을 추가했지만 여전히 7개 쓰기 메서�
 
 **3. 결과 및 근거**
 프로젝트 내 모든 쓰기 메서드에 `@Transactional`이 선언됨. 복수 DB 연산의 원자성 보장. 전체 테스트 GREEN.
+
+---
+
+### [2026-05-25] `@Valid` 검증 실패 응답 형식 통일 (Task 26)
+
+**1. 문제 정의**
+`@Valid`로 요청 검증이 실패하면 `MethodArgumentNotValidException`이 발생하는데, `GlobalExceptionHandler`가 이를 처리하지 않아 Spring Boot 기본 JSON 형식(`timestamp`, `status`, `errors` 등)이 반환됐다. 커스텀 예외 핸들러가 plain string을 반환하는 것과 응답 형식이 불일치했다.
+
+**2. 상호작용 타임라인**
+- **Step 1 [Red]**: `GlobalExceptionHandlerTest`에 빈 name 필드로 `POST /api/categories` 요청 시 400 + non-empty body를 기대하는 테스트 추가 → 기본 처리로 빈 body가 반환되어 RED 확인
+- **Step 2 [Green]**: `GlobalExceptionHandler`에 `MethodArgumentNotValidException` 핸들러 추가 — `fieldErrors`를 `"필드명: 메시지"` 형식으로 조합해 plain string 반환. 전체 테스트 GREEN.
+
+**3. 결과 및 근거**
+`@Valid` 검증 실패도 커스텀 예외와 동일한 400 plain string 형식으로 응답함. 클라이언트가 단일 형식의 에러 응답만 처리하면 됨. 전체 테스트 GREEN.
