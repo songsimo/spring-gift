@@ -830,6 +830,7 @@ F-9 (옵션 수정 API)   ← 독립
 - [x] Task 14: 쓰기 메서드 `@Transactional` 누락 보완 (`ProductService`, `OptionService`, `MemberService`)
 - [x] Task 15: `WishController` `@WebMvcTest` 테스트 작성
 - [x] Task 16: `OrderController`, `OptionController` `@WebMvcTest` 테스트 작성
+- [x] Task 17: `MemberController` `@WebMvcTest` 테스트 작성
 
 ### 기능 개선
 - [x] Task F-1: 비밀번호 BCrypt 해싱

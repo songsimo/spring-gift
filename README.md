@@ -907,3 +907,16 @@ GET(목록), POST(추가), DELETE(삭제) 세 엔드포인트 모두 정상 경�
 
 **3. 결과 및 근거**
 `OrderController` 6개, `OptionController` 8개 총 14개 테스트 추가. `WishController`(Task 15)와 함께 인증 필요 REST API 전체 컨트롤러 커버. 전체 테스트 GREEN.
+
+---
+
+### [2026-05-25] MemberController @WebMvcTest 테스트 작성 (Task 17)
+
+**1. 문제 정의**
+`MemberController`(GET `/me`, POST `/register`, POST `/login`)에 테스트가 없어 회원가입·로그인 API의 HTTP 상태 코드, 입력 검증 동작을 자동화된 방법으로 확인할 수 없었다.
+
+**2. 상호작용 타임라인**
+- **Step 1**: `@WebMvcTest(MemberController.class)`로 `MemberControllerTest` 작성 — `AuthService`, `MemberService`, `AuthenticationResolver`를 `@MockitoBean`으로 주입. 7개 시나리오 → 첫 실행부터 GREEN
+
+**3. 결과 및 근거**
+`/me`(유효/무효 토큰), `/register`(정상/이메일 형식 오류/비밀번호 누락), `/login`(정상/미존재 이메일) 7개 시나리오 커버. Task 15~17로 REST API 컨트롤러 전체에 @WebMvcTest 적용 완료. 전체 테스트 GREEN.
