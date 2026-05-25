@@ -38,14 +38,17 @@ public class OrderService {
         this.wishService = wishService;
     }
 
+    @Transactional(readOnly = true)
     public Page<OrderResponse> getOrders(Long memberId, Pageable pageable) {
         return orderRepository.findByMemberId(memberId, pageable).map(OrderResponse::from);
     }
 
+    @Transactional(readOnly = true)
     public boolean existsByOptionId(Long optionId) {
         return orderRepository.existsByOptionId(optionId);
     }
 
+    @Transactional(readOnly = true)
     public boolean existsByProductId(Long productId) {
         return orderRepository.existsByOptionProductId(productId);
     }

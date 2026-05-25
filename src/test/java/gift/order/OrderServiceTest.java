@@ -27,6 +27,11 @@ import org.springframework.data.domain.Pageable;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.lang.reflect.Method;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -206,5 +211,14 @@ class OrderServiceTest {
 
         assertThat(result.notificationSent()).isFalse();
         assertThat(result.quantity()).isEqualTo(2);
+    }
+
+    @Test
+    @DisplayName("getOrders는 @Transactional(readOnly = true)이 선언되어 있다")
+    void getOrders_hasReadOnlyTransactionalAnnotation() throws NoSuchMethodException {
+        Method method = OrderService.class.getDeclaredMethod("getOrders", Long.class, Pageable.class);
+        Transactional annotation = method.getAnnotation(Transactional.class);
+        assertThat(annotation).isNotNull();
+        assertThat(annotation.readOnly()).isTrue();
     }
 }

@@ -19,6 +19,7 @@ public class CategoryService {
         this.productService = productService;
     }
 
+    @Transactional(readOnly = true)
     public List<CategoryResponse> getAll() {
         return categoryRepository.findAll().stream()
             .map(CategoryResponse::from)

@@ -130,6 +130,15 @@ class WishServiceTest {
     }
 
     @Test
+    @DisplayName("getWishes는 @Transactional(readOnly = true)이 선언되어 있다")
+    void getWishes_hasReadOnlyTransactionalAnnotation() throws NoSuchMethodException {
+        Method method = WishService.class.getDeclaredMethod("getWishes", Long.class, Pageable.class);
+        Transactional annotation = method.getAnnotation(Transactional.class);
+        assertThat(annotation).isNotNull();
+        assertThat(annotation.readOnly()).isTrue();
+    }
+
+    @Test
     @DisplayName("addWish는 @Transactional이 선언되어 있다")
     void addWish_hasTransactionalAnnotation() throws NoSuchMethodException {
         Method method = WishService.class.getDeclaredMethod("addWish", Long.class, Long.class);

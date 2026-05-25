@@ -25,6 +25,7 @@ public class OptionService {
         this.orderService = orderService;
     }
 
+    @Transactional(readOnly = true)
     public List<OptionResponse> getOptions(Long productId) {
         productService.getProductEntity(productId);
         return optionRepository.findByProductId(productId).stream()

@@ -113,6 +113,15 @@ class CategoryServiceTest {
     }
 
     @Test
+    @DisplayName("getAll은 @Transactional(readOnly = true)이 선언되어 있다")
+    void getAll_hasReadOnlyTransactionalAnnotation() throws NoSuchMethodException {
+        Method method = CategoryService.class.getDeclaredMethod("getAll");
+        Transactional annotation = method.getAnnotation(Transactional.class);
+        assertThat(annotation).isNotNull();
+        assertThat(annotation.readOnly()).isTrue();
+    }
+
+    @Test
     @DisplayName("create는 @Transactional이 선언되어 있다")
     void create_hasTransactionalAnnotation() throws NoSuchMethodException {
         Method method = CategoryService.class.getDeclaredMethod("create", CategoryRequest.class);

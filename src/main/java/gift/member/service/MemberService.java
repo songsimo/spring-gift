@@ -20,10 +20,12 @@ public class MemberService {
         this.memberRepository = memberRepository;
     }
 
+    @Transactional(readOnly = true)
     public List<Member> findAll() {
         return memberRepository.findAll();
     }
 
+    @Transactional(readOnly = true)
     public Member findById(Long id) {
         return memberRepository.findById(id)
             .orElseThrow(() -> new NotFoundException("회원을 찾을 수 없습니다. id=" + id));
@@ -58,6 +60,7 @@ public class MemberService {
         memberRepository.save(new Member(email, encoder.encode(password)));
     }
 
+    @Transactional(readOnly = true)
     public MemberResponse getMyInfo(String email) {
         Member member = memberRepository.findByEmail(email)
             .orElseThrow(() -> new NotFoundException("회원을 찾을 수 없습니다. email=" + email));

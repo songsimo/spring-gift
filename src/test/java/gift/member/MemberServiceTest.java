@@ -310,4 +310,22 @@ class MemberServiceTest {
         Method method = MemberService.class.getDeclaredMethod("deleteMember", Long.class);
         assertThat(method.isAnnotationPresent(Transactional.class)).isTrue();
     }
+
+    @Test
+    @DisplayName("findById는 @Transactional(readOnly = true)이 선언되어 있다")
+    void findById_hasReadOnlyTransactionalAnnotation() throws NoSuchMethodException {
+        Method method = MemberService.class.getDeclaredMethod("findById", Long.class);
+        Transactional annotation = method.getAnnotation(Transactional.class);
+        assertThat(annotation).isNotNull();
+        assertThat(annotation.readOnly()).isTrue();
+    }
+
+    @Test
+    @DisplayName("getMyInfo는 @Transactional(readOnly = true)이 선언되어 있다")
+    void getMyInfo_hasReadOnlyTransactionalAnnotation() throws NoSuchMethodException {
+        Method method = MemberService.class.getDeclaredMethod("getMyInfo", String.class);
+        Transactional annotation = method.getAnnotation(Transactional.class);
+        assertThat(annotation).isNotNull();
+        assertThat(annotation.readOnly()).isTrue();
+    }
 }

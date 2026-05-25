@@ -20,6 +20,7 @@ public class WishService {
         this.productRepository = productRepository;
     }
 
+    @Transactional(readOnly = true)
     public Page<WishResponse> getWishes(Long memberId, Pageable pageable) {
         return wishRepository.findByMemberId(memberId, pageable).map(WishResponse::from);
     }

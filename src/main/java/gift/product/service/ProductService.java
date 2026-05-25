@@ -29,14 +29,17 @@ public class ProductService {
         this.wishService = wishService;
     }
 
+    @Transactional(readOnly = true)
     public List<Product> findAll() {
         return productRepository.findAll();
     }
 
+    @Transactional(readOnly = true)
     public Page<ProductResponse> getProducts(Pageable pageable) {
         return productRepository.findAll(pageable).map(ProductResponse::from);
     }
 
+    @Transactional(readOnly = true)
     public ProductResponse getProduct(Long id) {
         return productRepository.findById(id)
             .map(ProductResponse::from)
@@ -73,10 +76,12 @@ public class ProductService {
         productRepository.deleteById(id);
     }
 
+    @Transactional(readOnly = true)
     public boolean existsByCategoryId(Long categoryId) {
         return productRepository.existsByCategoryId(categoryId);
     }
 
+    @Transactional(readOnly = true)
     public Product getProductEntity(Long id) {
         return productRepository.findById(id)
             .orElseThrow(() -> new NotFoundException("상품을 찾을 수 없습니다. id=" + id));

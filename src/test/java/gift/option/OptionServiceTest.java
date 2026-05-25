@@ -264,6 +264,15 @@ class OptionServiceTest {
     }
 
     @Test
+    @DisplayName("getOptions는 @Transactional(readOnly = true)이 선언되어 있다")
+    void getOptions_hasReadOnlyTransactionalAnnotation() throws NoSuchMethodException {
+        Method method = OptionService.class.getDeclaredMethod("getOptions", Long.class);
+        Transactional annotation = method.getAnnotation(Transactional.class);
+        assertThat(annotation).isNotNull();
+        assertThat(annotation.readOnly()).isTrue();
+    }
+
+    @Test
     @DisplayName("createOption은 @Transactional이 선언되어 있다")
     void createOption_hasTransactionalAnnotation() throws NoSuchMethodException {
         Method method = OptionService.class.getDeclaredMethod("createOption", Long.class, OptionRequest.class);

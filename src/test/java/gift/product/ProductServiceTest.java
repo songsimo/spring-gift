@@ -354,6 +354,24 @@ class ProductServiceTest {
     }
 
     @Test
+    @DisplayName("getProduct는 @Transactional(readOnly = true)이 선언되어 있다")
+    void getProduct_hasReadOnlyTransactionalAnnotation() throws NoSuchMethodException {
+        Method method = ProductService.class.getDeclaredMethod("getProduct", Long.class);
+        Transactional annotation = method.getAnnotation(Transactional.class);
+        assertThat(annotation).isNotNull();
+        assertThat(annotation.readOnly()).isTrue();
+    }
+
+    @Test
+    @DisplayName("getProducts는 @Transactional(readOnly = true)이 선언되어 있다")
+    void getProducts_hasReadOnlyTransactionalAnnotation() throws NoSuchMethodException {
+        Method method = ProductService.class.getDeclaredMethod("getProducts", Pageable.class);
+        Transactional annotation = method.getAnnotation(Transactional.class);
+        assertThat(annotation).isNotNull();
+        assertThat(annotation.readOnly()).isTrue();
+    }
+
+    @Test
     @DisplayName("adminCreateProduct는 @Transactional이 선언되어 있다")
     void adminCreateProduct_hasTransactionalAnnotation() throws NoSuchMethodException {
         Method method = ProductService.class.getDeclaredMethod("adminCreateProduct", String.class, int.class, String.class, Long.class);

@@ -1060,3 +1060,17 @@ Task 14에서 `@Transactional`을 추가했지만 여전히 7개 쓰기 메서�
 
 **3. 결과 및 근거**
 `OptionService`가 `ProductRepository`를 직접 참조하지 않음. 프로젝트 내 모든 서비스가 타 도메인 리포지토리를 직접 의존하지 않는 구조가 `OptionService`까지 완전히 적용됨. 전체 테스트 GREEN.
+
+---
+
+### [2026-05-25] 조회 메서드 `@Transactional(readOnly = true)` 추가 (Task 28)
+
+**1. 문제 정의**
+서비스 클래스의 14개 조회 메서드가 `@Transactional` 없이 실행되고 있었다. 결과적으로 JPA 더티 체킹이 불필요하게 수행되고, 데이터소스 read-only 최적화가 적용되지 않았다.
+
+**2. 상호작용 타임라인**
+- **Step 1 [Red]**: `CategoryServiceTest`, `WishServiceTest`, `OptionServiceTest`, `OrderServiceTest`, `MemberServiceTest`, `ProductServiceTest` 각각에 `readOnly = true` 속성을 검증하는 리플렉션 테스트 추가 → RED 확인
+- **Step 2 [Green]**: `CategoryService.getAll`, `WishService.getWishes`, `OptionService.getOptions`, `OrderService.getOrders/existsByOptionId/existsByProductId`, `ProductService.findAll/getProducts/getProduct/existsByCategoryId/getProductEntity`, `MemberService.findAll/findById/getMyInfo` 에 `@Transactional(readOnly = true)` 추가. 전체 테스트 GREEN.
+
+**3. 결과 및 근거**
+모든 서비스 메서드가 읽기/쓰기 의도에 맞는 트랜잭션 어노테이션을 가지게 됨. 전체 테스트 GREEN.
