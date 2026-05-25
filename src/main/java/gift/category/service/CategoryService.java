@@ -25,6 +25,7 @@ public class CategoryService {
             .toList();
     }
 
+    @Transactional
     public CategoryResponse create(CategoryRequest request) {
         Category saved = categoryRepository.save(request.toEntity());
         return CategoryResponse.from(saved);
@@ -39,6 +40,7 @@ public class CategoryService {
         return CategoryResponse.from(category);
     }
 
+    @Transactional
     public void delete(Long id) {
         if (productService.existsByCategoryId(id)) {
             throw new IllegalArgumentException("카테고리에 속한 상품이 있어 삭제할 수 없습니다.");

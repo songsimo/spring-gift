@@ -17,6 +17,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.lang.reflect.Method;
 
 import java.util.List;
 import java.util.Optional;
@@ -124,5 +127,19 @@ class WishServiceTest {
 
         assertThatThrownBy(() -> wishService.removeWish(1L, 1L))
             .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    @DisplayName("addWish는 @Transactional이 선언되어 있다")
+    void addWish_hasTransactionalAnnotation() throws NoSuchMethodException {
+        Method method = WishService.class.getDeclaredMethod("addWish", Long.class, Long.class);
+        assertThat(method.isAnnotationPresent(Transactional.class)).isTrue();
+    }
+
+    @Test
+    @DisplayName("removeWish는 @Transactional이 선언되어 있다")
+    void removeWish_hasTransactionalAnnotation() throws NoSuchMethodException {
+        Method method = WishService.class.getDeclaredMethod("removeWish", Long.class, Long.class);
+        assertThat(method.isAnnotationPresent(Transactional.class)).isTrue();
     }
 }

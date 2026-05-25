@@ -13,6 +13,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.lang.reflect.Method;
 
 import java.util.List;
 import java.util.Optional;
@@ -107,5 +110,19 @@ class CategoryServiceTest {
         assertThatThrownBy(() -> categoryService.delete(1L))
             .isInstanceOf(IllegalArgumentException.class);
         then(categoryRepository).should(never()).deleteById(any());
+    }
+
+    @Test
+    @DisplayName("create는 @Transactional이 선언되어 있다")
+    void create_hasTransactionalAnnotation() throws NoSuchMethodException {
+        Method method = CategoryService.class.getDeclaredMethod("create", CategoryRequest.class);
+        assertThat(method.isAnnotationPresent(Transactional.class)).isTrue();
+    }
+
+    @Test
+    @DisplayName("delete는 @Transactional이 선언되어 있다")
+    void delete_hasTransactionalAnnotation() throws NoSuchMethodException {
+        Method method = CategoryService.class.getDeclaredMethod("delete", Long.class);
+        assertThat(method.isAnnotationPresent(Transactional.class)).isTrue();
     }
 }

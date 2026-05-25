@@ -352,4 +352,18 @@ class ProductServiceTest {
         Method method = ProductService.class.getDeclaredMethod("createProduct", ProductRequest.class);
         assertThat(method.isAnnotationPresent(Transactional.class)).isTrue();
     }
+
+    @Test
+    @DisplayName("adminCreateProduct는 @Transactional이 선언되어 있다")
+    void adminCreateProduct_hasTransactionalAnnotation() throws NoSuchMethodException {
+        Method method = ProductService.class.getDeclaredMethod("adminCreateProduct", String.class, int.class, String.class, Long.class);
+        assertThat(method.isAnnotationPresent(Transactional.class)).isTrue();
+    }
+
+    @Test
+    @DisplayName("adminUpdateProduct는 @Transactional이 선언되어 있다")
+    void adminUpdateProduct_hasTransactionalAnnotation() throws NoSuchMethodException {
+        Method method = ProductService.class.getDeclaredMethod("adminUpdateProduct", Long.class, String.class, int.class, String.class, Long.class);
+        assertThat(method.isAnnotationPresent(Transactional.class)).isTrue();
+    }
 }

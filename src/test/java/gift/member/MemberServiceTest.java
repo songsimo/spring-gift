@@ -303,4 +303,11 @@ class MemberServiceTest {
         Method method = MemberService.class.getDeclaredMethod("adminCreate", String.class, String.class);
         assertThat(method.isAnnotationPresent(Transactional.class)).isTrue();
     }
+
+    @Test
+    @DisplayName("deleteMember는 @Transactional이 선언되어 있다")
+    void deleteMember_hasTransactionalAnnotation() throws NoSuchMethodException {
+        Method method = MemberService.class.getDeclaredMethod("deleteMember", Long.class);
+        assertThat(method.isAnnotationPresent(Transactional.class)).isTrue();
+    }
 }

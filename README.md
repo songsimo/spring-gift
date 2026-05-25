@@ -1018,3 +1018,17 @@ GET(목록), POST(추가), DELETE(삭제) 세 엔드포인트 모두 정상 경�
 
 **3. 결과 및 근거**
 `CategoryService`가 `ProductRepository`를 직접 참조하지 않게 됨. 프로젝트 내 모든 서비스가 다른 도메인의 리포지토리를 직접 의존하지 않는 구조 완성. 전체 테스트 GREEN.
+
+---
+
+### [2026-05-25] 쓰기 메서드 `@Transactional` 누락 일괄 보완 (Task 25)
+
+**1. 문제 정의**
+Task 14에서 `@Transactional`을 추가했지만 여전히 7개 쓰기 메서드가 누락 상태였다: `CategoryService.create/delete`, `WishService.addWish/removeWish`, `ProductService.adminCreateProduct/adminUpdateProduct`, `MemberService.deleteMember`. 특히 `addWish`(find+save)와 `delete`(check+delete)처럼 복수 연산을 포함한 메서드는 원자성이 보장되지 않았다.
+
+**2. 상호작용 타임라인**
+- **Step 1 [Red]**: `CategoryServiceTest`, `WishServiceTest`, `ProductServiceTest`, `MemberServiceTest` 각각에 리플렉션으로 `@Transactional` 존재 여부를 검증하는 테스트 7개 추가 → RED 확인
+- **Step 2 [Green]**: 7개 메서드에 `@Transactional` 추가. 전체 테스트 GREEN.
+
+**3. 결과 및 근거**
+프로젝트 내 모든 쓰기 메서드에 `@Transactional`이 선언됨. 복수 DB 연산의 원자성 보장. 전체 테스트 GREEN.

@@ -838,6 +838,7 @@ F-9 (옵션 수정 API)   ← 독립
 - [x] Task 22: `OrderService`의 `WishRepository` 직접 참조 제거 (`WishService` 위임)
 - [x] Task 23: `authenticate()` 인증 실패 예외를 `UnauthorizedException`(401)으로 교체
 - [x] Task 24: `CategoryService`의 `ProductRepository` 직접 참조 제거 (`ProductService` 위임)
+- [x] Task 25: 쓰기 메서드 `@Transactional` 누락 일괄 보완 (`CategoryService`, `WishService`, `ProductService` admin, `MemberService.deleteMember`)
 
 ### 기능 개선
 - [x] Task F-1: 비밀번호 BCrypt 해싱

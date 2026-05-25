@@ -82,12 +82,14 @@ public class ProductService {
             .orElseThrow(() -> new NotFoundException("상품을 찾을 수 없습니다. id=" + id));
     }
 
+    @Transactional
     public void adminCreateProduct(String name, int price, String imageUrl, Long categoryId) {
         Category category = categoryRepository.findById(categoryId)
             .orElseThrow(() -> new NotFoundException("카테고리를 찾을 수 없습니다. id=" + categoryId));
         productRepository.save(new Product(name, price, imageUrl, category));
     }
 
+    @Transactional
     public void adminUpdateProduct(Long id, String name, int price, String imageUrl, Long categoryId) {
         Category category = categoryRepository.findById(categoryId)
             .orElseThrow(() -> new NotFoundException("카테고리를 찾을 수 없습니다. id=" + categoryId));

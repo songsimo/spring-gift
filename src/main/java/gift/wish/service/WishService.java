@@ -24,6 +24,7 @@ public class WishService {
         return wishRepository.findByMemberId(memberId, pageable).map(WishResponse::from);
     }
 
+    @Transactional
     public WishResponse addWish(Long memberId, Long productId) {
         Product product = productRepository.findById(productId)
             .orElseThrow(() -> new NotFoundException("상품을 찾을 수 없습니다. id=" + productId));
@@ -43,6 +44,7 @@ public class WishService {
             .ifPresent(wishRepository::delete);
     }
 
+    @Transactional
     public void removeWish(Long memberId, Long wishId) {
         Wish wish = wishRepository.findById(wishId)
             .orElseThrow(() -> new NotFoundException("찜을 찾을 수 없습니다. id=" + wishId));
