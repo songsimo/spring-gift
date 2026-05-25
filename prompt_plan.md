@@ -845,6 +845,7 @@ F-9 (옵션 수정 API)   ← 독립
 - [x] Task 29: 멀티라인 Javadoc 블록 제거 + 불필요한 `@Autowired` 제거 (6개 파일)
 - [x] Task 30: `MemberService.findByEmailOrNull()` / `authenticate()` `@Transactional(readOnly = true)` 누락 보완
 - [x] Task 31: `AdminMemberController.create()` — `IllegalArgumentException` catch가 `DuplicateException`을 놓치는 버그 수정
+- [x] Task 32: `AdminProductController` — `NotFoundException` 미처리 버그 수정 (create·update 각각 적절한 처리)
 
 ### 기능 개선
 - [x] Task F-1: 비밀번호 BCrypt 해싱

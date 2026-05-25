@@ -2,6 +2,7 @@ package gift.product;
 
 import gift.category.service.CategoryResponse;
 import gift.category.service.CategoryService;
+import gift.exception.NotFoundException;
 import gift.product.model.Product;
 import gift.product.service.ProductService;
 import gift.product.web.AdminProductController;
@@ -141,6 +142,39 @@ class AdminProductControllerTest {
             .andExpect(view().name("product/edit"))
             .andExpect(model().attributeExists("errors"))
             .andExpect(model().attributeExists("categories"));
+    }
+
+    @Test
+    @DisplayName("카테고리를 찾을 수 없을 때 상품 생성 시 에러와 함께 new 폼을 반환한다")
+    void create_categoryNotFound_returnsNewFormWithErrors() throws Exception {
+        given(categoryService.getAll()).willReturn(List.of());
+        willThrow(new NotFoundException("카테고리를 찾을 수 없습니다. id=999"))
+            .given(productService).adminCreateProduct(anyString(), anyInt(), anyString(), anyLong());
+
+        mockMvc.perform(post("/admin/products")
+                .param("name", "MacBook")
+                .param("price", "1000000")
+                .param("imageUrl", "https://example.com/img.png")
+                .param("categoryId", "999"))
+            .andExpect(status().isOk())
+            .andExpect(view().name("product/new"))
+            .andExpect(model().attributeExists("errors"))
+            .andExpect(model().attributeExists("categories"));
+    }
+
+    @Test
+    @DisplayName("상품을 찾을 수 없을 때 상품 수정 시 목록 페이지로 리다이렉트한다")
+    void update_productNotFound_redirectsToList() throws Exception {
+        willThrow(new NotFoundException("상품을 찾을 수 없습니다. id=999"))
+            .given(productService).adminUpdateProduct(anyLong(), anyString(), anyInt(), anyString(), anyLong());
+
+        mockMvc.perform(post("/admin/products/999/edit")
+                .param("name", "MacBook")
+                .param("price", "1000000")
+                .param("imageUrl", "https://example.com/img.png")
+                .param("categoryId", "1"))
+            .andExpect(status().is3xxRedirection())
+            .andExpect(redirectedUrl("/admin/products"));
     }
 
     @Test

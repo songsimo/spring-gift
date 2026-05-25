@@ -1117,3 +1117,17 @@ Task 28에서 `MemberService` 조회 메서드에 `@Transactional(readOnly = tru
 
 **3. 결과 및 근거**
 어드민 UI에서 중복 이메일 제출 시 `member/new` 폼과 에러 메시지가 정상 표시됨. 전체 테스트 GREEN.
+
+---
+
+### [2026-05-25] `AdminProductController` `NotFoundException` 미처리 버그 수정 (Task 32)
+
+**1. 문제 정의**
+`AdminProductController.create()`와 `update()`가 `IllegalArgumentException`만 catch하고 있었으나, 서비스 내부에서 카테고리·상품 미발견 시 `NotFoundException`(→ `BusinessException` → `RuntimeException`)이 발생한다. catch 블록이 이를 잡지 못해 `GlobalExceptionHandler`가 raw 404 응답을 반환하는 버그 존재.
+
+**2. 상호작용 타임라인**
+- **Step 1 [Red]**: `AdminProductControllerTest`에 두 케이스 추가: (1) `create()`에서 `NotFoundException` 발생 시 `product/new` 폼 반환, (2) `update()`에서 `NotFoundException` 발생 시 `/admin/products` 리다이렉트 → RED 확인
+- **Step 2 [Green]**: `create()`: `catch (IllegalArgumentException | NotFoundException e)`로 확장, `update()`: 기존 `IllegalArgumentException` catch 유지 + 별도 `catch (NotFoundException e)` 추가하여 목록으로 리다이렉트. 전체 테스트 GREEN.
+
+**3. 결과 및 근거**
+`create()`는 카테고리 미발견 시 에러 메시지와 함께 폼을 재표시. `update()`는 상품/카테고리 미발견 시 목록으로 리다이렉트(폼에 표시할 엔티티가 없으므로). 전체 테스트 GREEN.

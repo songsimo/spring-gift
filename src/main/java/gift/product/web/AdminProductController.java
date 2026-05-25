@@ -1,6 +1,7 @@
 package gift.product.web;
 
 import gift.category.service.CategoryService;
+import gift.exception.NotFoundException;
 import gift.product.service.ProductService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -45,7 +46,7 @@ public class AdminProductController {
     ) {
         try {
             productService.adminCreateProduct(name, price, imageUrl, categoryId);
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException | NotFoundException e) {
             model.addAttribute("errors", List.of(e.getMessage()));
             model.addAttribute("name", name);
             model.addAttribute("price", price);
@@ -80,6 +81,8 @@ public class AdminProductController {
             model.addAttribute("product", productService.getProductEntity(id));
             model.addAttribute("categories", categoryService.getAll());
             return "product/edit";
+        } catch (NotFoundException e) {
+            return "redirect:/admin/products";
         }
         return "redirect:/admin/products";
     }
