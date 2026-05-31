@@ -1,0 +1,41 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 -c \"import json,sys; inp=json.load(sys.stdin); cmd=inp.get('command',''); blocked=['--no-verify','push --force','push -f','reset --hard','rm -rf']; [exit(2) for b in blocked if b in cmd]\"",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "D:\\Song\\IdeaProjects\\spring-gift\\gradlew.bat compileJava -q",
+            "timeout": 60
+          }
+        ]
+      }
+    ]
+  },
+  "permissions": {
+    "allow": [
+      "Bash(./gradlew *)",
+      "Bash(gradlew.bat *)",
+      "Bash(git status)",
+      "Bash(git diff*)",
+      "Bash(git log*)",
+      "Bash(git add *)",
+      "Bash(git commit*)",
+      "Bash(git branch*)",
+      "Bash(java -version)",
+      "Bash(mkdir *)"
+    ]
+  }
+}
