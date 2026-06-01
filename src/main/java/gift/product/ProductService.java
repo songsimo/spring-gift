@@ -32,6 +32,10 @@ public class ProductService {
         return ProductResponse.from(productRepository.save(request.toEntity(category)));
     }
 
+    public void delete(Long id) {
+        productRepository.deleteById(id);
+    }
+
     public ProductResponse update(Long id, ProductRequest request) {
         validateName(request.name());
         var product = productRepository.findById(id)

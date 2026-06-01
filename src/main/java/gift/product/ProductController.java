@@ -1,7 +1,5 @@
 package gift.product;
 
-import gift.category.Category;
-import gift.category.CategoryRepository;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,18 +15,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.net.URI;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/products")
 public class ProductController {
-    private final ProductRepository productRepository;
-    private final CategoryRepository categoryRepository;
     private final ProductService productService;
 
-    public ProductController(ProductRepository productRepository, CategoryRepository categoryRepository, ProductService productService) {
-        this.productRepository = productRepository;
-        this.categoryRepository = categoryRepository;
+    public ProductController(ProductService productService) {
         this.productService = productService;
     }
 
@@ -59,15 +52,8 @@ public class ProductController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
-        productRepository.deleteById(id);
+        productService.delete(id);
         return ResponseEntity.noContent().build();
-    }
-
-    private void validateName(String name) {
-        List<String> errors = ProductNameValidator.validate(name);
-        if (!errors.isEmpty()) {
-            throw new IllegalArgumentException(String.join(", ", errors));
-        }
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

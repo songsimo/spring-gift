@@ -112,6 +112,13 @@ class ProductServiceTest {
     }
 
     @Test
+    void delete_상품을_삭제한다() {
+        productService.delete(1L);
+
+        org.mockito.Mockito.verify(productRepository).deleteById(1L);
+    }
+
+    @Test
     void getAll_상품_목록을_반환한다() {
         var category = new Category("식품", "#fff", "img.png", "desc");
         var product = new Product("사과", 1000, "apple.png", category);
