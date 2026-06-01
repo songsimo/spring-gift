@@ -22,4 +22,12 @@ class OptionTest {
         assertThatThrownBy(() -> option.subtractQuantity(11))
             .isInstanceOf(BadRequestException.class);
     }
+
+    @Test
+    void subtractQuantity_0이하_수량은_BadRequestException을_던진다() {
+        var option = sampleOption(10);
+
+        assertThatThrownBy(() -> option.subtractQuantity(0))
+            .isInstanceOf(BadRequestException.class);
+    }
 }
