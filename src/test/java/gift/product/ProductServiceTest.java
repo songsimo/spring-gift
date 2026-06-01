@@ -14,7 +14,10 @@ import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 import gift.exception.BadRequestException;
+import gift.exception.ConflictException;
 import gift.exception.NotFoundException;
+import gift.order.OrderRepository;
+import gift.wish.WishRepository;
 
 import java.util.Optional;
 
@@ -31,6 +34,12 @@ class ProductServiceTest {
 
     @Mock
     private CategoryRepository categoryRepository;
+
+    @Mock
+    private OrderRepository orderRepository;
+
+    @Mock
+    private WishRepository wishRepository;
 
     @InjectMocks
     private ProductService productService;
@@ -114,9 +123,23 @@ class ProductServiceTest {
 
     @Test
     void delete_상품을_삭제한다() {
+        var category = new Category("식품", "#fff", "img.png", "desc");
+        var product = new Product("사과", 1000, "apple.png", category);
+        given(productRepository.findById(1L)).willReturn(Optional.of(product));
+        given(orderRepository.existsByOptionProductId(1L)).willReturn(false);
+
         productService.delete(1L);
 
-        org.mockito.Mockito.verify(productRepository).deleteById(1L);
+        org.mockito.Mockito.verify(wishRepository).deleteAllByProductId(1L);
+        org.mockito.Mockito.verify(productRepository).delete(product);
+    }
+
+    @Test
+    void delete_주문이_있는_상품은_ConflictException을_던진다() {
+        given(orderRepository.existsByOptionProductId(1L)).willReturn(true);
+
+        assertThatThrownBy(() -> productService.delete(1L))
+            .isInstanceOf(ConflictException.class);
     }
 
     @Test
