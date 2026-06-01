@@ -17,4 +17,9 @@ public class CategoryService {
             .map(CategoryResponse::from)
             .toList();
     }
+
+    public CategoryResponse create(CategoryRequest request) {
+        Category saved = categoryRepository.save(request.toEntity());
+        return CategoryResponse.from(saved);
+    }
 }
