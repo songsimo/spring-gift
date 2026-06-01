@@ -32,6 +32,16 @@ public class ProductService {
         return ProductResponse.from(productRepository.save(request.toEntity(category)));
     }
 
+    public ProductResponse update(Long id, ProductRequest request) {
+        validateName(request.name());
+        var product = productRepository.findById(id)
+            .orElseThrow(() -> new NotFoundException("Product not found."));
+        var category = categoryRepository.findById(request.categoryId())
+            .orElseThrow(() -> new NotFoundException("Category not found."));
+        product.update(request.name(), request.price(), request.imageUrl(), category);
+        return ProductResponse.from(productRepository.save(product));
+    }
+
     private void validateName(String name) {
         var errors = ProductNameValidator.validate(name);
         if (!errors.isEmpty()) {

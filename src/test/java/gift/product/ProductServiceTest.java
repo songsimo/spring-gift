@@ -61,6 +61,38 @@ class ProductServiceTest {
     }
 
     @Test
+    void update_상품을_수정하고_반환한다() {
+        var category = new Category("식품", "#fff", "img.png", "desc");
+        var product = new Product("사과", 1000, "apple.png", category);
+        var request = new ProductRequest("배", 2000, "pear.png", 1L);
+        given(productRepository.findById(1L)).willReturn(Optional.of(product));
+        given(categoryRepository.findById(1L)).willReturn(Optional.of(category));
+        given(productRepository.save(any())).willReturn(new Product("배", 2000, "pear.png", category));
+
+        ProductResponse result = productService.update(1L, request);
+
+        assertThat(result.name()).isEqualTo("배");
+    }
+
+    @Test
+    void update_존재하지_않는_상품은_NotFoundException을_던진다() {
+        given(productRepository.findById(99L)).willReturn(Optional.empty());
+
+        assertThatThrownBy(() -> productService.update(99L, new ProductRequest("배", 2000, "pear.png", 1L)))
+            .isInstanceOf(NotFoundException.class);
+    }
+
+    @Test
+    void update_존재하지_않는_카테고리는_NotFoundException을_던진다() {
+        var category = new Category("식품", "#fff", "img.png", "desc");
+        given(productRepository.findById(1L)).willReturn(Optional.of(new Product("사과", 1000, "apple.png", category)));
+        given(categoryRepository.findById(99L)).willReturn(Optional.empty());
+
+        assertThatThrownBy(() -> productService.update(1L, new ProductRequest("배", 2000, "pear.png", 99L)))
+            .isInstanceOf(NotFoundException.class);
+    }
+
+    @Test
     void getById_존재하는_상품을_반환한다() {
         var category = new Category("식품", "#fff", "img.png", "desc");
         given(productRepository.findById(1L))

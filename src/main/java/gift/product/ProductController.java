@@ -54,21 +54,7 @@ public class ProductController {
         @PathVariable Long id,
         @Valid @RequestBody ProductRequest request
     ) {
-        validateName(request.name());
-
-        Category category = categoryRepository.findById(request.categoryId()).orElse(null);
-        if (category == null) {
-            return ResponseEntity.notFound().build();
-        }
-
-        Product product = productRepository.findById(id).orElse(null);
-        if (product == null) {
-            return ResponseEntity.notFound().build();
-        }
-
-        product.update(request.name(), request.price(), request.imageUrl(), category);
-        Product saved = productRepository.save(product);
-        return ResponseEntity.ok(ProductResponse.from(saved));
+        return ResponseEntity.ok(productService.update(id, request));
     }
 
     @DeleteMapping("/{id}")
