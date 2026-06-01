@@ -22,6 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class OrderServiceTest {
@@ -69,6 +70,19 @@ class OrderServiceTest {
 
         assertThatThrownBy(() -> orderService.create(member, new OrderRequest(99L, 1, null)))
             .isInstanceOf(NotFoundException.class);
+    }
+
+    @Test
+    void notifyOrder_알림을_전송한다() {
+        var product = sampleProduct();
+        var option = new Option(product, "대", 100);
+        var member = new Member("test@test.com", "pass");
+        var order = new Order(option, 1L, 2, "감사합니다");
+        given(orderRepository.findById(1L)).willReturn(Optional.of(order));
+
+        orderService.notifyOrder(member, 1L);
+
+        verify(notificationPort).notify(member, order, product);
     }
 
     @Test

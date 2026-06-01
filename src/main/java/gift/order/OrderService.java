@@ -4,9 +4,11 @@ import gift.exception.NotFoundException;
 import gift.member.Member;
 import gift.member.MemberRepository;
 import gift.option.OptionRepository;
+import gift.product.Product;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class OrderService {
@@ -31,6 +33,7 @@ public class OrderService {
         return orderRepository.findByMemberId(memberId, pageable).map(OrderResponse::from);
     }
 
+    @Transactional
     public OrderResponse create(Member member, OrderRequest request) {
         var option = optionRepository.findById(request.optionId())
             .orElseThrow(() -> new NotFoundException("Option not found."));
@@ -42,7 +45,13 @@ public class OrderService {
         memberRepository.save(member);
 
         var order = orderRepository.save(new Order(option, member.getId(), request.quantity(), request.message()));
-        notificationPort.notify(member, order, option.getProduct());
         return OrderResponse.from(order);
+    }
+
+    public void notifyOrder(Member member, Long orderId) {
+        var order = orderRepository.findById(orderId)
+            .orElseThrow(() -> new NotFoundException("Order not found."));
+        Product product = order.getOption().getProduct();
+        notificationPort.notify(member, order, product);
     }
 }
