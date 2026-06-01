@@ -3,6 +3,7 @@ package gift.member;
 import gift.auth.JwtProvider;
 import gift.auth.TokenResponse;
 import gift.exception.DuplicateException;
+import gift.exception.NotFoundException;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -20,6 +21,15 @@ public class MemberService {
             throw new DuplicateException("Email is already registered.");
         }
         Member member = memberRepository.save(new Member(request.email(), request.password()));
+        return new TokenResponse(jwtProvider.createToken(member.getEmail()));
+    }
+
+    public TokenResponse login(MemberRequest request) {
+        Member member = memberRepository.findByEmail(request.email())
+            .orElseThrow(() -> new NotFoundException("Invalid email or password."));
+        if (!request.password().equals(member.getPassword())) {
+            throw new NotFoundException("Invalid email or password.");
+        }
         return new TokenResponse(jwtProvider.createToken(member.getEmail()));
     }
 }
