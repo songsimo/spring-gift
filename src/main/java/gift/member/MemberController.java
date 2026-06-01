@@ -3,7 +3,6 @@ package gift.member;
 import gift.auth.JwtProvider;
 import gift.auth.TokenResponse;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -12,33 +11,22 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- * Handles member registration and login.
- *
- * @author brian.kim
- * @since 1.0
- */
 @RestController
 @RequestMapping("/api/members")
 public class MemberController {
     private final MemberRepository memberRepository;
     private final JwtProvider jwtProvider;
+    private final MemberService memberService;
 
-    @Autowired
-    public MemberController(MemberRepository memberRepository, JwtProvider jwtProvider) {
+    public MemberController(MemberRepository memberRepository, JwtProvider jwtProvider, MemberService memberService) {
         this.memberRepository = memberRepository;
         this.jwtProvider = jwtProvider;
+        this.memberService = memberService;
     }
 
     @PostMapping("/register")
     public ResponseEntity<TokenResponse> register(@Valid @RequestBody MemberRequest request) {
-        if (memberRepository.existsByEmail(request.email())) {
-            throw new IllegalArgumentException("Email is already registered.");
-        }
-
-        final Member member = memberRepository.save(new Member(request.email(), request.password()));
-        final String token = jwtProvider.createToken(member.getEmail());
-        return ResponseEntity.status(HttpStatus.CREATED).body(new TokenResponse(token));
+        return ResponseEntity.status(HttpStatus.CREATED).body(memberService.register(request));
     }
 
     @PostMapping("/login")
