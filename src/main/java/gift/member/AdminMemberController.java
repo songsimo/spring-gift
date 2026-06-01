@@ -1,5 +1,6 @@
 package gift.member;
 
+import gift.exception.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -54,7 +55,7 @@ public class AdminMemberController {
     @GetMapping("/{id}/edit")
     public String editForm(@PathVariable Long id, Model model) {
         final Member member = memberRepository.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("Member not found. id=" + id));
+            .orElseThrow(() -> new NotFoundException("Member not found. id=" + id));
         model.addAttribute("member", member);
         return "member/edit";
     }
@@ -66,7 +67,7 @@ public class AdminMemberController {
         @RequestParam String password
     ) {
         final Member member = memberRepository.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("Member not found. id=" + id));
+            .orElseThrow(() -> new NotFoundException("Member not found. id=" + id));
         member.update(email, password);
         memberRepository.save(member);
         return "redirect:/admin/members";
@@ -78,7 +79,7 @@ public class AdminMemberController {
         @RequestParam int amount
     ) {
         final Member member = memberRepository.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("Member not found. id=" + id));
+            .orElseThrow(() -> new NotFoundException("Member not found. id=" + id));
         member.chargePoint(amount);
         memberRepository.save(member);
         return "redirect:/admin/members";
