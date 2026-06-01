@@ -1,5 +1,6 @@
 package gift.option;
 
+import gift.exception.DuplicateException;
 import gift.exception.NotFoundException;
 import gift.product.ProductRepository;
 import org.springframework.stereotype.Service;
@@ -31,7 +32,7 @@ public class OptionService {
         var product = productRepository.findById(productId)
             .orElseThrow(() -> new NotFoundException("Product not found."));
         if (optionRepository.existsByProductIdAndName(productId, request.name())) {
-            throw new IllegalArgumentException("이미 존재하는 옵션명입니다.");
+            throw new DuplicateException("이미 존재하는 옵션명입니다.");
         }
         return OptionResponse.from(optionRepository.save(new Option(product, request.name(), request.quantity())));
     }

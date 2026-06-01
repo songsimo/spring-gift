@@ -1,6 +1,7 @@
 package gift.option;
 
 import gift.category.Category;
+import gift.exception.DuplicateException;
 import gift.exception.NotFoundException;
 import gift.product.Product;
 import gift.product.ProductRepository;
@@ -80,13 +81,13 @@ class OptionServiceTest {
     }
 
     @Test
-    void create_중복_옵션명은_IllegalArgumentException을_던진다() {
+    void create_중복_옵션명은_DuplicateException을_던진다() {
         var product = sampleProduct();
         given(productRepository.findById(1L)).willReturn(Optional.of(product));
         given(optionRepository.existsByProductIdAndName(1L, "대")).willReturn(true);
 
         assertThatThrownBy(() -> optionService.create(1L, new OptionRequest("대", 100)))
-            .isInstanceOf(IllegalArgumentException.class);
+            .isInstanceOf(DuplicateException.class);
     }
 
     @Test
