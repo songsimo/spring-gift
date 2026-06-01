@@ -92,9 +92,9 @@ class OptionServiceTest {
     }
 
     @Test
-    void create_유효하지_않은_옵션명은_IllegalArgumentException을_던진다() {
+    void create_유효하지_않은_옵션명은_BadRequestException을_던진다() {
         assertThatThrownBy(() -> optionService.create(1L, new OptionRequest("", 100)))
-            .isInstanceOf(IllegalArgumentException.class);
+            .isInstanceOf(BadRequestException.class);
     }
 
     @Test

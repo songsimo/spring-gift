@@ -56,7 +56,7 @@ public class OptionService {
     private void validateName(String name) {
         var errors = OptionNameValidator.validate(name);
         if (!errors.isEmpty()) {
-            throw new IllegalArgumentException(String.join(", ", errors));
+            throw new BadRequestException(String.join(", ", errors));
         }
     }
 }
