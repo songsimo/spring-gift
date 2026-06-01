@@ -1,12 +1,14 @@
 package gift.wish;
 
 import gift.auth.AuthenticationResolver;
-import gift.product.ProductRepository;
+import gift.exception.ForbiddenException;
+import gift.exception.NotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,19 +22,10 @@ import java.net.URI;
 @RestController
 @RequestMapping("/api/wishes")
 public class WishController {
-    private final WishRepository wishRepository;
-    private final ProductRepository productRepository;
     private final AuthenticationResolver authenticationResolver;
     private final WishService wishService;
 
-    public WishController(
-        WishRepository wishRepository,
-        ProductRepository productRepository,
-        AuthenticationResolver authenticationResolver,
-        WishService wishService
-    ) {
-        this.wishRepository = wishRepository;
-        this.productRepository = productRepository;
+    public WishController(AuthenticationResolver authenticationResolver, WishService wishService) {
         this.authenticationResolver = authenticationResolver;
         this.wishService = wishService;
     }
@@ -67,22 +60,21 @@ public class WishController {
         @RequestHeader("Authorization") String authorization,
         @PathVariable Long id
     ) {
-        // check auth
         var member = authenticationResolver.extractMember(authorization);
         if (member == null) {
             return ResponseEntity.status(401).build();
         }
-
-        var wish = wishRepository.findById(id).orElse(null);
-        if (wish == null) {
-            return ResponseEntity.notFound().build();
-        }
-
-        if (!wish.getMemberId().equals(member.getId())) {
-            return ResponseEntity.status(403).build();
-        }
-
-        wishRepository.delete(wish);
+        wishService.removeWish(member.getId(), id);
         return ResponseEntity.noContent().build();
+    }
+
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<Void> handleNotFound(NotFoundException e) {
+        return ResponseEntity.notFound().build();
+    }
+
+    @ExceptionHandler(ForbiddenException.class)
+    public ResponseEntity<Void> handleForbidden(ForbiddenException e) {
+        return ResponseEntity.status(403).build();
     }
 }

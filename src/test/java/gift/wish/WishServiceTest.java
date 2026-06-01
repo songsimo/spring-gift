@@ -13,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
+import gift.exception.ForbiddenException;
 import gift.exception.NotFoundException;
 
 import java.util.Optional;
@@ -69,6 +70,35 @@ class WishServiceTest {
 
         assertThatThrownBy(() -> wishService.addWish(1L, 99L))
             .isInstanceOf(NotFoundException.class);
+    }
+
+    @Test
+    void removeWish_위시를_삭제한다() {
+        var product = sampleProduct();
+        var wish = new Wish(1L, product);
+        given(wishRepository.findById(1L)).willReturn(Optional.of(wish));
+
+        wishService.removeWish(1L, 1L);
+
+        org.mockito.Mockito.verify(wishRepository).delete(wish);
+    }
+
+    @Test
+    void removeWish_존재하지_않는_위시는_NotFoundException을_던진다() {
+        given(wishRepository.findById(99L)).willReturn(Optional.empty());
+
+        assertThatThrownBy(() -> wishService.removeWish(1L, 99L))
+            .isInstanceOf(NotFoundException.class);
+    }
+
+    @Test
+    void removeWish_다른_회원의_위시는_ForbiddenException을_던진다() {
+        var product = sampleProduct();
+        var wish = new Wish(2L, product);
+        given(wishRepository.findById(1L)).willReturn(Optional.of(wish));
+
+        assertThatThrownBy(() -> wishService.removeWish(1L, 1L))
+            .isInstanceOf(ForbiddenException.class);
     }
 
     @Test

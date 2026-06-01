@@ -1,5 +1,6 @@
 package gift.wish;
 
+import gift.exception.ForbiddenException;
 import gift.exception.NotFoundException;
 import gift.product.ProductRepository;
 import org.springframework.data.domain.Page;
@@ -26,5 +27,14 @@ public class WishService {
         return wishRepository.findByMemberIdAndProductId(memberId, product.getId())
             .map(WishResponse::from)
             .orElseGet(() -> WishResponse.from(wishRepository.save(new Wish(memberId, product))));
+    }
+
+    public void removeWish(Long memberId, Long wishId) {
+        var wish = wishRepository.findById(wishId)
+            .orElseThrow(() -> new NotFoundException("Wish not found."));
+        if (!wish.getMemberId().equals(memberId)) {
+            throw new ForbiddenException("Access denied.");
+        }
+        wishRepository.delete(wish);
     }
 }
