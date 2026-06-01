@@ -23,6 +23,11 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).build();
     }
 
+    @ExceptionHandler(ConflictException.class)
+    public ResponseEntity<Void> handleConflict(ConflictException e) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).build();
+    }
+
     @ExceptionHandler(ForbiddenException.class)
     public ResponseEntity<Void> handleForbidden(ForbiddenException e) {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).build();

@@ -22,6 +22,12 @@ class GlobalExceptionHandlerTest {
     }
 
     @Test
+    void handleConflict_returns409() {
+        var response = handler.handleConflict(new ConflictException("conflict"));
+        assertThat(response.getStatusCode().value()).isEqualTo(HttpStatus.CONFLICT.value());
+    }
+
+    @Test
     void handleForbidden_returns403() {
         var response = handler.handleForbidden(new ForbiddenException("forbidden"));
         assertThat(response.getStatusCode().value()).isEqualTo(403);
