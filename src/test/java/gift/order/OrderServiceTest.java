@@ -36,7 +36,7 @@ class OrderServiceTest {
     private MemberRepository memberRepository;
 
     @Mock
-    private KakaoMessageClient kakaoMessageClient;
+    private NotificationPort notificationPort;
 
     @InjectMocks
     private OrderService orderService;
