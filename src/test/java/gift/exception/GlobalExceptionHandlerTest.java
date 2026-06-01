@@ -35,6 +35,12 @@ class GlobalExceptionHandlerTest {
     }
 
     @Test
+    void handleUnauthorized_returns401() {
+        var response = handler.handleUnauthorized(new UnauthorizedException("unauthorized"));
+        assertThat(response.getStatusCode().value()).isEqualTo(401);
+    }
+
+    @Test
     void handleIllegalArgument_returns400_withMessage() {
         var response = handler.handleIllegalArgument(new IllegalArgumentException("invalid"));
         assertThat(response.getStatusCode().value()).isEqualTo(400);
