@@ -30,4 +30,8 @@ public class CategoryService {
         category.update(request.name(), request.color(), request.imageUrl(), request.description());
         return CategoryResponse.from(category);
     }
+
+    public void delete(Long id) {
+        categoryRepository.deleteById(id);
+    }
 }

@@ -64,4 +64,11 @@ class CategoryServiceTest {
         assertThatThrownBy(() -> categoryService.update(99L, new CategoryRequest("x", "#x", "x", "x")))
             .isInstanceOf(NotFoundException.class);
     }
+
+    @Test
+    void delete_카테고리를_삭제한다() {
+        categoryService.delete(1L);
+
+        org.mockito.Mockito.verify(categoryRepository).deleteById(1L);
+    }
 }
