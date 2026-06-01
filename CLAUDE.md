@@ -21,10 +21,12 @@ DB: MySQL(운영) / H2(로컬)
 
 ## 작업 방식
 - Plan Mode에서 계획 수립 → 사용자 승인 → 구현. 방향 결정은 사용자, 구현은 Claude.
-- 구현 전 README 기능 목록 작성 → 기능 단위로 구현 → 자동 커밋 → README 체크.
+- **규칙 1**: 하나에 한 개의 변경만 한다.
+- **규칙 2**: 변경을 할 때 TDD 기반으로 R→G→R(Red-Green-Refactor) 순서로 진행한다.
+- **규칙 3**: 커밋은 한 개의 변경이 완료되면 한다. (TDD 각 단계는 커밋하지 않는다)
 - 구조 변경과 동작 변경은 반드시 분리한다. 같은 커밋에 섞지 않는다.
-  - 구조 변경: 외부 동작 유지, 기존 테스트 통과로 검증 (`refactor` 커밋)
-  - 동작 변경: TDD로 실패 테스트 먼저 작성 후 구현 (`feat`/`fix` 커밋)
+  - 구조 변경: R→G→R 후 `refactor(scope): ...` 커밋
+  - 동작 변경: R→G→R 후 `feat(scope) / fix(scope): ...` 커밋
 - 커밋 메시지: AngularJS Git Commit Message Conventions — `type(scope): subject`
   - type: `feat` | `fix` | `refactor` | `test` | `docs` | `style` | `chore`
   - scope: `member` | `product` | `category` | `option` | `order` | `wish` | `auth` | `exception`
