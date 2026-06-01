@@ -6,9 +6,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import gift.exception.NotFoundException;
+
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
@@ -40,5 +44,24 @@ class CategoryServiceTest {
         CategoryResponse result = categoryService.create(request);
 
         assertThat(result.name()).isEqualTo("식품");
+    }
+
+    @Test
+    void update_존재하는_카테고리를_수정한다() {
+        var request = new CategoryRequest("신선식품", "#000", "new.png", "updated");
+        given(categoryRepository.findById(1L))
+            .willReturn(Optional.of(new Category("식품", "#fff", "img.png", "desc")));
+
+        CategoryResponse result = categoryService.update(1L, request);
+
+        assertThat(result.name()).isEqualTo("신선식품");
+    }
+
+    @Test
+    void update_존재하지_않는_카테고리는_NotFoundException을_던진다() {
+        given(categoryRepository.findById(99L)).willReturn(Optional.empty());
+
+        assertThatThrownBy(() -> categoryService.update(99L, new CategoryRequest("x", "#x", "x", "x")))
+            .isInstanceOf(NotFoundException.class);
     }
 }

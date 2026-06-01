@@ -1,5 +1,6 @@
 package gift.category;
 
+import gift.exception.NotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,5 +22,12 @@ public class CategoryService {
     public CategoryResponse create(CategoryRequest request) {
         Category saved = categoryRepository.save(request.toEntity());
         return CategoryResponse.from(saved);
+    }
+
+    public CategoryResponse update(Long id, CategoryRequest request) {
+        Category category = categoryRepository.findById(id)
+            .orElseThrow(() -> new NotFoundException("Category not found."));
+        category.update(request.name(), request.color(), request.imageUrl(), request.description());
+        return CategoryResponse.from(category);
     }
 }

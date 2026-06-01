@@ -42,14 +42,7 @@ public class CategoryController {
         @PathVariable Long id,
         @Valid @RequestBody CategoryRequest request
     ) {
-        Category category = categoryRepository.findById(id).orElse(null);
-        if (category == null) {
-            return ResponseEntity.notFound().build();
-        }
-
-        category.update(request.name(), request.color(), request.imageUrl(), request.description());
-        categoryRepository.save(category);
-        return ResponseEntity.ok(CategoryResponse.from(category));
+        return ResponseEntity.ok(categoryService.update(id, request));
     }
 
     @DeleteMapping("/{id}")
