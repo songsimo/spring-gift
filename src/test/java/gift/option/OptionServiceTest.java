@@ -15,6 +15,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
 @ExtendWith(MockitoExtension.class)
@@ -52,5 +53,42 @@ class OptionServiceTest {
 
         assertThatThrownBy(() -> optionService.getOptions(99L))
             .isInstanceOf(NotFoundException.class);
+    }
+
+    @Test
+    void create_옵션을_저장하고_반환한다() {
+        var product = sampleProduct();
+        var request = new OptionRequest("대", 100);
+        given(productRepository.findById(1L)).willReturn(Optional.of(product));
+        given(optionRepository.existsByProductIdAndName(1L, "대")).willReturn(false);
+        given(optionRepository.save(any())).willReturn(new Option(product, "대", 100));
+
+        OptionResponse result = optionService.create(1L, request);
+
+        assertThat(result.name()).isEqualTo("대");
+    }
+
+    @Test
+    void create_존재하지_않는_상품은_NotFoundException을_던진다() {
+        given(productRepository.findById(99L)).willReturn(Optional.empty());
+
+        assertThatThrownBy(() -> optionService.create(99L, new OptionRequest("대", 100)))
+            .isInstanceOf(NotFoundException.class);
+    }
+
+    @Test
+    void create_중복_옵션명은_IllegalArgumentException을_던진다() {
+        var product = sampleProduct();
+        given(productRepository.findById(1L)).willReturn(Optional.of(product));
+        given(optionRepository.existsByProductIdAndName(1L, "대")).willReturn(true);
+
+        assertThatThrownBy(() -> optionService.create(1L, new OptionRequest("대", 100)))
+            .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    void create_유효하지_않은_옵션명은_IllegalArgumentException을_던진다() {
+        assertThatThrownBy(() -> optionService.create(1L, new OptionRequest("", 100)))
+            .isInstanceOf(IllegalArgumentException.class);
     }
 }
