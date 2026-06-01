@@ -54,27 +54,12 @@ public class WishController {
         @RequestHeader("Authorization") String authorization,
         @Valid @RequestBody WishRequest request
     ) {
-        // check auth
         var member = authenticationResolver.extractMember(authorization);
         if (member == null) {
             return ResponseEntity.status(401).build();
         }
-
-        // check product
-        var product = productRepository.findById(request.productId()).orElse(null);
-        if (product == null) {
-            return ResponseEntity.notFound().build();
-        }
-
-        // check duplicate
-        var existing = wishRepository.findByMemberIdAndProductId(member.getId(), product.getId()).orElse(null);
-        if (existing != null) {
-            return ResponseEntity.ok(WishResponse.from(existing));
-        }
-
-        var saved = wishRepository.save(new Wish(member.getId(), product));
-        return ResponseEntity.created(URI.create("/api/wishes/" + saved.getId()))
-            .body(WishResponse.from(saved));
+        WishResponse response = wishService.addWish(member.getId(), request.productId());
+        return ResponseEntity.created(URI.create("/api/wishes/" + response.id())).body(response);
     }
 
     @DeleteMapping("/{id}")
