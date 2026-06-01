@@ -44,16 +44,9 @@ public class ProductController {
 
     @PostMapping
     public ResponseEntity<ProductResponse> createProduct(@Valid @RequestBody ProductRequest request) {
-        validateName(request.name());
-
-        Category category = categoryRepository.findById(request.categoryId()).orElse(null);
-        if (category == null) {
-            return ResponseEntity.notFound().build();
-        }
-
-        Product saved = productRepository.save(request.toEntity(category));
-        return ResponseEntity.created(URI.create("/api/products/" + saved.getId()))
-            .body(ProductResponse.from(saved));
+        ProductResponse created = productService.create(request);
+        return ResponseEntity.created(URI.create("/api/products/" + created.id()))
+            .body(created);
     }
 
     @PutMapping("/{id}")

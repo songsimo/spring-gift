@@ -35,6 +35,32 @@ class ProductServiceTest {
     private ProductService productService;
 
     @Test
+    void create_상품을_저장하고_반환한다() {
+        var category = new Category("식품", "#fff", "img.png", "desc");
+        var request = new ProductRequest("사과", 1000, "apple.png", 1L);
+        given(categoryRepository.findById(1L)).willReturn(Optional.of(category));
+        given(productRepository.save(any())).willReturn(new Product("사과", 1000, "apple.png", category));
+
+        ProductResponse result = productService.create(request);
+
+        assertThat(result.name()).isEqualTo("사과");
+    }
+
+    @Test
+    void create_존재하지_않는_카테고리는_NotFoundException을_던진다() {
+        given(categoryRepository.findById(99L)).willReturn(Optional.empty());
+
+        assertThatThrownBy(() -> productService.create(new ProductRequest("사과", 1000, "apple.png", 99L)))
+            .isInstanceOf(NotFoundException.class);
+    }
+
+    @Test
+    void create_유효하지_않은_상품명은_IllegalArgumentException을_던진다() {
+        assertThatThrownBy(() -> productService.create(new ProductRequest("카카오상품", 1000, "img.png", 1L)))
+            .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
     void getById_존재하는_상품을_반환한다() {
         var category = new Category("식품", "#fff", "img.png", "desc");
         given(productRepository.findById(1L))

@@ -24,4 +24,18 @@ public class ProductService {
         return ProductResponse.from(productRepository.findById(id)
             .orElseThrow(() -> new NotFoundException("Product not found.")));
     }
+
+    public ProductResponse create(ProductRequest request) {
+        validateName(request.name());
+        var category = categoryRepository.findById(request.categoryId())
+            .orElseThrow(() -> new NotFoundException("Category not found."));
+        return ProductResponse.from(productRepository.save(request.toEntity(category)));
+    }
+
+    private void validateName(String name) {
+        var errors = ProductNameValidator.validate(name);
+        if (!errors.isEmpty()) {
+            throw new IllegalArgumentException(String.join(", ", errors));
+        }
+    }
 }
