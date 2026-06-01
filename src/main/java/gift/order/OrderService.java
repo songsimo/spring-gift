@@ -54,10 +54,10 @@ public class OrderService {
         return OrderResponse.from(order);
     }
 
-    public void notifyOrder(Member member, Long orderId) {
+    public boolean notifyOrder(Member member, Long orderId) {
         var order = orderRepository.findById(orderId)
             .orElseThrow(() -> new NotFoundException("Order not found."));
         Product product = order.getOption().getProduct();
-        notificationPort.notify(member, order, product);
+        return notificationPort.notify(member, order, product);
     }
 }

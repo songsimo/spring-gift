@@ -99,16 +99,31 @@ class OrderServiceTest {
     }
 
     @Test
-    void notifyOrder_알림을_전송한다() {
+    void notifyOrder_알림_전송_성공이면_true를_반환한다() {
         var product = sampleProduct();
         var option = new Option(product, "대", 100);
         var member = new Member("test@test.com", "pass");
         var order = new Order(option, 1L, 2, "감사합니다");
         given(orderRepository.findById(1L)).willReturn(Optional.of(order));
+        given(notificationPort.notify(member, order, product)).willReturn(true);
 
-        orderService.notifyOrder(member, 1L);
+        boolean result = orderService.notifyOrder(member, 1L);
 
-        verify(notificationPort).notify(member, order, product);
+        assertThat(result).isTrue();
+    }
+
+    @Test
+    void notifyOrder_알림_전송_실패이면_false를_반환한다() {
+        var product = sampleProduct();
+        var option = new Option(product, "대", 100);
+        var member = new Member("test@test.com", "pass");
+        var order = new Order(option, 1L, 2, "감사합니다");
+        given(orderRepository.findById(1L)).willReturn(Optional.of(order));
+        given(notificationPort.notify(member, order, product)).willReturn(false);
+
+        boolean result = orderService.notifyOrder(member, 1L);
+
+        assertThat(result).isFalse();
     }
 
     @Test

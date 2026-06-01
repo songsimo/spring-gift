@@ -37,7 +37,8 @@ public class OrderController {
         @Valid @RequestBody OrderRequest request
     ) {
         OrderResponse response = orderService.create(member, request);
-        orderService.notifyOrder(member, response.id());
-        return ResponseEntity.created(URI.create("/api/orders/" + response.id())).body(response);
+        boolean notificationSent = orderService.notifyOrder(member, response.id());
+        return ResponseEntity.created(URI.create("/api/orders/" + response.id()))
+            .body(response.withNotificationSent(notificationSent));
     }
 }

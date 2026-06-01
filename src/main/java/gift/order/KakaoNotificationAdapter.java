@@ -13,13 +13,15 @@ public class KakaoNotificationAdapter implements NotificationPort {
     }
 
     @Override
-    public void notify(Member member, Order order, Product product) {
+    public boolean notify(Member member, Order order, Product product) {
         if (member.getKakaoAccessToken() == null) {
-            return;
+            return false;
         }
         try {
             kakaoMessageClient.sendToMe(member.getKakaoAccessToken(), order, product);
+            return true;
         } catch (Exception ignored) {
+            return false;
         }
     }
 }

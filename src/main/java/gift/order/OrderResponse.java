@@ -7,7 +7,8 @@ public record OrderResponse(
     Long optionId,
     int quantity,
     LocalDateTime orderDateTime,
-    String message
+    String message,
+    boolean notificationSent
 ) {
     public static OrderResponse from(Order order) {
         return new OrderResponse(
@@ -15,7 +16,12 @@ public record OrderResponse(
             order.getOption().getId(),
             order.getQuantity(),
             order.getOrderDateTime(),
-            order.getMessage()
+            order.getMessage(),
+            false
         );
+    }
+
+    public OrderResponse withNotificationSent(boolean sent) {
+        return new OrderResponse(id, optionId, quantity, orderDateTime, message, sent);
     }
 }
