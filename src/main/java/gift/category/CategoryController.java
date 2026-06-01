@@ -18,17 +18,16 @@ import java.util.List;
 @RequestMapping("/api/categories")
 public class CategoryController {
     private final CategoryRepository categoryRepository;
+    private final CategoryService categoryService;
 
-    public CategoryController(CategoryRepository categoryRepository) {
+    public CategoryController(CategoryRepository categoryRepository, CategoryService categoryService) {
         this.categoryRepository = categoryRepository;
+        this.categoryService = categoryService;
     }
 
     @GetMapping
     public ResponseEntity<List<CategoryResponse>> getCategories() {
-        List<CategoryResponse> categories = categoryRepository.findAll().stream()
-            .map(CategoryResponse::from)
-            .toList();
-        return ResponseEntity.ok(categories);
+        return ResponseEntity.ok(categoryService.getAll());
     }
 
     @PostMapping
