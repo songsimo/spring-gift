@@ -1,5 +1,6 @@
 package gift.member;
 
+import gift.auth.JwtProvider;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -20,6 +21,9 @@ class AdminMemberControllerTest {
 
     @MockitoBean
     private MemberRepository memberRepository;
+
+    @MockitoBean
+    private JwtProvider jwtProvider;
 
     @Test
     void editForm_존재하지_않는_멤버는_404를_반환한다() throws Exception {
