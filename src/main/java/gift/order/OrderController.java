@@ -27,6 +27,7 @@ public class OrderController {
     private final MemberRepository memberRepository;
     private final AuthenticationResolver authenticationResolver;
     private final KakaoMessageClient kakaoMessageClient;
+    private final OrderService orderService;
 
     public OrderController(
         OrderRepository orderRepository,
@@ -34,7 +35,8 @@ public class OrderController {
         WishRepository wishRepository,
         MemberRepository memberRepository,
         AuthenticationResolver authenticationResolver,
-        KakaoMessageClient kakaoMessageClient
+        KakaoMessageClient kakaoMessageClient,
+        OrderService orderService
     ) {
         this.orderRepository = orderRepository;
         this.optionRepository = optionRepository;
@@ -42,20 +44,19 @@ public class OrderController {
         this.memberRepository = memberRepository;
         this.authenticationResolver = authenticationResolver;
         this.kakaoMessageClient = kakaoMessageClient;
+        this.orderService = orderService;
     }
 
     @GetMapping
-    public ResponseEntity<?> getOrders(
+    public ResponseEntity<org.springframework.data.domain.Page<OrderResponse>> getOrders(
         @RequestHeader("Authorization") String authorization,
         Pageable pageable
     ) {
-        // auth check
         var member = authenticationResolver.extractMember(authorization);
         if (member == null) {
             return ResponseEntity.status(401).build();
         }
-        var orders = orderRepository.findByMemberId(member.getId(), pageable).map(OrderResponse::from);
-        return ResponseEntity.ok(orders);
+        return ResponseEntity.ok(orderService.getOrders(member.getId(), pageable));
     }
 
     // order flow:
