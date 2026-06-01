@@ -1,6 +1,7 @@
 package gift.product;
 
 import gift.category.CategoryRepository;
+import gift.exception.BadRequestException;
 import gift.exception.NotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -49,7 +50,7 @@ public class ProductService {
     private void validateName(String name) {
         var errors = ProductNameValidator.validate(name);
         if (!errors.isEmpty()) {
-            throw new IllegalArgumentException(String.join(", ", errors));
+            throw new BadRequestException(String.join(", ", errors));
         }
     }
 }

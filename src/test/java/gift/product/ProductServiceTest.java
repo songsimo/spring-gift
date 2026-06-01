@@ -13,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
+import gift.exception.BadRequestException;
 import gift.exception.NotFoundException;
 
 import java.util.Optional;
@@ -55,9 +56,9 @@ class ProductServiceTest {
     }
 
     @Test
-    void create_유효하지_않은_상품명은_IllegalArgumentException을_던진다() {
+    void create_유효하지_않은_상품명은_BadRequestException을_던진다() {
         assertThatThrownBy(() -> productService.create(new ProductRequest("카카오상품", 1000, "img.png", 1L)))
-            .isInstanceOf(IllegalArgumentException.class);
+            .isInstanceOf(BadRequestException.class);
     }
 
     @Test
