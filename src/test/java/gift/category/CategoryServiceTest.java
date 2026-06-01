@@ -6,7 +6,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import gift.exception.ConflictException;
 import gift.exception.NotFoundException;
+import gift.product.ProductRepository;
 
 import java.util.List;
 import java.util.Optional;
@@ -21,6 +23,9 @@ class CategoryServiceTest {
 
     @Mock
     private CategoryRepository categoryRepository;
+
+    @Mock
+    private ProductRepository productRepository;
 
     @InjectMocks
     private CategoryService categoryService;
@@ -67,8 +72,18 @@ class CategoryServiceTest {
 
     @Test
     void delete_카테고리를_삭제한다() {
+        given(productRepository.existsByCategoryId(1L)).willReturn(false);
+
         categoryService.delete(1L);
 
         org.mockito.Mockito.verify(categoryRepository).deleteById(1L);
+    }
+
+    @Test
+    void delete_상품이_있는_카테고리는_ConflictException을_던진다() {
+        given(productRepository.existsByCategoryId(1L)).willReturn(true);
+
+        assertThatThrownBy(() -> categoryService.delete(1L))
+            .isInstanceOf(ConflictException.class);
     }
 }
