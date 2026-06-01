@@ -5,6 +5,7 @@ import gift.member.Member;
 import gift.member.MemberRepository;
 import gift.option.OptionRepository;
 import gift.product.Product;
+import gift.wish.WishRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -15,17 +16,20 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final OptionRepository optionRepository;
     private final MemberRepository memberRepository;
+    private final WishRepository wishRepository;
     private final NotificationPort notificationPort;
 
     public OrderService(
         OrderRepository orderRepository,
         OptionRepository optionRepository,
         MemberRepository memberRepository,
+        WishRepository wishRepository,
         NotificationPort notificationPort
     ) {
         this.orderRepository = orderRepository;
         this.optionRepository = optionRepository;
         this.memberRepository = memberRepository;
+        this.wishRepository = wishRepository;
         this.notificationPort = notificationPort;
     }
 
@@ -45,6 +49,8 @@ public class OrderService {
         memberRepository.save(member);
 
         var order = orderRepository.save(new Order(option, member.getId(), request.quantity(), request.message()));
+        wishRepository.findByMemberIdAndProductId(member.getId(), option.getProduct().getId())
+            .ifPresent(wishRepository::delete);
         return OrderResponse.from(order);
     }
 

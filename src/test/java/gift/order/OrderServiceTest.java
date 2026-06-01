@@ -7,6 +7,7 @@ import gift.member.MemberRepository;
 import gift.option.Option;
 import gift.option.OptionRepository;
 import gift.product.Product;
+import gift.wish.WishRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -20,8 +21,11 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import gift.wish.Wish;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
@@ -35,6 +39,9 @@ class OrderServiceTest {
 
     @Mock
     private MemberRepository memberRepository;
+
+    @Mock
+    private WishRepository wishRepository;
 
     @Mock
     private NotificationPort notificationPort;
@@ -70,6 +77,25 @@ class OrderServiceTest {
 
         assertThatThrownBy(() -> orderService.create(member, new OrderRequest(99L, 1, null)))
             .isInstanceOf(NotFoundException.class);
+    }
+
+    @Test
+    void create_위시리스트에_있는_상품이면_주문_후_위시를_삭제한다() {
+        var product = sampleProduct();
+        var option = new Option(product, "대", 100);
+        var member = new Member("test@test.com", "pass");
+        member.chargePoint(10000);
+        var wish = mock(Wish.class);
+        var request = new OrderRequest(1L, 2, "감사합니다");
+        given(optionRepository.findById(1L)).willReturn(java.util.Optional.of(option));
+        given(memberRepository.save(any())).willReturn(member);
+        given(orderRepository.save(any())).willReturn(new Order(option, 1L, 2, "감사합니다"));
+        given(wishRepository.findByMemberIdAndProductId(any(), any()))
+            .willReturn(java.util.Optional.of(wish));
+
+        orderService.create(member, request);
+
+        verify(wishRepository).delete(wish);
     }
 
     @Test
