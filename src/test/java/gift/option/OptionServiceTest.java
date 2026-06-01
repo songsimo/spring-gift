@@ -1,6 +1,7 @@
 package gift.option;
 
 import gift.category.Category;
+import gift.exception.BadRequestException;
 import gift.exception.DuplicateException;
 import gift.exception.NotFoundException;
 import gift.product.Product;
@@ -111,14 +112,14 @@ class OptionServiceTest {
     }
 
     @Test
-    void delete_상품에_옵션이_1개면_IllegalArgumentException을_던진다() {
+    void delete_상품에_옵션이_1개면_BadRequestException을_던진다() {
         var product = sampleProduct();
         var option = new Option(product, "대", 100);
         given(productRepository.findById(1L)).willReturn(Optional.of(product));
         given(optionRepository.findByProductId(1L)).willReturn(List.of(option));
 
         assertThatThrownBy(() -> optionService.delete(1L, 1L))
-            .isInstanceOf(IllegalArgumentException.class);
+            .isInstanceOf(BadRequestException.class);
     }
 
     @Test

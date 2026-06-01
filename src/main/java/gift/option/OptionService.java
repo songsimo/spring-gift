@@ -1,5 +1,6 @@
 package gift.option;
 
+import gift.exception.BadRequestException;
 import gift.exception.DuplicateException;
 import gift.exception.NotFoundException;
 import gift.product.ProductRepository;
@@ -42,7 +43,7 @@ public class OptionService {
             .orElseThrow(() -> new NotFoundException("Product not found."));
         var options = optionRepository.findByProductId(productId);
         if (options.size() <= 1) {
-            throw new IllegalArgumentException("옵션이 1개인 상품은 옵션을 삭제할 수 없습니다.");
+            throw new BadRequestException("옵션이 1개인 상품은 옵션을 삭제할 수 없습니다.");
         }
         var option = optionRepository.findById(optionId)
             .orElseThrow(() -> new NotFoundException("Option not found."));
