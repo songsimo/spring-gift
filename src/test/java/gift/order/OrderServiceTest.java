@@ -21,9 +21,11 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import gift.exception.BadRequestException;
 import gift.wish.Wish;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -59,16 +61,27 @@ class OrderServiceTest {
         var product = sampleProduct();
         var option = new Option(product, "대", 100);
         var member = new Member("test@test.com", "pass");
-        member.chargePoint(10000);
         var request = new OrderRequest(1L, 2, "감사합니다");
         given(optionRepository.findByIdForUpdate(1L)).willReturn(Optional.of(option));
-        given(memberRepository.findByIdForUpdate(any())).willReturn(Optional.of(member));
-        given(memberRepository.save(any())).willReturn(member);
+        given(memberRepository.deductPointAtomic(any(), anyInt())).willReturn(1);
         given(orderRepository.save(any())).willReturn(new Order(option, 1L, 2, "감사합니다"));
 
         OrderResponse result = orderService.create(member, request);
 
         assertThat(result.quantity()).isEqualTo(2);
+    }
+
+    @Test
+    void create_포인트가_부족하면_BadRequestException을_던진다() {
+        var product = sampleProduct();
+        var option = new Option(product, "대", 100);
+        var member = new Member("test@test.com", "pass");
+        var request = new OrderRequest(1L, 1, null);
+        given(optionRepository.findByIdForUpdate(1L)).willReturn(Optional.of(option));
+        given(memberRepository.deductPointAtomic(any(), anyInt())).willReturn(0);
+
+        assertThatThrownBy(() -> orderService.create(member, request))
+            .isInstanceOf(BadRequestException.class);
     }
 
     @Test
@@ -85,12 +98,10 @@ class OrderServiceTest {
         var product = sampleProduct();
         var option = new Option(product, "대", 100);
         var member = new Member("test@test.com", "pass");
-        member.chargePoint(10000);
         var wish = mock(Wish.class);
         var request = new OrderRequest(1L, 2, "감사합니다");
         given(optionRepository.findByIdForUpdate(1L)).willReturn(java.util.Optional.of(option));
-        given(memberRepository.findByIdForUpdate(any())).willReturn(java.util.Optional.of(member));
-        given(memberRepository.save(any())).willReturn(member);
+        given(memberRepository.deductPointAtomic(any(), anyInt())).willReturn(1);
         given(orderRepository.save(any())).willReturn(new Order(option, 1L, 2, "감사합니다"));
         given(wishRepository.findByMemberIdAndProductId(any(), any()))
             .willReturn(java.util.Optional.of(wish));

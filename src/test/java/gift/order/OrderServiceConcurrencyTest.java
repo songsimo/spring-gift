@@ -108,7 +108,9 @@ class OrderServiceConcurrencyTest {
         executor.shutdown();
 
         var finalOption = optionRepository.findById(optionId).orElseThrow();
+        var finalMember = memberRepository.findById(memberId).orElseThrow();
         assertThat(successCount.get()).isEqualTo(THREAD_COUNT);
         assertThat(finalOption.getQuantity()).isEqualTo(0);
+        assertThat(finalMember.getPoint()).isEqualTo(THREAD_COUNT * 1000 * 10 - THREAD_COUNT * 1000);
     }
 }

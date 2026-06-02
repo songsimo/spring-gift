@@ -1,5 +1,6 @@
 package gift.order;
 
+import gift.exception.BadRequestException;
 import gift.exception.NotFoundException;
 import gift.member.Member;
 import gift.member.MemberRepository;
@@ -42,16 +43,14 @@ public class OrderService {
         var option = optionRepository.findByIdForUpdate(request.optionId())
             .orElseThrow(() -> new NotFoundException("Option not found."));
         option.subtractQuantity(request.quantity());
-        optionRepository.save(option);
 
-        var lockedMember = memberRepository.findByIdForUpdate(member.getId())
-            .orElseThrow(() -> new NotFoundException("Member not found."));
         var price = option.getProduct().getPrice() * request.quantity();
-        lockedMember.deductPoint(price);
-        memberRepository.save(lockedMember);
+        if (memberRepository.deductPointAtomic(member.getId(), price) == 0) {
+            throw new BadRequestException("포인트가 부족합니다.");
+        }
 
-        var order = orderRepository.save(new Order(option, lockedMember.getId(), request.quantity(), request.message()));
-        wishRepository.findByMemberIdAndProductId(lockedMember.getId(), option.getProduct().getId())
+        var order = orderRepository.save(new Order(option, member.getId(), request.quantity(), request.message()));
+        wishRepository.findByMemberIdAndProductId(member.getId(), option.getProduct().getId())
             .ifPresent(wishRepository::delete);
         return OrderResponse.from(order);
     }
