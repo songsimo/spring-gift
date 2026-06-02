@@ -61,7 +61,8 @@ class OrderServiceTest {
         var member = new Member("test@test.com", "pass");
         member.chargePoint(10000);
         var request = new OrderRequest(1L, 2, "감사합니다");
-        given(optionRepository.findById(1L)).willReturn(Optional.of(option));
+        given(optionRepository.findByIdForUpdate(1L)).willReturn(Optional.of(option));
+        given(memberRepository.findByIdForUpdate(any())).willReturn(Optional.of(member));
         given(memberRepository.save(any())).willReturn(member);
         given(orderRepository.save(any())).willReturn(new Order(option, 1L, 2, "감사합니다"));
 
@@ -73,7 +74,7 @@ class OrderServiceTest {
     @Test
     void create_존재하지_않는_옵션은_NotFoundException을_던진다() {
         var member = new Member("test@test.com", "pass");
-        given(optionRepository.findById(99L)).willReturn(Optional.empty());
+        given(optionRepository.findByIdForUpdate(99L)).willReturn(Optional.empty());
 
         assertThatThrownBy(() -> orderService.create(member, new OrderRequest(99L, 1, null)))
             .isInstanceOf(NotFoundException.class);
@@ -87,7 +88,8 @@ class OrderServiceTest {
         member.chargePoint(10000);
         var wish = mock(Wish.class);
         var request = new OrderRequest(1L, 2, "감사합니다");
-        given(optionRepository.findById(1L)).willReturn(java.util.Optional.of(option));
+        given(optionRepository.findByIdForUpdate(1L)).willReturn(java.util.Optional.of(option));
+        given(memberRepository.findByIdForUpdate(any())).willReturn(java.util.Optional.of(member));
         given(memberRepository.save(any())).willReturn(member);
         given(orderRepository.save(any())).willReturn(new Order(option, 1L, 2, "감사합니다"));
         given(wishRepository.findByMemberIdAndProductId(any(), any()))

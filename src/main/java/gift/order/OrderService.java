@@ -39,17 +39,19 @@ public class OrderService {
 
     @Transactional
     public OrderResponse create(Member member, OrderRequest request) {
-        var option = optionRepository.findById(request.optionId())
+        var option = optionRepository.findByIdForUpdate(request.optionId())
             .orElseThrow(() -> new NotFoundException("Option not found."));
         option.subtractQuantity(request.quantity());
         optionRepository.save(option);
 
+        var lockedMember = memberRepository.findByIdForUpdate(member.getId())
+            .orElseThrow(() -> new NotFoundException("Member not found."));
         var price = option.getProduct().getPrice() * request.quantity();
-        member.deductPoint(price);
-        memberRepository.save(member);
+        lockedMember.deductPoint(price);
+        memberRepository.save(lockedMember);
 
-        var order = orderRepository.save(new Order(option, member.getId(), request.quantity(), request.message()));
-        wishRepository.findByMemberIdAndProductId(member.getId(), option.getProduct().getId())
+        var order = orderRepository.save(new Order(option, lockedMember.getId(), request.quantity(), request.message()));
+        wishRepository.findByMemberIdAndProductId(lockedMember.getId(), option.getProduct().getId())
             .ifPresent(wishRepository::delete);
         return OrderResponse.from(order);
     }
