@@ -1,6 +1,8 @@
-package gift.order;
+package gift.order.infrastructure;
 
 import gift.member.Member;
+import gift.order.NotificationPort;
+import gift.order.Order;
 import gift.product.Product;
 import org.springframework.stereotype.Component;
 
