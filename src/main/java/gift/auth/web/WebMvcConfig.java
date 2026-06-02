@@ -1,5 +1,6 @@
-package gift.auth;
+package gift.auth.web;
 
+import gift.auth.AuthMemberResolver;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
