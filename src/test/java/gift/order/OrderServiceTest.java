@@ -1,13 +1,16 @@
 package gift.order;
 
 import gift.category.Category;
+import gift.exception.BadRequestException;
 import gift.exception.NotFoundException;
 import gift.member.Member;
 import gift.member.MemberRepository;
 import gift.option.Option;
 import gift.option.OptionRepository;
 import gift.product.Product;
+import gift.wish.Wish;
 import gift.wish.WishRepository;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -21,9 +24,6 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import gift.exception.BadRequestException;
-import gift.wish.Wish;
-
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.BDDMockito.given;
@@ -56,96 +56,108 @@ class OrderServiceTest {
             new Category("식품", "#fff", "img.png", "desc"));
     }
 
-    @Test
-    void create_주문이_완료된다() {
-        var product = sampleProduct();
-        var option = new Option(product, "대", 100);
-        var member = new Member("test@test.com", "pass");
-        var request = new OrderRequest(1L, 2, "감사합니다");
-        given(optionRepository.findByIdForUpdate(1L)).willReturn(Optional.of(option));
-        given(memberRepository.deductPointAtomic(any(), anyInt())).willReturn(1);
-        given(orderRepository.save(any())).willReturn(new Order(option, 1L, 2, "감사합니다"));
+    @Nested
+    class 주문_생성 {
 
-        OrderResponse result = orderService.create(member, request);
+        @Test
+        void 주문이_완료된다() {
+            var product = sampleProduct();
+            var option = new Option(product, "대", 100);
+            var member = new Member("test@test.com", "pass");
+            var request = new OrderRequest(1L, 2, "감사합니다");
+            given(optionRepository.findByIdForUpdate(1L)).willReturn(Optional.of(option));
+            given(memberRepository.deductPointAtomic(any(), anyInt())).willReturn(1);
+            given(orderRepository.save(any())).willReturn(new Order(option, 1L, 2, "감사합니다"));
 
-        assertThat(result.quantity()).isEqualTo(2);
+            OrderResponse result = orderService.create(member, request);
+
+            assertThat(result.quantity()).isEqualTo(2);
+        }
+
+        @Test
+        void 포인트가_부족하면_주문에_실패한다() {
+            var product = sampleProduct();
+            var option = new Option(product, "대", 100);
+            var member = new Member("test@test.com", "pass");
+            var request = new OrderRequest(1L, 1, null);
+            given(optionRepository.findByIdForUpdate(1L)).willReturn(Optional.of(option));
+            given(memberRepository.deductPointAtomic(any(), anyInt())).willReturn(0);
+
+            assertThatThrownBy(() -> orderService.create(member, request))
+                .isInstanceOf(BadRequestException.class);
+        }
+
+        @Test
+        void 존재하지_않는_옵션으로는_주문할_수_없다() {
+            var member = new Member("test@test.com", "pass");
+            given(optionRepository.findByIdForUpdate(99L)).willReturn(Optional.empty());
+
+            assertThatThrownBy(() -> orderService.create(member, new OrderRequest(99L, 1, null)))
+                .isInstanceOf(NotFoundException.class);
+        }
+
+        @Test
+        void 위시리스트_상품을_주문하면_위시리스트에서_자동으로_제거된다() {
+            var product = sampleProduct();
+            var option = new Option(product, "대", 100);
+            var member = new Member("test@test.com", "pass");
+            var wish = mock(Wish.class);
+            var request = new OrderRequest(1L, 2, "감사합니다");
+            given(optionRepository.findByIdForUpdate(1L)).willReturn(Optional.of(option));
+            given(memberRepository.deductPointAtomic(any(), anyInt())).willReturn(1);
+            given(orderRepository.save(any())).willReturn(new Order(option, 1L, 2, "감사합니다"));
+            given(wishRepository.findByMemberIdAndProductId(any(), any()))
+                .willReturn(Optional.of(wish));
+
+            orderService.create(member, request);
+
+            verify(wishRepository).delete(wish);
+        }
     }
 
-    @Test
-    void create_포인트가_부족하면_주문에_실패한다() {
-        var product = sampleProduct();
-        var option = new Option(product, "대", 100);
-        var member = new Member("test@test.com", "pass");
-        var request = new OrderRequest(1L, 1, null);
-        given(optionRepository.findByIdForUpdate(1L)).willReturn(Optional.of(option));
-        given(memberRepository.deductPointAtomic(any(), anyInt())).willReturn(0);
+    @Nested
+    class 카카오_알림_전송 {
 
-        assertThatThrownBy(() -> orderService.create(member, request))
-            .isInstanceOf(BadRequestException.class);
+        @Test
+        void 카카오_알림이_전송된다() {
+            var product = sampleProduct();
+            var option = new Option(product, "대", 100);
+            var member = new Member("test@test.com", "pass");
+            var order = new Order(option, 1L, 2, "감사합니다");
+            given(orderRepository.findByIdWithDetails(1L)).willReturn(Optional.of(order));
+            given(notificationPort.notify(member, order, product)).willReturn(true);
+
+            boolean result = orderService.notifyOrder(member, 1L);
+
+            assertThat(result).isTrue();
+        }
+
+        @Test
+        void 카카오_알림_전송에_실패한다() {
+            var product = sampleProduct();
+            var option = new Option(product, "대", 100);
+            var member = new Member("test@test.com", "pass");
+            var order = new Order(option, 1L, 2, "감사합니다");
+            given(orderRepository.findByIdWithDetails(1L)).willReturn(Optional.of(order));
+            given(notificationPort.notify(member, order, product)).willReturn(false);
+
+            boolean result = orderService.notifyOrder(member, 1L);
+
+            assertThat(result).isFalse();
+        }
     }
 
-    @Test
-    void create_존재하지_않는_옵션으로는_주문할_수_없다() {
-        var member = new Member("test@test.com", "pass");
-        given(optionRepository.findByIdForUpdate(99L)).willReturn(Optional.empty());
+    @Nested
+    class 주문_내역_조회 {
 
-        assertThatThrownBy(() -> orderService.create(member, new OrderRequest(99L, 1, null)))
-            .isInstanceOf(NotFoundException.class);
-    }
+        @Test
+        void 주문_내역을_조회한다() {
+            given(orderRepository.findByMemberId(any(), any(Pageable.class)))
+                .willReturn(new PageImpl<>(List.of()));
 
-    @Test
-    void create_위시리스트_상품을_주문하면_위시리스트에서_자동으로_제거된다() {
-        var product = sampleProduct();
-        var option = new Option(product, "대", 100);
-        var member = new Member("test@test.com", "pass");
-        var wish = mock(Wish.class);
-        var request = new OrderRequest(1L, 2, "감사합니다");
-        given(optionRepository.findByIdForUpdate(1L)).willReturn(java.util.Optional.of(option));
-        given(memberRepository.deductPointAtomic(any(), anyInt())).willReturn(1);
-        given(orderRepository.save(any())).willReturn(new Order(option, 1L, 2, "감사합니다"));
-        given(wishRepository.findByMemberIdAndProductId(any(), any()))
-            .willReturn(java.util.Optional.of(wish));
+            var result = orderService.getOrders(1L, Pageable.unpaged());
 
-        orderService.create(member, request);
-
-        verify(wishRepository).delete(wish);
-    }
-
-    @Test
-    void notifyOrder_카카오_알림이_전송된다() {
-        var product = sampleProduct();
-        var option = new Option(product, "대", 100);
-        var member = new Member("test@test.com", "pass");
-        var order = new Order(option, 1L, 2, "감사합니다");
-        given(orderRepository.findByIdWithDetails(1L)).willReturn(Optional.of(order));
-        given(notificationPort.notify(member, order, product)).willReturn(true);
-
-        boolean result = orderService.notifyOrder(member, 1L);
-
-        assertThat(result).isTrue();
-    }
-
-    @Test
-    void notifyOrder_카카오_알림_전송에_실패한다() {
-        var product = sampleProduct();
-        var option = new Option(product, "대", 100);
-        var member = new Member("test@test.com", "pass");
-        var order = new Order(option, 1L, 2, "감사합니다");
-        given(orderRepository.findByIdWithDetails(1L)).willReturn(Optional.of(order));
-        given(notificationPort.notify(member, order, product)).willReturn(false);
-
-        boolean result = orderService.notifyOrder(member, 1L);
-
-        assertThat(result).isFalse();
-    }
-
-    @Test
-    void getOrders_주문_내역을_조회한다() {
-        given(orderRepository.findByMemberId(any(), any(Pageable.class)))
-            .willReturn(new PageImpl<>(List.of()));
-
-        var result = orderService.getOrders(1L, Pageable.unpaged());
-
-        assertThat(result.getContent()).isEmpty();
+            assertThat(result.getContent()).isEmpty();
+        }
     }
 }
