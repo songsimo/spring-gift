@@ -1,6 +1,6 @@
 package gift.order;
 
-import gift.category.Category;
+import gift.TestFixture;
 import gift.exception.BadRequestException;
 import gift.exception.NotFoundException;
 import gift.member.Member;
@@ -51,19 +51,14 @@ class OrderServiceTest {
     @InjectMocks
     private OrderService orderService;
 
-    private Product sampleProduct() {
-        return new Product("사과", 1000, "apple.png",
-            new Category("식품", "#fff", "img.png", "desc"));
-    }
-
     @Nested
     class 주문_생성 {
 
         @Test
         void 주문이_완료된다() {
-            var product = sampleProduct();
+            var product = TestFixture.sampleProduct();
             var option = new Option(product, "대", 100);
-            var member = new Member("test@test.com", "pass");
+            var member = TestFixture.sampleMember();
             var request = new OrderRequest(1L, 2, "감사합니다");
             given(optionRepository.findByIdForUpdate(1L)).willReturn(Optional.of(option));
             given(memberRepository.deductPointAtomic(any(), anyInt())).willReturn(1);
@@ -76,9 +71,9 @@ class OrderServiceTest {
 
         @Test
         void 포인트가_부족하면_주문에_실패한다() {
-            var product = sampleProduct();
+            var product = TestFixture.sampleProduct();
             var option = new Option(product, "대", 100);
-            var member = new Member("test@test.com", "pass");
+            var member = TestFixture.sampleMember();
             var request = new OrderRequest(1L, 1, null);
             given(optionRepository.findByIdForUpdate(1L)).willReturn(Optional.of(option));
             given(memberRepository.deductPointAtomic(any(), anyInt())).willReturn(0);
@@ -89,7 +84,7 @@ class OrderServiceTest {
 
         @Test
         void 존재하지_않는_옵션으로는_주문할_수_없다() {
-            var member = new Member("test@test.com", "pass");
+            var member = TestFixture.sampleMember();
             given(optionRepository.findByIdForUpdate(99L)).willReturn(Optional.empty());
 
             assertThatThrownBy(() -> orderService.create(member, new OrderRequest(99L, 1, null)))
@@ -98,9 +93,9 @@ class OrderServiceTest {
 
         @Test
         void 위시리스트_상품을_주문하면_위시리스트에서_자동으로_제거된다() {
-            var product = sampleProduct();
+            var product = TestFixture.sampleProduct();
             var option = new Option(product, "대", 100);
-            var member = new Member("test@test.com", "pass");
+            var member = TestFixture.sampleMember();
             var wish = mock(Wish.class);
             var request = new OrderRequest(1L, 2, "감사합니다");
             given(optionRepository.findByIdForUpdate(1L)).willReturn(Optional.of(option));
@@ -120,9 +115,9 @@ class OrderServiceTest {
 
         @Test
         void 카카오_알림이_전송된다() {
-            var product = sampleProduct();
+            var product = TestFixture.sampleProduct();
             var option = new Option(product, "대", 100);
-            var member = new Member("test@test.com", "pass");
+            var member = TestFixture.sampleMember();
             var order = new Order(option, 1L, 2, "감사합니다");
             given(orderRepository.findByIdWithDetails(1L)).willReturn(Optional.of(order));
             given(notificationPort.notify(member, order, product)).willReturn(true);
@@ -134,9 +129,9 @@ class OrderServiceTest {
 
         @Test
         void 카카오_알림_전송에_실패한다() {
-            var product = sampleProduct();
+            var product = TestFixture.sampleProduct();
             var option = new Option(product, "대", 100);
-            var member = new Member("test@test.com", "pass");
+            var member = TestFixture.sampleMember();
             var order = new Order(option, 1L, 2, "감사합니다");
             given(orderRepository.findByIdWithDetails(1L)).willReturn(Optional.of(order));
             given(notificationPort.notify(member, order, product)).willReturn(false);

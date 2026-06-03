@@ -1,6 +1,6 @@
 package gift.option;
 
-import gift.category.Category;
+import gift.TestFixture;
 import gift.exception.BadRequestException;
 import gift.exception.DuplicateException;
 import gift.exception.NotFoundException;
@@ -34,16 +34,12 @@ class OptionServiceTest {
     @InjectMocks
     private OptionService optionService;
 
-    private Product sampleProduct() {
-        return new Product("사과", 1000, "apple.png", new Category("식품", "#fff", "img.png", "desc"));
-    }
-
     @Nested
     class 옵션_조회 {
 
         @Test
         void 상품의_옵션_목록을_조회한다() {
-            var product = sampleProduct();
+            var product = TestFixture.sampleProduct();
             given(productRepository.findById(1L)).willReturn(Optional.of(product));
             given(optionRepository.findByProductId(1L))
                 .willReturn(List.of(new Option(product, "대", 100)));
@@ -68,7 +64,7 @@ class OptionServiceTest {
 
         @Test
         void 옵션이_등록된다() {
-            var product = sampleProduct();
+            var product = TestFixture.sampleProduct();
             var request = new OptionRequest("대", 100);
             given(productRepository.findById(1L)).willReturn(Optional.of(product));
             given(optionRepository.existsByProductIdAndName(1L, "대")).willReturn(false);
@@ -89,7 +85,7 @@ class OptionServiceTest {
 
         @Test
         void 같은_상품에_중복된_옵션명은_등록할_수_없다() {
-            var product = sampleProduct();
+            var product = TestFixture.sampleProduct();
             given(productRepository.findById(1L)).willReturn(Optional.of(product));
             given(optionRepository.existsByProductIdAndName(1L, "대")).willReturn(true);
 
@@ -123,7 +119,7 @@ class OptionServiceTest {
 
         @Test
         void 마지막_옵션은_삭제할_수_없다() {
-            var product = sampleProduct();
+            var product = TestFixture.sampleProduct();
             var option = new Option(product, "대", 100);
             given(productRepository.findById(1L)).willReturn(Optional.of(product));
             given(optionRepository.findByProductId(1L)).willReturn(List.of(option));
@@ -142,7 +138,7 @@ class OptionServiceTest {
 
         @Test
         void 존재하지_않는_옵션은_삭제할_수_없다() {
-            var product = sampleProduct();
+            var product = TestFixture.sampleProduct();
             given(productRepository.findById(1L)).willReturn(Optional.of(product));
             given(optionRepository.findByProductId(1L))
                 .willReturn(List.of(new Option(product, "대", 100), new Option(product, "소", 50)));

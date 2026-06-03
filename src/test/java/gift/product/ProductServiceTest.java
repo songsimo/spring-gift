@@ -1,5 +1,6 @@
 package gift.product;
 
+import gift.TestFixture;
 import gift.category.Category;
 import gift.category.CategoryRepository;
 import org.junit.jupiter.api.Nested;
@@ -50,7 +51,7 @@ class ProductServiceTest {
 
         @Test
         void 상품이_등록된다() {
-            var category = new Category("식품", "#fff", "img.png", "desc");
+            var category = TestFixture.sampleCategory();
             var request = new ProductRequest("사과", 1000, "apple.png", 1L);
             given(categoryRepository.findById(1L)).willReturn(Optional.of(category));
             given(productRepository.save(any())).willReturn(new Product("사과", 1000, "apple.png", category));
@@ -80,7 +81,7 @@ class ProductServiceTest {
 
         @Test
         void 상품_정보가_수정된다() {
-            var category = new Category("식품", "#fff", "img.png", "desc");
+            var category = TestFixture.sampleCategory();
             var product = new Product("사과", 1000, "apple.png", category);
             var request = new ProductRequest("배", 2000, "pear.png", 1L);
             given(productRepository.findById(1L)).willReturn(Optional.of(product));
@@ -102,7 +103,7 @@ class ProductServiceTest {
 
         @Test
         void 존재하지_않는_카테고리로는_변경할_수_없다() {
-            var category = new Category("식품", "#fff", "img.png", "desc");
+            var category = TestFixture.sampleCategory();
             given(productRepository.findById(1L)).willReturn(Optional.of(new Product("사과", 1000, "apple.png", category)));
             given(categoryRepository.findById(99L)).willReturn(Optional.empty());
 
@@ -116,7 +117,7 @@ class ProductServiceTest {
 
         @Test
         void 상품을_조회한다() {
-            var category = new Category("식품", "#fff", "img.png", "desc");
+            var category = TestFixture.sampleCategory();
             given(productRepository.findById(1L))
                 .willReturn(Optional.of(new Product("사과", 1000, "apple.png", category)));
 
@@ -139,7 +140,7 @@ class ProductServiceTest {
 
         @Test
         void 상품이_삭제된다() {
-            var category = new Category("식품", "#fff", "img.png", "desc");
+            var category = TestFixture.sampleCategory();
             var product = new Product("사과", 1000, "apple.png", category);
             given(productRepository.findById(1L)).willReturn(Optional.of(product));
             given(orderRepository.existsByOptionProductId(1L)).willReturn(false);
@@ -164,7 +165,7 @@ class ProductServiceTest {
 
         @Test
         void 상품_목록을_조회한다() {
-            var category = new Category("식품", "#fff", "img.png", "desc");
+            var category = TestFixture.sampleCategory();
             var product = new Product("사과", 1000, "apple.png", category);
             given(productRepository.findAll(any(Pageable.class)))
                 .willReturn(new PageImpl<>(List.of(product)));

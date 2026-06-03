@@ -1,5 +1,6 @@
 package gift.category;
 
+import gift.TestFixture;
 import gift.exception.ConflictException;
 import gift.exception.NotFoundException;
 import gift.product.ProductRepository;
@@ -36,7 +37,7 @@ class CategoryServiceTest {
         @Test
         void 카테고리_목록을_조회한다() {
             given(categoryRepository.findAll())
-                .willReturn(List.of(new Category("식품", "#fff", "img.png", "desc")));
+                .willReturn(List.of(TestFixture.sampleCategory()));
 
             List<CategoryResponse> result = categoryService.getAll();
 
@@ -51,7 +52,7 @@ class CategoryServiceTest {
         @Test
         void 카테고리가_등록된다() {
             var request = new CategoryRequest("식품", "#fff", "img.png", "desc");
-            given(categoryRepository.save(any())).willReturn(new Category("식품", "#fff", "img.png", "desc"));
+            given(categoryRepository.save(any())).willReturn(TestFixture.sampleCategory());
 
             CategoryResponse result = categoryService.create(request);
 
@@ -66,7 +67,7 @@ class CategoryServiceTest {
         void 카테고리_정보가_수정된다() {
             var request = new CategoryRequest("신선식품", "#000", "new.png", "updated");
             given(categoryRepository.findById(1L))
-                .willReturn(Optional.of(new Category("식품", "#fff", "img.png", "desc")));
+                .willReturn(Optional.of(TestFixture.sampleCategory()));
 
             CategoryResponse result = categoryService.update(1L, request);
 

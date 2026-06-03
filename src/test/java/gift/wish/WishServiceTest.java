@@ -1,6 +1,6 @@
 package gift.wish;
 
-import gift.category.Category;
+import gift.TestFixture;
 import gift.exception.ForbiddenException;
 import gift.exception.NotFoundException;
 import gift.product.Product;
@@ -34,17 +34,12 @@ class WishServiceTest {
     @InjectMocks
     private WishService wishService;
 
-    private Product sampleProduct() {
-        return new Product("사과", 1000, "apple.png",
-            new Category("식품", "#fff", "img.png", "desc"));
-    }
-
     @Nested
     class 위시리스트_추가 {
 
         @Test
         void 위시리스트에_상품이_추가된다() {
-            var product = sampleProduct();
+            var product = TestFixture.sampleProduct();
             given(productRepository.findById(1L)).willReturn(Optional.of(product));
             given(wishRepository.findByMemberIdAndProductId(1L, product.getId())).willReturn(Optional.empty());
             given(wishRepository.save(any())).willReturn(new Wish(1L, product));
@@ -56,7 +51,7 @@ class WishServiceTest {
 
         @Test
         void 이미_추가된_상품은_중복_추가되지_않는다() {
-            var product = sampleProduct();
+            var product = TestFixture.sampleProduct();
             var existing = new Wish(1L, product);
             given(productRepository.findById(1L)).willReturn(Optional.of(product));
             given(wishRepository.findByMemberIdAndProductId(1L, product.getId())).willReturn(Optional.of(existing));
@@ -80,7 +75,7 @@ class WishServiceTest {
 
         @Test
         void 위시리스트에서_상품이_제거된다() {
-            var product = sampleProduct();
+            var product = TestFixture.sampleProduct();
             var wish = new Wish(1L, product);
             given(wishRepository.findById(1L)).willReturn(Optional.of(wish));
 
@@ -99,7 +94,7 @@ class WishServiceTest {
 
         @Test
         void 다른_회원의_위시리스트는_수정할_수_없다() {
-            var product = sampleProduct();
+            var product = TestFixture.sampleProduct();
             var wish = new Wish(2L, product);
             given(wishRepository.findById(1L)).willReturn(Optional.of(wish));
 
@@ -113,7 +108,7 @@ class WishServiceTest {
 
         @Test
         void 위시_목록을_조회한다() {
-            var product = sampleProduct();
+            var product = TestFixture.sampleProduct();
             given(wishRepository.findByMemberId(any(), any(Pageable.class)))
                 .willReturn(new PageImpl<>(List.of(new Wish(1L, product))));
 
