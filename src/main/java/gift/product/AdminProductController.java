@@ -2,6 +2,8 @@ package gift.product;
 
 import gift.category.Category;
 import gift.category.CategoryRepository;
+import gift.category.CategoryService;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,23 +18,32 @@ import java.util.NoSuchElementException;
 @Controller
 @RequestMapping("/admin/products")
 public class AdminProductController {
+    private final ProductService productService;
+    private final CategoryService categoryService;
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
 
-    public AdminProductController(ProductRepository productRepository, CategoryRepository categoryRepository) {
+    public AdminProductController(
+        ProductService productService,
+        CategoryService categoryService,
+        ProductRepository productRepository,
+        CategoryRepository categoryRepository
+    ) {
+        this.productService = productService;
+        this.categoryService = categoryService;
         this.productRepository = productRepository;
         this.categoryRepository = categoryRepository;
     }
 
     @GetMapping
     public String list(Model model) {
-        model.addAttribute("products", productRepository.findAll());
+        model.addAttribute("products", productService.getAll(Pageable.unpaged()).getContent());
         return "product/list";
     }
 
     @GetMapping("/new")
     public String newForm(Model model) {
-        model.addAttribute("categories", categoryRepository.findAll());
+        model.addAttribute("categories", categoryService.getAll());
         return "product/new";
     }
 
@@ -58,10 +69,9 @@ public class AdminProductController {
 
     @GetMapping("/{id}/edit")
     public String editForm(@PathVariable Long id, Model model) {
-        Product product = productRepository.findById(id)
-            .orElseThrow(() -> new NoSuchElementException("Product not found."));
+        ProductResponse product = productService.getById(id);
         model.addAttribute("product", product);
-        model.addAttribute("categories", categoryRepository.findAll());
+        model.addAttribute("categories", categoryService.getAll());
         return "product/edit";
     }
 
@@ -79,7 +89,7 @@ public class AdminProductController {
 
         List<String> errors = ProductNameValidator.validate(name, true);
         if (!errors.isEmpty()) {
-            populateEditForm(model, product, errors, name, price, imageUrl, categoryId);
+            populateEditForm(model, productService.getById(id), errors, name, price, imageUrl, categoryId);
             return "product/edit";
         }
 
@@ -110,12 +120,12 @@ public class AdminProductController {
         model.addAttribute("price", price);
         model.addAttribute("imageUrl", imageUrl);
         model.addAttribute("categoryId", categoryId);
-        model.addAttribute("categories", categoryRepository.findAll());
+        model.addAttribute("categories", categoryService.getAll());
     }
 
     private void populateEditForm(
         Model model,
-        Product product,
+        ProductResponse product,
         List<String> errors,
         String name,
         int price,
@@ -128,6 +138,6 @@ public class AdminProductController {
         model.addAttribute("price", price);
         model.addAttribute("imageUrl", imageUrl);
         model.addAttribute("categoryId", categoryId);
-        model.addAttribute("categories", categoryRepository.findAll());
+        model.addAttribute("categories", categoryService.getAll());
     }
 }
