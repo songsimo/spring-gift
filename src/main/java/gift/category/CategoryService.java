@@ -37,7 +37,7 @@ public class CategoryService {
 
     public void delete(Long id) {
         if (productRepository.existsByCategoryId(id)) {
-            throw new ConflictException("상품이 있는 카테고리는 삭제할 수 없습니다.");
+            throw new ConflictException("Category has associated products.");
         }
         categoryRepository.deleteById(id);
     }

@@ -47,7 +47,7 @@ public class OrderService {
 
         var price = option.getProduct().getPrice() * request.quantity();
         if (memberRepository.deductPointAtomic(member.getId(), price) == 0) {
-            throw new BadRequestException("포인트가 부족합니다.");
+            throw new BadRequestException("Insufficient points.");
         }
 
         var order = orderRepository.save(new Order(option, member.getId(), request.quantity(), request.message()));

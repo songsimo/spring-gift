@@ -52,7 +52,7 @@ public class ProductService {
     @Transactional
     public void delete(Long id) {
         if (orderRepository.existsByOptionProductId(id)) {
-            throw new ConflictException("주문이 있는 상품은 삭제할 수 없습니다.");
+            throw new ConflictException("Product has existing orders.");
         }
         var product = productRepository.findById(id)
             .orElseThrow(() -> new NotFoundException("Product not found."));

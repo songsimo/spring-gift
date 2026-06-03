@@ -39,10 +39,10 @@ public class Option {
 
     public void subtractQuantity(int amount) {
         if (amount <= 0) {
-            throw new BadRequestException("차감 수량은 1 이상이어야 합니다.");
+            throw new BadRequestException("Quantity to subtract must be at least 1.");
         }
         if (amount > this.quantity) {
-            throw new BadRequestException("차감할 수량이 현재 재고보다 많습니다.");
+            throw new BadRequestException("Insufficient stock.");
         }
         this.quantity -= amount;
     }

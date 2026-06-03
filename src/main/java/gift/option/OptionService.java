@@ -36,7 +36,7 @@ public class OptionService {
         var product = productRepository.findById(productId)
             .orElseThrow(() -> new NotFoundException("Product not found."));
         if (optionRepository.existsByProductIdAndName(productId, request.name())) {
-            throw new DuplicateException("이미 존재하는 옵션명입니다.");
+            throw new DuplicateException("Option name already exists.");
         }
         return OptionResponse.from(optionRepository.save(new Option(product, request.name(), request.quantity())));
     }
@@ -47,7 +47,7 @@ public class OptionService {
             .orElseThrow(() -> new NotFoundException("Product not found."));
         var options = optionRepository.findByProductId(productId);
         if (options.size() <= 1) {
-            throw new BadRequestException("옵션이 1개인 상품은 옵션을 삭제할 수 없습니다.");
+            throw new BadRequestException("Cannot delete the last option.");
         }
         var option = optionRepository.findById(optionId)
             .orElseThrow(() -> new NotFoundException("Option not found."));

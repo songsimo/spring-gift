@@ -51,7 +51,7 @@ public class AdminProductController {
         }
 
         Category category = categoryRepository.findById(categoryId)
-            .orElseThrow(() -> new NoSuchElementException("카테고리가 존재하지 않습니다. id=" + categoryId));
+            .orElseThrow(() -> new NoSuchElementException("Category not found."));
         productRepository.save(new Product(name, price, imageUrl, category));
         return "redirect:/admin/products";
     }
@@ -59,7 +59,7 @@ public class AdminProductController {
     @GetMapping("/{id}/edit")
     public String editForm(@PathVariable Long id, Model model) {
         Product product = productRepository.findById(id)
-            .orElseThrow(() -> new NoSuchElementException("상품이 존재하지 않습니다. id=" + id));
+            .orElseThrow(() -> new NoSuchElementException("Product not found."));
         model.addAttribute("product", product);
         model.addAttribute("categories", categoryRepository.findAll());
         return "product/edit";
@@ -75,7 +75,7 @@ public class AdminProductController {
         Model model
     ) {
         Product product = productRepository.findById(id)
-            .orElseThrow(() -> new NoSuchElementException("상품이 존재하지 않습니다. id=" + id));
+            .orElseThrow(() -> new NoSuchElementException("Product not found."));
 
         List<String> errors = ProductNameValidator.validate(name, true);
         if (!errors.isEmpty()) {
@@ -84,7 +84,7 @@ public class AdminProductController {
         }
 
         Category category = categoryRepository.findById(categoryId)
-            .orElseThrow(() -> new NoSuchElementException("카테고리가 존재하지 않습니다. id=" + categoryId));
+            .orElseThrow(() -> new NoSuchElementException("Category not found."));
 
         product.update(name, price, imageUrl, category);
         productRepository.save(product);
