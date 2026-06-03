@@ -1,7 +1,9 @@
 package gift.exception;
 
-public class ForbiddenException extends RuntimeException {
+import org.springframework.http.HttpStatus;
+
+public class ForbiddenException extends BusinessException {
     public ForbiddenException(String message) {
-        super(message);
+        super(HttpStatus.FORBIDDEN, message);
     }
 }
