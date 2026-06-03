@@ -4,6 +4,7 @@ import gift.exception.ConflictException;
 import gift.exception.NotFoundException;
 import gift.product.ProductRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -17,17 +18,20 @@ public class CategoryService {
         this.productRepository = productRepository;
     }
 
+    @Transactional(readOnly = true)
     public List<CategoryResponse> getAll() {
         return categoryRepository.findAll().stream()
             .map(CategoryResponse::from)
             .toList();
     }
 
+    @Transactional
     public CategoryResponse create(CategoryRequest request) {
         Category saved = categoryRepository.save(request.toEntity());
         return CategoryResponse.from(saved);
     }
 
+    @Transactional
     public CategoryResponse update(Long id, CategoryRequest request) {
         Category category = categoryRepository.findById(id)
             .orElseThrow(() -> new NotFoundException("Category not found."));
@@ -35,6 +39,7 @@ public class CategoryService {
         return CategoryResponse.from(category);
     }
 
+    @Transactional
     public void delete(Long id) {
         if (productRepository.existsByCategoryId(id)) {
             throw new ConflictException("Category has associated products.");

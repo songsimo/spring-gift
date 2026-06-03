@@ -3,6 +3,7 @@ package gift.member;
 import gift.exception.DuplicateException;
 import gift.exception.NotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class MemberService {
@@ -12,6 +13,7 @@ public class MemberService {
         this.memberRepository = memberRepository;
     }
 
+    @Transactional
     public Member register(MemberRequest request) {
         if (memberRepository.existsByEmail(request.email())) {
             throw new DuplicateException("Email is already registered.");
@@ -19,6 +21,7 @@ public class MemberService {
         return memberRepository.save(new Member(request.email(), request.password()));
     }
 
+    @Transactional(readOnly = true)
     public Member login(MemberRequest request) {
         Member member = memberRepository.findByEmail(request.email())
             .orElseThrow(() -> new NotFoundException("Invalid email or password."));
