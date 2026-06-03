@@ -1,7 +1,5 @@
 package gift.member;
 
-import gift.auth.JwtProvider;
-import gift.auth.TokenResponse;
 import gift.exception.DuplicateException;
 import gift.exception.NotFoundException;
 import org.springframework.stereotype.Service;
@@ -9,27 +7,24 @@ import org.springframework.stereotype.Service;
 @Service
 public class MemberService {
     private final MemberRepository memberRepository;
-    private final JwtProvider jwtProvider;
 
-    public MemberService(MemberRepository memberRepository, JwtProvider jwtProvider) {
+    public MemberService(MemberRepository memberRepository) {
         this.memberRepository = memberRepository;
-        this.jwtProvider = jwtProvider;
     }
 
-    public TokenResponse register(MemberRequest request) {
+    public Member register(MemberRequest request) {
         if (memberRepository.existsByEmail(request.email())) {
             throw new DuplicateException("Email is already registered.");
         }
-        Member member = memberRepository.save(new Member(request.email(), request.password()));
-        return new TokenResponse(jwtProvider.createToken(member.getEmail()));
+        return memberRepository.save(new Member(request.email(), request.password()));
     }
 
-    public TokenResponse login(MemberRequest request) {
+    public Member login(MemberRequest request) {
         Member member = memberRepository.findByEmail(request.email())
             .orElseThrow(() -> new NotFoundException("Invalid email or password."));
         if (!request.password().equals(member.getPassword())) {
             throw new NotFoundException("Invalid email or password.");
         }
-        return new TokenResponse(jwtProvider.createToken(member.getEmail()));
+        return member;
     }
 }
