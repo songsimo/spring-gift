@@ -167,7 +167,7 @@ class ProductServiceTest {
         void 상품_목록을_조회한다() {
             var category = TestFixture.sampleCategory();
             var product = new Product("사과", 1000, "apple.png", category);
-            given(productRepository.findAll(any(Pageable.class)))
+            given(productRepository.findAllWithCategory(any(Pageable.class)))
                 .willReturn(new PageImpl<>(List.of(product)));
 
             Page<ProductResponse> result = productService.getAll(Pageable.unpaged());
