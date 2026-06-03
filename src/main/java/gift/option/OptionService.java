@@ -5,6 +5,7 @@ import gift.exception.DuplicateException;
 import gift.exception.NotFoundException;
 import gift.product.ProductRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Objects;
 
@@ -20,6 +21,7 @@ public class OptionService {
         this.productRepository = productRepository;
     }
 
+    @Transactional(readOnly = true)
     public List<OptionResponse> getOptions(Long productId) {
         productRepository.findById(productId)
             .orElseThrow(() -> new NotFoundException("Product not found."));
@@ -28,6 +30,7 @@ public class OptionService {
             .toList();
     }
 
+    @Transactional
     public OptionResponse create(Long productId, OptionRequest request) {
         validateName(request.name());
         var product = productRepository.findById(productId)
@@ -38,6 +41,7 @@ public class OptionService {
         return OptionResponse.from(optionRepository.save(new Option(product, request.name(), request.quantity())));
     }
 
+    @Transactional
     public void delete(Long productId, Long optionId) {
         productRepository.findById(productId)
             .orElseThrow(() -> new NotFoundException("Product not found."));

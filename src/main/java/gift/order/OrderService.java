@@ -34,6 +34,7 @@ public class OrderService {
         this.notificationPort = notificationPort;
     }
 
+    @Transactional(readOnly = true)
     public Page<OrderResponse> getOrders(Long memberId, Pageable pageable) {
         return orderRepository.findByMemberId(memberId, pageable).map(OrderResponse::from);
     }
@@ -56,7 +57,7 @@ public class OrderService {
     }
 
     public boolean notifyOrder(Member member, Long orderId) {
-        var order = orderRepository.findById(orderId)
+        var order = orderRepository.findByIdWithDetails(orderId)
             .orElseThrow(() -> new NotFoundException("Order not found."));
         Product product = order.getOption().getProduct();
         return notificationPort.notify(member, order, product);

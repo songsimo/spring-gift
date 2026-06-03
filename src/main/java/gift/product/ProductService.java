@@ -9,6 +9,7 @@ import gift.wish.WishRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ProductService {
@@ -29,15 +30,18 @@ public class ProductService {
         this.wishRepository = wishRepository;
     }
 
+    @Transactional(readOnly = true)
     public Page<ProductResponse> getAll(Pageable pageable) {
         return productRepository.findAll(pageable).map(ProductResponse::from);
     }
 
+    @Transactional(readOnly = true)
     public ProductResponse getById(Long id) {
         return ProductResponse.from(productRepository.findById(id)
             .orElseThrow(() -> new NotFoundException("Product not found.")));
     }
 
+    @Transactional
     public ProductResponse create(ProductRequest request) {
         validateName(request.name());
         var category = categoryRepository.findById(request.categoryId())
@@ -45,6 +49,7 @@ public class ProductService {
         return ProductResponse.from(productRepository.save(request.toEntity(category)));
     }
 
+    @Transactional
     public void delete(Long id) {
         if (orderRepository.existsByOptionProductId(id)) {
             throw new ConflictException("주문이 있는 상품은 삭제할 수 없습니다.");
@@ -55,6 +60,7 @@ public class ProductService {
         productRepository.delete(product);
     }
 
+    @Transactional
     public ProductResponse update(Long id, ProductRequest request) {
         validateName(request.name());
         var product = productRepository.findById(id)
