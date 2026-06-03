@@ -45,7 +45,7 @@ class ProductServiceTest {
     private ProductService productService;
 
     @Test
-    void create_상품을_저장하고_반환한다() {
+    void create_상품이_등록된다() {
         var category = new Category("식품", "#fff", "img.png", "desc");
         var request = new ProductRequest("사과", 1000, "apple.png", 1L);
         given(categoryRepository.findById(1L)).willReturn(Optional.of(category));
@@ -57,7 +57,7 @@ class ProductServiceTest {
     }
 
     @Test
-    void create_존재하지_않는_카테고리는_NotFoundException을_던진다() {
+    void create_존재하지_않는_카테고리에는_상품을_등록할_수_없다() {
         given(categoryRepository.findById(99L)).willReturn(Optional.empty());
 
         assertThatThrownBy(() -> productService.create(new ProductRequest("사과", 1000, "apple.png", 99L)))
@@ -65,13 +65,13 @@ class ProductServiceTest {
     }
 
     @Test
-    void create_유효하지_않은_상품명은_BadRequestException을_던진다() {
+    void create_유효하지_않은_상품명은_등록할_수_없다() {
         assertThatThrownBy(() -> productService.create(new ProductRequest("카카오상품", 1000, "img.png", 1L)))
             .isInstanceOf(BadRequestException.class);
     }
 
     @Test
-    void update_상품을_수정하고_반환한다() {
+    void update_상품_정보가_수정된다() {
         var category = new Category("식품", "#fff", "img.png", "desc");
         var product = new Product("사과", 1000, "apple.png", category);
         var request = new ProductRequest("배", 2000, "pear.png", 1L);
@@ -85,7 +85,7 @@ class ProductServiceTest {
     }
 
     @Test
-    void update_존재하지_않는_상품은_NotFoundException을_던진다() {
+    void update_존재하지_않는_상품은_수정할_수_없다() {
         given(productRepository.findById(99L)).willReturn(Optional.empty());
 
         assertThatThrownBy(() -> productService.update(99L, new ProductRequest("배", 2000, "pear.png", 1L)))
@@ -93,7 +93,7 @@ class ProductServiceTest {
     }
 
     @Test
-    void update_존재하지_않는_카테고리는_NotFoundException을_던진다() {
+    void update_존재하지_않는_카테고리로는_변경할_수_없다() {
         var category = new Category("식품", "#fff", "img.png", "desc");
         given(productRepository.findById(1L)).willReturn(Optional.of(new Product("사과", 1000, "apple.png", category)));
         given(categoryRepository.findById(99L)).willReturn(Optional.empty());
@@ -103,7 +103,7 @@ class ProductServiceTest {
     }
 
     @Test
-    void getById_존재하는_상품을_반환한다() {
+    void getById_상품을_조회한다() {
         var category = new Category("식품", "#fff", "img.png", "desc");
         given(productRepository.findById(1L))
             .willReturn(Optional.of(new Product("사과", 1000, "apple.png", category)));
@@ -114,7 +114,7 @@ class ProductServiceTest {
     }
 
     @Test
-    void getById_존재하지_않는_상품은_NotFoundException을_던진다() {
+    void getById_존재하지_않는_상품은_조회할_수_없다() {
         given(productRepository.findById(99L)).willReturn(Optional.empty());
 
         assertThatThrownBy(() -> productService.getById(99L))
@@ -122,7 +122,7 @@ class ProductServiceTest {
     }
 
     @Test
-    void delete_상품을_삭제한다() {
+    void delete_상품이_삭제된다() {
         var category = new Category("식품", "#fff", "img.png", "desc");
         var product = new Product("사과", 1000, "apple.png", category);
         given(productRepository.findById(1L)).willReturn(Optional.of(product));
@@ -135,7 +135,7 @@ class ProductServiceTest {
     }
 
     @Test
-    void delete_주문이_있는_상품은_ConflictException을_던진다() {
+    void delete_주문_이력이_있는_상품은_삭제할_수_없다() {
         given(orderRepository.existsByOptionProductId(1L)).willReturn(true);
 
         assertThatThrownBy(() -> productService.delete(1L))
@@ -143,7 +143,7 @@ class ProductServiceTest {
     }
 
     @Test
-    void getAll_상품_목록을_반환한다() {
+    void getAll_상품_목록을_조회한다() {
         var category = new Category("식품", "#fff", "img.png", "desc");
         var product = new Product("사과", 1000, "apple.png", category);
         given(productRepository.findAll(any(Pageable.class)))

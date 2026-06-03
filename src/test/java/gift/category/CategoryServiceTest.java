@@ -31,7 +31,7 @@ class CategoryServiceTest {
     private CategoryService categoryService;
 
     @Test
-    void getAll_카테고리_목록을_반환한다() {
+    void getAll_카테고리_목록을_조회한다() {
         given(categoryRepository.findAll())
             .willReturn(List.of(new Category("식품", "#fff", "img.png", "desc")));
 
@@ -42,7 +42,7 @@ class CategoryServiceTest {
     }
 
     @Test
-    void create_카테고리를_저장하고_반환한다() {
+    void create_카테고리가_등록된다() {
         var request = new CategoryRequest("식품", "#fff", "img.png", "desc");
         given(categoryRepository.save(any())).willReturn(new Category("식품", "#fff", "img.png", "desc"));
 
@@ -52,7 +52,7 @@ class CategoryServiceTest {
     }
 
     @Test
-    void update_존재하는_카테고리를_수정한다() {
+    void update_카테고리_정보가_수정된다() {
         var request = new CategoryRequest("신선식품", "#000", "new.png", "updated");
         given(categoryRepository.findById(1L))
             .willReturn(Optional.of(new Category("식품", "#fff", "img.png", "desc")));
@@ -63,7 +63,7 @@ class CategoryServiceTest {
     }
 
     @Test
-    void update_존재하지_않는_카테고리는_NotFoundException을_던진다() {
+    void update_존재하지_않는_카테고리는_수정할_수_없다() {
         given(categoryRepository.findById(99L)).willReturn(Optional.empty());
 
         assertThatThrownBy(() -> categoryService.update(99L, new CategoryRequest("x", "#x", "x", "x")))
@@ -71,7 +71,7 @@ class CategoryServiceTest {
     }
 
     @Test
-    void delete_카테고리를_삭제한다() {
+    void delete_카테고리가_삭제된다() {
         given(productRepository.existsByCategoryId(1L)).willReturn(false);
 
         categoryService.delete(1L);
@@ -80,7 +80,7 @@ class CategoryServiceTest {
     }
 
     @Test
-    void delete_상품이_있는_카테고리는_ConflictException을_던진다() {
+    void delete_상품이_있는_카테고리는_삭제할_수_없다() {
         given(productRepository.existsByCategoryId(1L)).willReturn(true);
 
         assertThatThrownBy(() -> categoryService.delete(1L))

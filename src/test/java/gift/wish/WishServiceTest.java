@@ -41,7 +41,7 @@ class WishServiceTest {
     }
 
     @Test
-    void addWish_위시를_저장하고_반환한다() {
+    void addWish_위시리스트에_상품이_추가된다() {
         var product = sampleProduct();
         given(productRepository.findById(1L)).willReturn(Optional.of(product));
         given(wishRepository.findByMemberIdAndProductId(1L, product.getId())).willReturn(Optional.empty());
@@ -53,7 +53,7 @@ class WishServiceTest {
     }
 
     @Test
-    void addWish_이미_있으면_기존_위시를_반환한다() {
+    void addWish_이미_추가된_상품은_중복_추가되지_않는다() {
         var product = sampleProduct();
         var existing = new Wish(1L, product);
         given(productRepository.findById(1L)).willReturn(Optional.of(product));
@@ -65,7 +65,7 @@ class WishServiceTest {
     }
 
     @Test
-    void addWish_존재하지_않는_상품은_NotFoundException을_던진다() {
+    void addWish_존재하지_않는_상품은_위시리스트에_추가할_수_없다() {
         given(productRepository.findById(99L)).willReturn(Optional.empty());
 
         assertThatThrownBy(() -> wishService.addWish(1L, 99L))
@@ -73,7 +73,7 @@ class WishServiceTest {
     }
 
     @Test
-    void removeWish_위시를_삭제한다() {
+    void removeWish_위시리스트에서_상품이_제거된다() {
         var product = sampleProduct();
         var wish = new Wish(1L, product);
         given(wishRepository.findById(1L)).willReturn(Optional.of(wish));
@@ -84,7 +84,7 @@ class WishServiceTest {
     }
 
     @Test
-    void removeWish_존재하지_않는_위시는_NotFoundException을_던진다() {
+    void removeWish_존재하지_않는_항목은_삭제할_수_없다() {
         given(wishRepository.findById(99L)).willReturn(Optional.empty());
 
         assertThatThrownBy(() -> wishService.removeWish(1L, 99L))
@@ -92,7 +92,7 @@ class WishServiceTest {
     }
 
     @Test
-    void removeWish_다른_회원의_위시는_ForbiddenException을_던진다() {
+    void removeWish_다른_회원의_위시리스트는_수정할_수_없다() {
         var product = sampleProduct();
         var wish = new Wish(2L, product);
         given(wishRepository.findById(1L)).willReturn(Optional.of(wish));
@@ -102,7 +102,7 @@ class WishServiceTest {
     }
 
     @Test
-    void getWishes_위시_목록을_반환한다() {
+    void getWishes_위시_목록을_조회한다() {
         var product = sampleProduct();
         given(wishRepository.findByMemberId(any(), any(Pageable.class)))
             .willReturn(new PageImpl<>(List.of(new Wish(1L, product))));

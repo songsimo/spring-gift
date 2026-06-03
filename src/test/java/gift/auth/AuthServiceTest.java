@@ -26,7 +26,7 @@ class AuthServiceTest {
     private AuthService authService;
 
     @Test
-    void register_토큰을_반환한다() {
+    void register_회원가입_후_인증_토큰이_발급된다() {
         var member = new Member("new@test.com", "pass");
         given(memberService.register(any())).willReturn(member);
         given(jwtProvider.createToken("new@test.com")).willReturn("test-token");
@@ -37,7 +37,7 @@ class AuthServiceTest {
     }
 
     @Test
-    void login_토큰을_반환한다() {
+    void login_로그인_후_인증_토큰이_발급된다() {
         var member = new Member("user@test.com", "pass");
         given(memberService.login(any())).willReturn(member);
         given(jwtProvider.createToken("user@test.com")).willReturn("test-token");

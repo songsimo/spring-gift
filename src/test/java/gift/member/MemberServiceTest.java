@@ -25,7 +25,7 @@ class MemberServiceTest {
     private MemberService memberService;
 
     @Test
-    void register_신규_이메일은_Member를_반환한다() {
+    void register_새_이메일로_회원가입에_성공한다() {
         given(memberRepository.existsByEmail("new@test.com")).willReturn(false);
         given(memberRepository.save(any())).willReturn(new Member("new@test.com", "pass"));
 
@@ -35,7 +35,7 @@ class MemberServiceTest {
     }
 
     @Test
-    void register_중복_이메일은_DuplicateException을_던진다() {
+    void register_이미_가입된_이메일은_회원가입에_실패한다() {
         given(memberRepository.existsByEmail("exists@test.com")).willReturn(true);
 
         assertThatThrownBy(() -> memberService.register(new MemberRequest("exists@test.com", "pass")))
@@ -43,7 +43,7 @@ class MemberServiceTest {
     }
 
     @Test
-    void login_올바른_자격증명은_Member를_반환한다() {
+    void login_올바른_자격증명으로_로그인에_성공한다() {
         given(memberRepository.findByEmail("user@test.com"))
             .willReturn(Optional.of(new Member("user@test.com", "pass")));
 
@@ -53,7 +53,7 @@ class MemberServiceTest {
     }
 
     @Test
-    void login_존재하지_않는_이메일은_NotFoundException을_던진다() {
+    void login_등록되지_않은_이메일은_로그인에_실패한다() {
         given(memberRepository.findByEmail("unknown@test.com")).willReturn(Optional.empty());
 
         assertThatThrownBy(() -> memberService.login(new MemberRequest("unknown@test.com", "pass")))
@@ -61,7 +61,7 @@ class MemberServiceTest {
     }
 
     @Test
-    void login_비밀번호_불일치는_NotFoundException을_던진다() {
+    void login_비밀번호가_틀리면_로그인에_실패한다() {
         given(memberRepository.findByEmail("user@test.com"))
             .willReturn(Optional.of(new Member("user@test.com", "correct")));
 

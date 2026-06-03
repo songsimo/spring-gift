@@ -57,7 +57,7 @@ class OrderServiceTest {
     }
 
     @Test
-    void create_주문을_저장하고_반환한다() {
+    void create_주문이_완료된다() {
         var product = sampleProduct();
         var option = new Option(product, "대", 100);
         var member = new Member("test@test.com", "pass");
@@ -72,7 +72,7 @@ class OrderServiceTest {
     }
 
     @Test
-    void create_포인트가_부족하면_BadRequestException을_던진다() {
+    void create_포인트가_부족하면_주문에_실패한다() {
         var product = sampleProduct();
         var option = new Option(product, "대", 100);
         var member = new Member("test@test.com", "pass");
@@ -85,7 +85,7 @@ class OrderServiceTest {
     }
 
     @Test
-    void create_존재하지_않는_옵션은_NotFoundException을_던진다() {
+    void create_존재하지_않는_옵션으로는_주문할_수_없다() {
         var member = new Member("test@test.com", "pass");
         given(optionRepository.findByIdForUpdate(99L)).willReturn(Optional.empty());
 
@@ -94,7 +94,7 @@ class OrderServiceTest {
     }
 
     @Test
-    void create_위시리스트에_있는_상품이면_주문_후_위시를_삭제한다() {
+    void create_위시리스트_상품을_주문하면_위시리스트에서_자동으로_제거된다() {
         var product = sampleProduct();
         var option = new Option(product, "대", 100);
         var member = new Member("test@test.com", "pass");
@@ -112,7 +112,7 @@ class OrderServiceTest {
     }
 
     @Test
-    void notifyOrder_알림_전송_성공이면_true를_반환한다() {
+    void notifyOrder_카카오_알림이_전송된다() {
         var product = sampleProduct();
         var option = new Option(product, "대", 100);
         var member = new Member("test@test.com", "pass");
@@ -126,7 +126,7 @@ class OrderServiceTest {
     }
 
     @Test
-    void notifyOrder_알림_전송_실패이면_false를_반환한다() {
+    void notifyOrder_카카오_알림_전송에_실패한다() {
         var product = sampleProduct();
         var option = new Option(product, "대", 100);
         var member = new Member("test@test.com", "pass");
@@ -140,7 +140,7 @@ class OrderServiceTest {
     }
 
     @Test
-    void getOrders_주문_목록을_반환한다() {
+    void getOrders_주문_내역을_조회한다() {
         given(orderRepository.findByMemberId(any(), any(Pageable.class)))
             .willReturn(new PageImpl<>(List.of()));
 

@@ -40,7 +40,7 @@ class OptionServiceTest {
     }
 
     @Test
-    void getOptions_상품의_옵션_목록을_반환한다() {
+    void getOptions_상품의_옵션_목록을_조회한다() {
         var product = sampleProduct();
         given(productRepository.findById(1L)).willReturn(Optional.of(product));
         given(optionRepository.findByProductId(1L))
@@ -53,7 +53,7 @@ class OptionServiceTest {
     }
 
     @Test
-    void getOptions_존재하지_않는_상품은_NotFoundException을_던진다() {
+    void getOptions_존재하지_않는_상품의_옵션은_조회할_수_없다() {
         given(productRepository.findById(99L)).willReturn(Optional.empty());
 
         assertThatThrownBy(() -> optionService.getOptions(99L))
@@ -61,7 +61,7 @@ class OptionServiceTest {
     }
 
     @Test
-    void create_옵션을_저장하고_반환한다() {
+    void create_옵션이_등록된다() {
         var product = sampleProduct();
         var request = new OptionRequest("대", 100);
         given(productRepository.findById(1L)).willReturn(Optional.of(product));
@@ -74,7 +74,7 @@ class OptionServiceTest {
     }
 
     @Test
-    void create_존재하지_않는_상품은_NotFoundException을_던진다() {
+    void create_존재하지_않는_상품에는_옵션을_추가할_수_없다() {
         given(productRepository.findById(99L)).willReturn(Optional.empty());
 
         assertThatThrownBy(() -> optionService.create(99L, new OptionRequest("대", 100)))
@@ -82,7 +82,7 @@ class OptionServiceTest {
     }
 
     @Test
-    void create_중복_옵션명은_DuplicateException을_던진다() {
+    void create_같은_상품에_중복된_옵션명은_등록할_수_없다() {
         var product = sampleProduct();
         given(productRepository.findById(1L)).willReturn(Optional.of(product));
         given(optionRepository.existsByProductIdAndName(1L, "대")).willReturn(true);
@@ -92,13 +92,13 @@ class OptionServiceTest {
     }
 
     @Test
-    void create_유효하지_않은_옵션명은_BadRequestException을_던진다() {
+    void create_유효하지_않은_옵션명은_등록할_수_없다() {
         assertThatThrownBy(() -> optionService.create(1L, new OptionRequest("", 100)))
             .isInstanceOf(BadRequestException.class);
     }
 
     @Test
-    void delete_옵션을_삭제한다() {
+    void delete_옵션이_삭제된다() {
         var product = mock(Product.class);
         given(product.getId()).willReturn(1L);
         var option = new Option(product, "대", 100);
@@ -112,7 +112,7 @@ class OptionServiceTest {
     }
 
     @Test
-    void delete_상품에_옵션이_1개면_BadRequestException을_던진다() {
+    void delete_마지막_옵션은_삭제할_수_없다() {
         var product = sampleProduct();
         var option = new Option(product, "대", 100);
         given(productRepository.findById(1L)).willReturn(Optional.of(product));
@@ -123,7 +123,7 @@ class OptionServiceTest {
     }
 
     @Test
-    void delete_존재하지_않는_상품은_NotFoundException을_던진다() {
+    void delete_존재하지_않는_상품의_옵션은_삭제할_수_없다() {
         given(productRepository.findById(99L)).willReturn(Optional.empty());
 
         assertThatThrownBy(() -> optionService.delete(99L, 1L))
@@ -131,7 +131,7 @@ class OptionServiceTest {
     }
 
     @Test
-    void delete_존재하지_않는_옵션은_NotFoundException을_던진다() {
+    void delete_존재하지_않는_옵션은_삭제할_수_없다() {
         var product = sampleProduct();
         given(productRepository.findById(1L)).willReturn(Optional.of(product));
         given(optionRepository.findByProductId(1L))

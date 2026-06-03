@@ -30,7 +30,7 @@ class KakaoAuthServiceTest {
     private KakaoAuthService kakaoAuthService;
 
     @Test
-    void callback_신규_회원이면_저장하고_토큰을_반환한다() {
+    void callback_신규_카카오_회원은_자동_가입_후_인증_토큰이_발급된다() {
         var kakaoToken = new KakaoLoginClient.KakaoTokenResponse("kakao-access-token");
         var kakaoUser = new KakaoLoginClient.KakaoUserResponse(
             new KakaoLoginClient.KakaoUserResponse.KakaoAccount("test@test.com")
@@ -47,7 +47,7 @@ class KakaoAuthServiceTest {
     }
 
     @Test
-    void callback_기존_회원이면_카카오_토큰을_갱신하고_반환한다() {
+    void callback_기존_회원의_카카오_액세스_토큰이_갱신된다() {
         var kakaoToken = new KakaoLoginClient.KakaoTokenResponse("new-kakao-token");
         var kakaoUser = new KakaoLoginClient.KakaoUserResponse(
             new KakaoLoginClient.KakaoUserResponse.KakaoAccount("existing@test.com")
