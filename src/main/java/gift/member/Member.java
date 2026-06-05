@@ -54,17 +54,6 @@ public class Member {
         this.point += amount;
     }
 
-    // point deduction for order payment
-    public void deductPoint(int amount) {
-        if (amount <= 0) {
-            throw new BadRequestException("Deduction amount must be at least 1.");
-        }
-        if (amount > this.point) {
-            throw new BadRequestException("Insufficient points.");
-        }
-        this.point -= amount;
-    }
-
     public Long getId() {
         return id;
     }
