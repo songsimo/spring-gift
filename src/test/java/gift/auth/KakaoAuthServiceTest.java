@@ -1,17 +1,13 @@
 package gift.auth;
 
 import gift.member.Member;
-import gift.member.MemberRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Optional;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
 @ExtendWith(MockitoExtension.class)
@@ -21,7 +17,7 @@ class KakaoAuthServiceTest {
     private KakaoLoginClient kakaoLoginClient;
 
     @Mock
-    private MemberRepository memberRepository;
+    private KakaoMemberService kakaoMemberService;
 
     @Mock
     private JwtProvider jwtProvider;
@@ -37,8 +33,7 @@ class KakaoAuthServiceTest {
         );
         given(kakaoLoginClient.requestAccessToken("code")).willReturn(kakaoToken);
         given(kakaoLoginClient.requestUserInfo("kakao-access-token")).willReturn(kakaoUser);
-        given(memberRepository.findByEmail("test@test.com")).willReturn(Optional.empty());
-        given(memberRepository.save(any())).willAnswer(inv -> inv.getArgument(0));
+        given(kakaoMemberService.saveOrUpdate("test@test.com", "kakao-access-token")).willReturn(new Member("test@test.com"));
         given(jwtProvider.createToken("test@test.com")).willReturn("jwt-token");
 
         TokenResponse result = kakaoAuthService.callback("code");
@@ -53,10 +48,10 @@ class KakaoAuthServiceTest {
             new KakaoLoginClient.KakaoUserResponse.KakaoAccount("existing@test.com")
         );
         var existingMember = new Member("existing@test.com");
+        existingMember.updateKakaoAccessToken("new-kakao-token");
         given(kakaoLoginClient.requestAccessToken("code")).willReturn(kakaoToken);
         given(kakaoLoginClient.requestUserInfo("new-kakao-token")).willReturn(kakaoUser);
-        given(memberRepository.findByEmail("existing@test.com")).willReturn(Optional.of(existingMember));
-        given(memberRepository.save(any())).willAnswer(inv -> inv.getArgument(0));
+        given(kakaoMemberService.saveOrUpdate("existing@test.com", "new-kakao-token")).willReturn(existingMember);
         given(jwtProvider.createToken("existing@test.com")).willReturn("jwt-token");
 
         TokenResponse result = kakaoAuthService.callback("code");
